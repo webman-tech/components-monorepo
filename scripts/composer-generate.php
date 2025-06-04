@@ -45,7 +45,7 @@ if (!$autoloadFiles) {
     $json['autoload']['files'] = $autoloadFiles;
 }
 
-$content = json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+$content = json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n";
 
 write_file($composerFile, $content, true);
 

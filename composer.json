@@ -22,11 +22,13 @@
     "phpstan/phpstan-webmozart-assert": "^2.0",
     "rector/rector": "^2.0",
     "symfony/var-dumper": "^7.2",
+    "tinywan/jwt": "^1.11",
     "webman-tech/laravel-monorepo": "^12.0",
     "workerman/webman-framework": "^2.1"
   },
   "autoload": {
     "psr-4": {
+      "WebmanTech\\Auth\\": "packages/auth/src",
       "WebmanTech\\CrontabTask\\": "packages/crontab-task/src",
       "WebmanTech\\Debugbar\\": "packages/debugbar/src",
       "WebmanTech\\LogReader\\": "packages/log-reader/src",
