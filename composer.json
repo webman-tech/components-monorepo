@@ -10,11 +10,11 @@
   ],
   "require": {
     "php": "^8.2",
+    "monolog/monolog": "^3.0",
     "workerman/crontab": "^1.0"
   },
   "require-dev": {
     "ergebnis/composer-normalize": "^2.47",
-    "monolog/monolog": "^3.9",
     "pestphp/pest": "^3.8",
     "phpstan/phpstan": "^2.1",
     "phpstan/phpstan-webmozart-assert": "^2.0",
@@ -24,7 +24,8 @@
   },
   "autoload": {
     "psr-4": {
-      "WebmanTech\\CrontabTask\\": "packages/crontab-task/src"
+      "WebmanTech\\CrontabTask\\": "packages/crontab-task/src",
+      "WebmanTech\\Logger\\": "packages/logger/src"
     }
   },
   "autoload-dev": {
@@ -40,13 +41,13 @@
     "sort-packages": true
   },
   "scripts": {
-    "script:clean-temp-files": "php scripts/clean_temp_files.php",
     "composer-du": "composer du",
-    "composer-generate": "php scripts/composer-generate.php && composer du",
     "composer-update": "composer update",
     "phpatan-raw": "phpstan --error-format=raw",
     "phpstan": "phpstan",
     "rector": "rector",
+    "script:clean-temp-files": "php scripts/clean_temp_files.php",
+    "script:composer-generate": "php scripts/composer-generate.php && composer du",
     "test": "pest"
   }
 }
