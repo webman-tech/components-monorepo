@@ -29,13 +29,17 @@
   },
   "autoload": {
     "psr-4": {
+      "WebmanTech\\AmisAdmin\\": "packages/amis-admin/src",
       "WebmanTech\\Auth\\": "packages/auth/src",
       "WebmanTech\\CrontabTask\\": "packages/crontab-task/src",
       "WebmanTech\\Debugbar\\": "packages/debugbar/src",
       "WebmanTech\\LogReader\\": "packages/log-reader/src",
       "WebmanTech\\Logger\\": "packages/logger/src",
       "WebmanTech\\Swagger\\": "packages/swagger/src"
-    }
+    },
+    "files": [
+      "packages/amis-admin/src/helper.php"
+    ]
   },
   "autoload-dev": {
     "psr-4": {
