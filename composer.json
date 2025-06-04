@@ -10,6 +10,7 @@
   ],
   "require": {
     "php": "^8.2",
+    "kriss/log-reader": "^1.3",
     "monolog/monolog": "^3.0",
     "workerman/crontab": "^1.0"
   },
@@ -25,6 +26,7 @@
   "autoload": {
     "psr-4": {
       "WebmanTech\\CrontabTask\\": "packages/crontab-task/src",
+      "WebmanTech\\LogReader\\": "packages/log-reader/src",
       "WebmanTech\\Logger\\": "packages/logger/src"
     }
   },
