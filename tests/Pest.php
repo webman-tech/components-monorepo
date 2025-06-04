@@ -24,6 +24,10 @@
 |
 */
 
+use Webman\Context;
+use Webman\Http\Request;
+use Workerman\Protocols\Http\Session;
+
 expect()->extend('toBeOne', function () {
     return $this->toBe(1);
 });
@@ -52,4 +56,19 @@ function fixture_get_content(string $path): false|string
 function fixture_get_require(string $path)
 {
     return require fixture_get_path($path);
+}
+
+function request_create_one(): Request
+{
+    $request = new Request(fixture_get_content('misc/request_sample.txt'));
+
+    // 设置请求对象到上下文，是的 webman 下 request() 可以获取到
+    Context::set(Request::class, $request);
+
+    // 设置 sessionid, 使得 session() 可以用
+    $request->setHeader('cookie', Session::$name . '=sessionid;');
+    // 清空 session 信息，防止数据前后污染
+    $request->session()->flush();
+
+    return $request;
 }
