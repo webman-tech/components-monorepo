@@ -1,0 +1,25 @@
+# http://editorconfig.org
+
+root = true
+# 对所有文件生效
+
+[*.php]
+# 空格形式缩进4空格
+indent_style = space
+indent_size = 4
+charset = utf-8
+
+# 结尾插入新行
+insert_final_newline = true
+# 去除结尾空格
+trim_trailing_whitespace = true
+
+# Linux换行符
+end_of_line = lf
+
+[*.{js, html, twig, css, json}]
+charset = utf-8
+indent_style = space
+indent_size = 2
+# Linux换行符
+end_of_line = lf

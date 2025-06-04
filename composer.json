@@ -1,0 +1,50 @@
+{
+  "name": "webman-tech/components-monorepo",
+  "description": "webman components monorepo",
+  "type": "library",
+  "authors": [
+    {
+      "name": "kriss",
+      "email": "462679766@qq.com"
+    }
+  ],
+  "require": {
+    "php": "^8.2"
+  },
+  "require-dev": {
+    "ergebnis/composer-normalize": "^2.47",
+    "pestphp/pest": "^3.8",
+    "phpstan/phpstan": "^2.1",
+    "phpstan/phpstan-webmozart-assert": "^2.0",
+    "rector/rector": "^2.0",
+    "symfony/var-dumper": "^7.2",
+    "workerman/webman-framework": "^2.1"
+  },
+  "autoload": {
+    "psr-4": {
+    },
+    "files": [
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "ergebnis/composer-normalize": true,
+      "pestphp/pest-plugin": true
+    },
+    "sort-packages": true
+  },
+  "scripts": {
+    "composer-du": "composer du",
+    "composer-generate": "php scripts/composer-generate.php && composer du",
+    "composer-update": "composer update",
+    "phpatan-raw": "phpstan --error-format=raw",
+    "phpstan": "phpstan",
+    "test": "pest",
+    "rector": "rector"
+  }
+}

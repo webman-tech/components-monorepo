@@ -1,0 +1,15 @@
+{
+  "name": "webman-tech/template",
+  "type": "library",
+  "autoload": {
+    "psr-4": {
+      "WebmanTech\\Template\\": "src/"
+    }
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "require": {
+    "php": "^8.2"
+  }
+}

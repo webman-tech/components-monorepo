@@ -1,0 +1,7 @@
+# https://github.com/jderusse/docker-gitsplit
+cache_url: "cache/gitsplit"
+splits:
+#  - prefix: "src/LaravelCache"
+#    target: "https://${GH_TOKEN}@github.com/webman-tech/laravel-cache.git"
+origins:
+  - ^main$
