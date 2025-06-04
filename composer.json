@@ -13,7 +13,8 @@
     "kriss/log-reader": "^1.3",
     "monolog/monolog": "^3.0",
     "php-debugbar/php-debugbar": "^2.0",
-    "workerman/crontab": "^1.0"
+    "workerman/crontab": "^1.0",
+    "zircote/swagger-php": "^5.0"
   },
   "require-dev": {
     "ergebnis/composer-normalize": "^2.47",
@@ -32,7 +33,8 @@
       "WebmanTech\\CrontabTask\\": "packages/crontab-task/src",
       "WebmanTech\\Debugbar\\": "packages/debugbar/src",
       "WebmanTech\\LogReader\\": "packages/log-reader/src",
-      "WebmanTech\\Logger\\": "packages/logger/src"
+      "WebmanTech\\Logger\\": "packages/logger/src",
+      "WebmanTech\\Swagger\\": "packages/swagger/src"
     }
   },
   "autoload-dev": {

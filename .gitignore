@@ -7,3 +7,4 @@ phpstan.neon
 /runtime
 /app
 /plugin
+/resource
