@@ -1,7 +1,19 @@
 # https://github.com/jderusse/docker-gitsplit
 cache_url: "cache/gitsplit"
 splits:
-#  - prefix: "src/LaravelCache"
-#    target: "https://${GH_TOKEN}@github.com/webman-tech/laravel-cache.git"
+  - prefix: "packages/amis-admin"
+    target: "https://${GH_TOKEN}@github.com/webman-tech/amis-admin.git"
+  - prefix: "packages/auth"
+    target: "https://${GH_TOKEN}@github.com/webman-tech/auth.git"
+  - prefix: "packages/crontab-task"
+    target: "https://${GH_TOKEN}@github.com/webman-tech/crontab-task.git"
+  - prefix: "packages/debugbar"
+    target: "https://${GH_TOKEN}@github.com/webman-tech/debugbar.git"
+  - prefix: "packages/log-reader"
+    target: "https://${GH_TOKEN}@github.com/webman-tech/log-reader.git"
+  - prefix: "packages/logger"
+    target: "https://${GH_TOKEN}@github.com/webman-tech/logger.git"
+  - prefix: "packages/swagger"
+    target: "https://${GH_TOKEN}@github.com/webman-tech/swagger.git"
 origins:
   - ^main$

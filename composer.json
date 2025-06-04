@@ -60,7 +60,7 @@
     "phpstan": "phpstan",
     "rector": "rector",
     "script:clean-temp-files": "php scripts/clean_temp_files.php",
-    "script:composer-generate": "php scripts/composer-generate.php && composer du",
+    "script:update-packages": "php scripts/update_packages.php",
     "test": "pest"
   }
 }
