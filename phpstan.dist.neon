@@ -1,6 +1,6 @@
 # https://phpstan.org/config-reference
 parameters:
-    level: 8
+    level: 9
     paths:
         - packages
     excludePaths:
@@ -17,6 +17,7 @@ parameters:
     tmpDir: runtime/phpstan
     ignoreErrors:
         - identifier: missingType.iterableValue # Property XXXX type has no value type specified in iterable type array.
+        - identifier: cast.int # Cannot cast mixed to int.
         - identifier: cast.string # Cannot cast mixed to string.
         - identifier: missingType.generics # Property XXX with generic class WeakMap does not specify its types: TKey, TValue
     reportUnmatchedIgnoredErrors: false # 关闭 ignore 掉的错误的提示
