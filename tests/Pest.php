@@ -32,6 +32,11 @@ expect()->extend('toBeOne', function () {
     return $this->toBe(1);
 });
 
+pest()->afterEach(function () {
+    // request_create_one() 后会在 Context 中添加信息，需要每次清理，否则会造成污染
+    Context::reset();
+});
+
 /*
 |--------------------------------------------------------------------------
 | Functions
@@ -60,7 +65,10 @@ function fixture_get_require(string $path)
 
 function request_create_one(): Request
 {
-    $request = new Request(fixture_get_content('misc/request_sample.txt'));
+    $buffer = strtr(fixture_get_content('misc/request_sample.txt'), [
+        "\n" => "\r\n",
+    ]);
+    $request = new Request($buffer);
 
     // 设置请求对象到上下文，是的 webman 下 request() 可以获取到
     Context::set(Request::class, $request);
