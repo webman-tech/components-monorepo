@@ -1,6 +1,6 @@
 # https://phpstan.org/config-reference
 parameters:
-    level: 5
+    level: 6
     paths:
         - packages
     excludePaths:
@@ -11,6 +11,8 @@ parameters:
         - packages/amis-admin/src/Helper/ArrayHelper.php # 不是自己写的
         - packages/swagger/src/Helper/ArrayHelper.php # 不是自己写的
         - packages/debugbar/src/Helper/ArrayHelper.php # 不是自己写的
+        - packages/swagger/src/Controller/RequiredElementsAttributes # 不需要
+        - packages/swagger/src/Controller/RequiredElementsAnnotations # 不需要
     tmpDir: runtime/phpstan
     ignoreErrors:
         - identifier: missingType.iterableValue # Property XXXX type has no value type specified in iterable type array.
