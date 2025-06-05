@@ -1,6 +1,6 @@
 # https://phpstan.org/config-reference
 parameters:
-    level: 6
+    level: 7
     paths:
         - packages
     excludePaths:
@@ -8,6 +8,7 @@ parameters:
         - runtime
         - packages/debugbar/src/DataCollector/ThinkPdoCollector.php # 暂时不支持
         - packages/debugbar/src/Laravel/DataCollector/QueryCollector.php # 不是自己写的
+        - packages/debugbar/src/Laravel/DataFormatter/QueryFormatter.php # 不是自己写的
         - packages/amis-admin/src/Helper/ArrayHelper.php # 不是自己写的
         - packages/swagger/src/Helper/ArrayHelper.php # 不是自己写的
         - packages/debugbar/src/Helper/ArrayHelper.php # 不是自己写的
