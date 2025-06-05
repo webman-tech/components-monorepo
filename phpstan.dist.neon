@@ -1,13 +1,16 @@
 # https://phpstan.org/config-reference
 parameters:
-    level: 9
+    level: 1
     paths:
         - packages
     excludePaths:
         - tests
         - runtime
+        - packages/debugbar/src/DataCollector/ThinkPdoCollector.php # 暂时不支持
+        - packages/debugbar/src/Laravel/DataCollector/QueryCollector.php # 不是自己写的
     tmpDir: runtime/phpstan
     ignoreErrors:
         - identifier: missingType.iterableValue # Property XXXX type has no value type specified in iterable type array.
         - identifier: cast.string # Cannot cast mixed to string.
         - identifier: missingType.generics # Property XXX with generic class WeakMap does not specify its types: TKey, TValue
+    reportUnmatchedIgnoredErrors: false # 关闭 ignore 掉的错误的提示
