@@ -6,8 +6,11 @@ use Rector\Config\RectorConfig;
 
 return RectorConfig::configure()
     ->withPaths([
-        __DIR__ . '/packages',
+        __DIR__ . '/packages/*/src',
         __DIR__ . '/scripts',
+    ])
+    ->withSkip([
+        __DIR__ . '/packages/*/src/Install.php',
     ])
     ->withCache(__DIR__ . '/runtime/rector')
     ->withPhpSets()

@@ -38,7 +38,7 @@ function get_packages()
     $scanDir = root_path('packages');
     $files = new Filesystem();
     $packages = collect($files->directories($scanDir))
-        ->filter(fn($dir) => !str_ends_with($dir, '_template'))
+        ->filter(fn($dir) => !str_ends_with((string) $dir, '_template'))
         ->map(function ($dir) use ($scanDir) {
             $dirName = str_replace($scanDir . DIRECTORY_SEPARATOR, '', $dir);
             $composerName = 'webman-tech/' . Str::snake($dirName, '-');
