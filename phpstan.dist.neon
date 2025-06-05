@@ -1,6 +1,6 @@
 # https://phpstan.org/config-reference
 parameters:
-    level: 2
+    level: 3
     paths:
         - packages
     excludePaths:
