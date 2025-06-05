@@ -1,9 +1,9 @@
 name: phpunit
 
 on:
-#  push:
-#    branches:
-#      - 'main'
+  push:
+    branches:
+      - 'main'
   pull_request:
   schedule:
     - cron: '0 0 * * *'
@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php: [8.2, 8.3, 8.4]
+        php: [ 8.2, 8.3, 8.4 ]
         stability: [
           #prefer-lowest, 问题较多
           prefer-stable
