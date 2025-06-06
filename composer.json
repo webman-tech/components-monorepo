@@ -27,10 +27,20 @@
     "webman-tech/laravel-monorepo": "^12.0",
     "workerman/webman-framework": "^2.1"
   },
+  "replace": {
+    "webman-tech/amis-admin": "self.version",
+    "webman-tech/auth": "self.version",
+    "webman-tech/crontab-task": "self.version",
+    "webman-tech/debugbar": "self.version",
+    "webman-tech/log-reader": "self.version",
+    "webman-tech/logger": "self.version",
+    "webman-tech/swagger": "self.version"
+  },
   "autoload": {
     "psr-4": {
       "WebmanTech\\AmisAdmin\\": "packages/amis-admin/src",
       "WebmanTech\\Auth\\": "packages/auth/src",
+      "WebmanTech\\ComponentsMonorepo\\": "src",
       "WebmanTech\\CrontabTask\\": "packages/crontab-task/src",
       "WebmanTech\\Debugbar\\": "packages/debugbar/src",
       "WebmanTech\\LogReader\\": "packages/log-reader/src",

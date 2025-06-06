@@ -10,13 +10,19 @@ require_once __DIR__ . '/utils.php';
 
 $require = collect();
 $comments = collect();
-//$replace = [];
+$replace = [];
 $autoloadFiles = collect();
+$autoloadPsr4 = collect([
+    'WebmanTech\ComponentsMonorepo\\' => 'src',
+]);
 foreach (get_packages() as $package) {
     $json = json_decode(file_get_contents(path_join($package['dir_path'], 'composer.json')), true);
     $require = $require->merge($json['require'] ?? []);
     $comments = $comments->merge($json['_comment'] ?? []);
-    //$replace[$json['name']] = 'self.version';
+    $autoloadPsr4 = $autoloadPsr4->merge([
+        $package['class_namespace'] . '\\' => "packages/{$package['dir_name']}/src",
+    ]);
+    $replace[$json['name']] = 'self.version';
     if ($files = $json['autoload']['files'] ?? []) {
         $autoloadFiles = $autoloadFiles->merge(
             array_map(fn($fileName) => 'packages/' . $package['dir_name'] . '/' . $fileName, $files)
@@ -28,7 +34,8 @@ $composerFile = root_path('composer.json');
 $json = json_decode(file_get_contents($composerFile), true);
 $json['require'] = $require->toArray();
 $json['_comment'] = $comments->unique()->values()->toArray();
-//$json['replace'] = $replace;
+$json['replace'] = $replace;
+$json['autoload']['psr-4'] = $autoloadPsr4->toArray();
 $json['autoload']['files'] = $autoloadFiles->toArray();
 
 $content = json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n";
