@@ -109,25 +109,6 @@ paths:
           api_key: []
 components:
   schemas:
-    ExampleSchema:
-      properties:
-        username:
-          description: 用户名
-          type: string
-          example: admin
-        password:
-          description: 密码
-          type: string
-          example: '123456'
-        name:
-          description: 名称
-          type: string
-          example: 测试用户
-        status:
-          description: 状态
-          type: integer
-          example: 0
-      type: object
     ExampleCreateSchema:
       required:
         - username
@@ -149,6 +130,25 @@ components:
           type: string
           maxLength: 64
           example: 测试用户
+      type: object
+    ExampleSchema:
+      properties:
+        username:
+          description: 用户名
+          type: string
+          example: admin
+        password:
+          description: 密码
+          type: string
+          example: '123456'
+        name:
+          description: 名称
+          type: string
+          example: 测试用户
+        status:
+          description: 状态
+          type: integer
+          example: 0
       type: object
     ExampleUpdateSchema:
       properties:

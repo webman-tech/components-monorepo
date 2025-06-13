@@ -141,18 +141,6 @@ paths:
                 nullable: false
 components:
   schemas:
-    ExampleResponseSchema:
-      properties:
-        headerKey:
-          description: 'header 参数'
-          type: string
-          example: 'header value'
-          x-in: header
-        key:
-          description: 参数
-          type: integer
-          example: value
-      type: object
     ExampleRequestBodySchema:
       properties:
         body:
@@ -190,4 +178,16 @@ components:
           type: string
           example: value
           x-in: body
+      type: object
+    ExampleResponseSchema:
+      properties:
+        headerKey:
+          description: 'header 参数'
+          type: string
+          example: 'header value'
+          x-in: header
+        key:
+          description: 参数
+          type: integer
+          example: value
       type: object
