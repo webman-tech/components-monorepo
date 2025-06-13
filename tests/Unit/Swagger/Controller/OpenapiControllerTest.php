@@ -31,3 +31,13 @@ test('openapiDoc use schema request and response', function () {
     expect($response->rawBody())->toMatchSnapshot()
         ->and($response->getHeader('Content-Type'))->toBe('application/x-yaml');
 });
+
+test('openapiDoc mergeClassLevelInfo', function () {
+    $controller = new OpenapiController();
+    $response = $controller->openapiDoc([
+        'scan_path' => fixture_get_path('Swagger/RouteAnnotation/ExampleMergeClassLevelInfo')
+    ]);
+
+    expect($response->rawBody())->toMatchSnapshot()
+        ->and($response->getHeader('Content-Type'))->toBe('application/x-yaml');
+});
