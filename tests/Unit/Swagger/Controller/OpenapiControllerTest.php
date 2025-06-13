@@ -12,6 +12,18 @@ test('openapiDoc', function () {
         ->and($response->getHeader('Content-Type'))->toBe('application/x-yaml');
 });
 
+test('openapiDoc generate json', function () {
+    $controller = new OpenapiController();
+    $response = $controller->openapiDoc([
+        'scan_path' => fixture_get_path('Swagger/RouteAnnotation/ExampleAttribution'),
+        'format' => 'json',
+    ]);
+
+    expect($response->rawBody())->toMatchSnapshot()
+        ->and($response->getHeader('Content-Type'))->toBe('application/json');
+});
+
+
 test('openapiDoc use schema', function () {
     $controller = new OpenapiController();
     $response = $controller->openapiDoc([
