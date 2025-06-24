@@ -7,6 +7,7 @@ use support\Request;
 use support\Response;
 use Tests\Fixtures\Swagger\RouteAnnotation\ExampleRequestResponseAttribute\schema\ExampleRequestBodySchema;
 use Tests\Fixtures\Swagger\RouteAnnotation\ExampleRequestResponseAttribute\schema\ExampleRequestSchema;
+use Tests\Fixtures\Swagger\RouteAnnotation\ExampleRequestResponseAttribute\schema\ExampleRequestWithMethodSchema;
 use Tests\Fixtures\Swagger\RouteAnnotation\ExampleRequestResponseAttribute\schema\ExampleResponseBodySchema;
 use Tests\Fixtures\Swagger\RouteAnnotation\ExampleRequestResponseAttribute\schema\ExampleResponseSchema;
 use WebmanTech\Swagger\DTO\SchemaConstants;
@@ -52,6 +53,20 @@ class ExampleSourceController
         ],
     )]
     public function postBody(Request $request): Response
+    {
+        return \json([
+            'action' => __FUNCTION__,
+        ]);
+    }
+
+    #[OA\Post(
+        path: '/example-request-auto-response',
+        summary: '样例 body',
+        x: [
+            SchemaConstants::X_SCHEMA_REQUEST => ExampleRequestWithMethodSchema::class . '@doSomething',
+        ],
+    )]
+    public function postBodyAutoResponse(Request $request): Response
     {
         return \json([
             'action' => __FUNCTION__,

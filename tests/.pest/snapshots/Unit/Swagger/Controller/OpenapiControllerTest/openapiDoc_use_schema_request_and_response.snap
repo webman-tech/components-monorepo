@@ -139,6 +139,34 @@ paths:
                 type: string
                 format: binary
                 nullable: false
+  /example-request-auto-response:
+    post:
+      summary: '样例 body'
+      operationId: 35f3170c1a34fc97902571b16ca4438b
+      requestBody:
+        content:
+          application/octect-stream:
+            schema:
+              description: 'body 参数'
+              type: string
+              format: binary
+              nullable: false
+      responses:
+        '200':
+          description: OK
+          headers:
+            headerKey:
+              description: 'header 参数'
+              required: true
+              schema:
+                type: string
+                example: 'header value'
+                nullable: false
+          content:
+            application/json:
+              schema:
+                properties:
+                  key: { description: 参数, type: integer, example: value }
 components:
   schemas:
     ExampleRequestBodySchema:
@@ -170,6 +198,14 @@ components:
           description: 参数
           type: integer
           example: value
+      type: object
+    ExampleRequestWithMethodSchema:
+      properties:
+        body:
+          description: 'body 参数'
+          type: string
+          example: value
+          x-in: body
       type: object
     ExampleResponseBodySchema:
       properties:
