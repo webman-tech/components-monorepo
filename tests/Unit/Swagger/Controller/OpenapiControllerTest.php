@@ -17,6 +17,7 @@ test('openapiDoc generate json', function () {
     $response = $controller->openapiDoc([
         'scan_path' => fixture_get_path('Swagger/RouteAnnotation/ExampleAttribution'),
         'format' => 'json',
+        'cache_key' => 'json',
     ]);
 
     expect($response->rawBody())->toMatchSnapshot()
