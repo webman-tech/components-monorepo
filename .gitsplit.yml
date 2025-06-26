@@ -9,6 +9,8 @@ splits:
     target: "https://${GH_TOKEN}@github.com/webman-tech/crontab-task.git"
   - prefix: "packages/debugbar"
     target: "https://${GH_TOKEN}@github.com/webman-tech/debugbar.git"
+  - prefix: "packages/dto"
+    target: "https://${GH_TOKEN}@github.com/webman-tech/dto.git"
   - prefix: "packages/log-reader"
     target: "https://${GH_TOKEN}@github.com/webman-tech/log-reader.git"
   - prefix: "packages/logger"

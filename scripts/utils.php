@@ -35,11 +35,12 @@ function get_packages()
         return $packages;
     }
 
+    $uppercaseWords = ['dto'];
     $scanDir = root_path('packages');
     $files = new Filesystem();
     $packages = collect($files->directories($scanDir))
         ->filter(fn($dir) => !str_ends_with((string)$dir, '_template'))
-        ->map(function ($dir) use ($scanDir) {
+        ->map(function ($dir) use ($scanDir, $uppercaseWords) {
             $dirName = str_replace($scanDir . DIRECTORY_SEPARATOR, '', $dir);
             $composerName = 'webman-tech/' . Str::snake($dirName, '-');
             $gitName = $composerName;
@@ -49,7 +50,7 @@ function get_packages()
                 'dir_name' => $dirName,
                 'composer_name' => $composerName,
                 'git_name' => $gitName,
-                'class_namespace' => 'WebmanTech\\' . Str::studly($dirName),
+                'class_namespace' => 'WebmanTech\\' . (in_array($dirName, $uppercaseWords) ? strtoupper($dirName) : Str::studly($dirName)),
             ];
         });
 

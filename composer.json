@@ -32,6 +32,7 @@
     "webman-tech/auth": "self.version",
     "webman-tech/crontab-task": "self.version",
     "webman-tech/debugbar": "self.version",
+    "webman-tech/dto": "self.version",
     "webman-tech/log-reader": "self.version",
     "webman-tech/logger": "self.version",
     "webman-tech/swagger": "self.version"
@@ -42,6 +43,7 @@
       "WebmanTech\\Auth\\": "packages/auth/src",
       "WebmanTech\\ComponentsMonorepo\\": "src",
       "WebmanTech\\CrontabTask\\": "packages/crontab-task/src",
+      "WebmanTech\\DTO\\": "packages/dto/src",
       "WebmanTech\\Debugbar\\": "packages/debugbar/src",
       "WebmanTech\\LogReader\\": "packages/log-reader/src",
       "WebmanTech\\Logger\\": "packages/logger/src",

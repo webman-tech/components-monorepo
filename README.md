@@ -25,6 +25,7 @@ composer require webman-tech/auth
 - [webman-tech/auth](./packages/auth/README.md)
 - [webman-tech/crontab-task](./packages/crontab-task/README.md)
 - [webman-tech/debugbar](./packages/debugbar/README.md)
+- [webman-tech/dto](./packages/dto/README.md)
 - [webman-tech/log-reader](./packages/log-reader/README.md)
 - [webman-tech/logger](./packages/logger/README.md)
 - [webman-tech/swagger](./packages/swagger/README.md)
