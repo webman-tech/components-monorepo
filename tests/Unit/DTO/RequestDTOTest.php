@@ -3,6 +3,7 @@
 use WebmanTech\DTO\BaseRequestDTO;
 use WebmanTech\DTO\Exceptions\DTOAssignPropertyException;
 use WebmanTech\DTO\Exceptions\DTOValidateFailsException;
+use WebmanTech\DTO\Helper\ConfigHelper;
 
 test('fromRequest use defaultRequestType', function () {
     class DTOFromRequestUseDefaultRequestType extends BaseRequestDTO
@@ -131,10 +132,26 @@ test('fromRequest with assign type error', function () {
     $request->setGet([
         'age' => 'happy',
     ]);
+
+    // 默认的错误返回
     try {
         DTOFromRequestWithValidateTypeError::fromRequest($request, 'get');
     } catch (DTOAssignPropertyException $e) {
         expect(array_keys($e->getErrors()))->toBe(['age'])
             ->and($e->first())->toBe('assign property error: age');
     }
+
+    // 通过配置修改错误返回
+    ConfigHelper::setForTest('dto.type_assign_property_exception_message', function (string $property) {
+        return '类型错误：' . $property;
+    });
+    try {
+        DTOFromRequestWithValidateTypeError::fromRequest($request, 'get');
+    } catch (DTOAssignPropertyException $e) {
+        expect(array_keys($e->getErrors()))->toBe(['age'])
+            ->and($e->first())->toBe('类型错误：age');
+    }
+
+    // 重置
+    ConfigHelper::setForTest();
 });
