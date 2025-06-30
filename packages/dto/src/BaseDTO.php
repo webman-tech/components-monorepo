@@ -2,6 +2,8 @@
 
 namespace WebmanTech\DTO;
 
+use WebmanTech\DTO\Reflection\ReflectionReaderFactory;
+
 class BaseDTO
 {
     /**
@@ -31,7 +33,7 @@ class BaseDTO
         $data = [];
         $properties = array_diff(
             array_merge(
-                $this->getPublicProperties(),
+                ReflectionReaderFactory::fromClass(static::class)->getPublicPropertiesName(),
                 $this->getToArrayIncludeProperties(),
             ),
             $this->getToArrayExcludeProperties()
@@ -52,32 +54,5 @@ class BaseDTO
         }
 
         return $data;
-    }
-
-    private static array $reflectionCache = [];
-
-    /**
-     * 获取当前类的所有 public 属性
-     * @return string[]
-     */
-    private function getPublicProperties(?\ReflectionClass $reflectionClass = null): array
-    {
-        $reflectionClass ??= new \ReflectionClass(static::class);
-        $className = $reflectionClass->getName();
-
-        if (!isset(self::$reflectionCache[$className])) {
-            $properties = $reflectionClass->getProperties(\ReflectionProperty::IS_PUBLIC);
-            $propertyNames = array_map(function (\ReflectionProperty $property) {
-                return $property->getName();
-            }, $properties);
-
-            if ($reflectionParentClass = $reflectionClass->getParentClass()) {
-                $propertyNames = array_merge($this->getPublicProperties($reflectionParentClass), $propertyNames);
-            }
-
-            self::$reflectionCache[$className] = $propertyNames;
-        }
-
-        return self::$reflectionCache[$className];
     }
 }

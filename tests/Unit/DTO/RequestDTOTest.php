@@ -135,7 +135,7 @@ test('fromRequest with assign type error', function () {
 
     // 默认的错误返回
     try {
-        DTOFromRequestWithValidateTypeError::fromRequest($request, 'get');
+        DTOFromRequestWithValidateTypeError::fromRequest($request, 'get', enableValidation: false);
     } catch (DTOAssignPropertyException $e) {
         expect(array_keys($e->getErrors()))->toBe(['age'])
             ->and($e->first())->toBe('assign property error: age');
@@ -146,7 +146,7 @@ test('fromRequest with assign type error', function () {
         return '类型错误：' . $property;
     });
     try {
-        DTOFromRequestWithValidateTypeError::fromRequest($request, 'get');
+        DTOFromRequestWithValidateTypeError::fromRequest($request, 'get', enableValidation: false);
     } catch (DTOAssignPropertyException $e) {
         expect(array_keys($e->getErrors()))->toBe(['age'])
             ->and($e->first())->toBe('类型错误：age');

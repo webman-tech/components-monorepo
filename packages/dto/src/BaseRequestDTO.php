@@ -6,6 +6,7 @@ use Illuminate\Support\Arr;
 use Webman\Http\Request;
 use WebmanTech\DTO\Exceptions\DTOAssignPropertyException;
 use WebmanTech\DTO\Exceptions\DTOValidateFailsException;
+use WebmanTech\DTO\Reflection\ReflectionReaderFactory;
 
 class BaseRequestDTO extends BaseDTO
 {
@@ -20,12 +21,14 @@ class BaseRequestDTO extends BaseDTO
      * 从 request 创建
      * @throws DTOValidateFailsException
      */
-    public static function fromRequest(Request $request, ?string $defaultRequestType = null): static
+    public static function fromRequest(Request $request, ?string $defaultRequestType = null, bool $enableValidation = true): static
     {
         $self = new static();
 
         $data = $self->getDataFromRequest($request, $defaultRequestType);
-        $data = $self->validateData($data);
+        if ($enableValidation) {
+            $data = $self->validateData($data);
+        }
         $self->assignByArray($data);
 
         return $self;
@@ -80,7 +83,13 @@ class BaseRequestDTO extends BaseDTO
      */
     protected function getConfigValidateRules(): array
     {
-        return [];
+        return $this->getValidateRulesByReflection();
+    }
+
+    private function getValidateRulesByReflection(): array
+    {
+        return ReflectionReaderFactory::fromClass(static::class)
+            ->getPublicPropertiesValidationRules();
     }
 
     /**

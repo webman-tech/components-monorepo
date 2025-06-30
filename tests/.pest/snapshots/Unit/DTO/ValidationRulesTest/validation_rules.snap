@@ -1,0 +1,142 @@
+{
+    "parent": [
+        "required",
+        "string"
+    ],
+    "parentId": [
+        "required",
+        "integer"
+    ],
+    "string": [
+        "required",
+        "string"
+    ],
+    "int": [
+        "required",
+        "integer"
+    ],
+    "float": [
+        "required",
+        "numeric"
+    ],
+    "bool": [
+        "required",
+        "boolean"
+    ],
+    "mixed": [
+        "required",
+        "nullable"
+    ],
+    "closure": [
+        "required"
+    ],
+    "array": [
+        "required",
+        "array"
+    ],
+    "child": [
+        "required"
+    ],
+    "child.name": [
+        "required",
+        "string"
+    ],
+    "child.age": [
+        "nullable",
+        "integer"
+    ],
+    "stringNullable": [
+        "required",
+        "nullable",
+        "string"
+    ],
+    "stringNullableNull": [
+        "nullable",
+        "string"
+    ],
+    "intWithDefault": [
+        "integer"
+    ],
+    "children": [
+        "required",
+        "array"
+    ],
+    "children.*.name": [
+        "required",
+        "string"
+    ],
+    "children.*.age": [
+        "nullable",
+        "integer"
+    ],
+    "noTypeDefine": [
+        "nullable"
+    ],
+    "noTypeDefineWithDefault": [
+        "nullable"
+    ],
+    "validationRulesNoTypeDefineRequired": [
+        "required",
+        "nullable"
+    ],
+    "validationRulesNoTypeDefineForString": [
+        "nullable",
+        "string"
+    ],
+    "validationRulesNoTypeDefineForBoolean": [
+        "nullable",
+        "boolean"
+    ],
+    "validationRulesNoTypeDefineForInteger": [
+        "nullable",
+        "integer"
+    ],
+    "validationRulesNoTypeDefineForNumeric": [
+        "nullable",
+        "numeric"
+    ],
+    "validationRulesNoTypeDefineForArray": [
+        "nullable",
+        "array"
+    ],
+    "validationRulesNoTypeDefineForArrayWithItem": [
+        "nullable",
+        "array"
+    ],
+    "validationRulesNoTypeDefineForArrayWithItem.*.name": [
+        "required",
+        "string"
+    ],
+    "validationRulesNoTypeDefineForArrayWithItem.*.age": [
+        "nullable",
+        "integer"
+    ],
+    "validationRulesNoTypeDefineForObject": [
+        "nullable"
+    ],
+    "validationRulesNoTypeDefineForObject.name": [
+        "required",
+        "string"
+    ],
+    "validationRulesNoTypeDefineForObject.age": [
+        "nullable",
+        "integer"
+    ],
+    "validationRulesIntMinMax": [
+        "required",
+        "integer",
+        "min:100",
+        "max:1000"
+    ],
+    "validationRulesStringMinMax": [
+        "nullable",
+        "string",
+        "min:100",
+        "max:1000"
+    ],
+    "validationRulesRules": [
+        "required",
+        "string",
+        "nullable"
+    ]
+}
