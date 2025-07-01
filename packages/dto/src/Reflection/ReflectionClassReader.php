@@ -50,6 +50,20 @@ final class ReflectionClassReader
     }
 
     /**
+     * 获取某个 public 属性的验证规则
+     * @param string $propertyName
+     * @return ValidationRules|null
+     */
+    public function getPublicPropertyValidationRules(string $propertyName): ?ValidationRules
+    {
+        $propertyReflection = $this->getPublicPropertyReflections()[$propertyName] ?? null;
+        if (!$propertyReflection) {
+            return null;
+        }
+        return $this->getValidationRules($propertyReflection);
+    }
+
+    /**
      * 根据 data 进行实例化
      * @param array $data
      * @return mixed
