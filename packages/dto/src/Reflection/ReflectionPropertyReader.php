@@ -5,7 +5,6 @@ namespace WebmanTech\DTO\Reflection;
 use ReflectionAttribute;
 use ReflectionNamedType;
 use ReflectionProperty;
-use ReflectionUnionType;
 use WebmanTech\DTO\Attributes\ValidationRules;
 
 /**
@@ -58,18 +57,10 @@ final class ReflectionPropertyReader
             }
             // 获取类型
             if ($reflectionType = $this->reflectionProperty->getType()) {
-                $reflectionNamedTypes = [];
-                if ($reflectionType instanceof ReflectionUnionType) {
-                    $reflectionNamedTypes = $reflectionType->getTypes();
-                } elseif ($reflectionType instanceof ReflectionNamedType) {
-                    $reflectionNamedTypes = [$reflectionType];
-                }
-                foreach ($reflectionNamedTypes as $reflectionNamedType) {
-                    if (!$reflectionNamedType instanceof ReflectionNamedType) {
-                        continue;
-                    }
-                    $typeName = $reflectionNamedType->getName();
-                    if ($reflectionNamedType->isBuiltin()) {
+                if ($reflectionType instanceof ReflectionNamedType) {
+                    // 仅支持 ReflectionNamedType，不支持复合类型（因为 laravel 中目前没有复合类型的校验器，需要自己写 callback）
+                    $typeName = $reflectionType->getName();
+                    if ($reflectionType->isBuiltin()) {
                         match ($typeName) {
                             'int' => $validationRules->integer = true,
                             'string' => $validationRules->string = true,

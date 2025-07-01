@@ -45,6 +45,13 @@
         "nullable",
         "integer"
     ],
+    "stringOrInt": [
+        "required"
+    ],
+    "stringOrIntOrNull": [
+        "required",
+        "nullable"
+    ],
     "stringNullable": [
         "required",
         "nullable",

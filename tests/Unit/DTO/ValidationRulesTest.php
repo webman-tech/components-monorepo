@@ -30,6 +30,9 @@ test('validation rules', function () {
         public Closure $closure;
         public array $array;
         public DTOFromValidationRulesTestItem $child;
+        // 复合类型
+        public string|int $stringOrInt;
+        public string|int|null $stringOrIntOrNull;
         // 自动提取 nullable
         public ?string $stringNullable;
         // 有默认值的
