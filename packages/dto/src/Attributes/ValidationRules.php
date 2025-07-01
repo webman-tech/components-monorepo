@@ -31,10 +31,33 @@ final class ValidationRules
     {
     }
 
+    private ?array $parsedRules = null;
+
     /**
      * @return array<string, array>
      */
     public function getRules(string $key): array
+    {
+        if ($this->parsedRules === null) {
+            $this->parsedRules = $this->parseRules();
+        }
+        $rules = $this->parsedRules ? [$key => $this->parsedRules] : [];
+
+        if ($this->object && class_exists($this->object)) {
+            foreach (ReflectionReaderFactory::fromClass($this->object)->getPublicPropertiesValidationRules() as $itemKey => $itemRules) {
+                $rules[$key . '.' . $itemKey] = $itemRules;
+            }
+        }
+        if ($this->arrayWithItem && class_exists($this->arrayWithItem)) {
+            foreach (ReflectionReaderFactory::fromClass($this->arrayWithItem)->getPublicPropertiesValidationRules() as $itemKey => $itemRules) {
+                $rules[$key . '.*.' . $itemKey] = $itemRules;
+            }
+        }
+
+        return $rules;
+    }
+
+    private function parseRules(): array
     {
         $rules1 = $this->rules ?? [];
         if (is_string($rules1)) {
@@ -77,7 +100,7 @@ final class ValidationRules
             }
         }
 
-        $rules3 = collect($rules1)
+        return collect($rules1)
             ->merge($rules2)
             ->merge($rules3)
             ->unique(function ($item) {
@@ -91,19 +114,5 @@ final class ValidationRules
             })
             ->values()
             ->toArray();
-        $rules = $rules3 ? [$key => $rules3] : [];
-
-        if ($this->object && class_exists($this->object)) {
-            foreach (ReflectionReaderFactory::fromClass($this->object)->getPublicPropertiesValidationRules() as $itemKey => $itemRules) {
-                $rules[$key . '.' . $itemKey] = $itemRules;
-            }
-        }
-        if ($this->arrayWithItem && class_exists($this->arrayWithItem)) {
-            foreach (ReflectionReaderFactory::fromClass($this->arrayWithItem)->getPublicPropertiesValidationRules() as $itemKey => $itemRules) {
-                $rules[$key . '.*.' . $itemKey] = $itemRules;
-            }
-        }
-
-        return $rules;
     }
 }
