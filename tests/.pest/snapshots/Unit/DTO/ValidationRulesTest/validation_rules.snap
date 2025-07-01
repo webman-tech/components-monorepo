@@ -35,7 +35,8 @@
         "array"
     ],
     "child": [
-        "required"
+        "required",
+        "array"
     ],
     "child.name": [
         "required",
@@ -119,7 +120,8 @@
         "integer"
     ],
     "validationRulesNoTypeDefineForObject": [
-        "nullable"
+        "nullable",
+        "array"
     ],
     "validationRulesNoTypeDefineForObject.name": [
         "required",

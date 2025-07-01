@@ -2,10 +2,69 @@
 
 namespace WebmanTech\DTO;
 
+use Illuminate\Support\Arr;
+use WebmanTech\DTO\Exceptions\DTONewInstanceException;
+use WebmanTech\DTO\Exceptions\DTOValidateException;
 use WebmanTech\DTO\Reflection\ReflectionReaderFactory;
 
 class BaseDTO
 {
+    /**
+     * 根据 data 构建实例
+     * @throws DTONewInstanceException|DTOValidateException
+     */
+    public static function fromData(array $data, bool $validate = true): static
+    {
+        $factory = ReflectionReaderFactory::fromClass(static::class);
+
+        if ($validate) {
+            // 验证必须的规则
+            $data = static::validateData($data, $factory->getPublicPropertiesValidationRules());
+            // 验证自定义的规则
+            $data = static::validateData($data, static::getExtraValidationRules());
+        }
+
+        try {
+            return $factory->newInstanceByData($data);
+        } catch (\Throwable $e) {
+            throw new DTONewInstanceException(static::class, $e);
+        }
+    }
+
+    /**
+     * 获取额外的验证规则
+     * @return array
+     */
+    protected static function getExtraValidationRules(): array
+    {
+        return [];
+    }
+
+    /**
+     * 验证数据
+     * @param array<string, mixed> $data
+     * @return array<string, mixed> 验证过的数据
+     * @throws DTOValidateException
+     */
+    protected static function validateData(array $data, array $rules): array
+    {
+        if (!$rules) {
+            return $data;
+        }
+        $validator = validator($data, $rules);
+        if ($validator->fails()) {
+            throw new DTOValidateException(
+            // 只取每个 key 的第一次个错误
+                array_map(
+                    fn($messages) => is_array($messages) ? Arr::first($messages) : $messages,
+                    $validator->errors()->toArray(),
+                )
+            );
+        }
+
+        return $data;
+    }
+
     /**
      * 需要额外包含的属性
      * @return string[]
@@ -33,7 +92,7 @@ class BaseDTO
         $data = [];
         $properties = array_diff(
             array_merge(
-                ReflectionReaderFactory::fromClass(static::class)->getPublicPropertiesName(),
+                ReflectionReaderFactory::fromClass($this)->getPublicPropertiesName(),
                 $this->getToArrayIncludeProperties(),
             ),
             $this->getToArrayExcludeProperties()

@@ -9,9 +9,9 @@ use ReflectionClass;
  */
 final class ReflectionReaderFactory
 {
-    public static function fromClass(string $className): ReflectionClassReader
+    public static function fromClass(string|object $class): ReflectionClassReader
     {
-        return self::instance()->parseFromClass($className);
+        return self::instance()->parseFromClass($class);
     }
 
     public static function fromReflectionClass(ReflectionClass $reflectionClass): ReflectionClassReader
@@ -31,10 +31,11 @@ final class ReflectionReaderFactory
 
     private array $cache = [];
 
-    private function parseFromClass(string $className): ReflectionClassReader
+    private function parseFromClass(string|object $class): ReflectionClassReader
     {
+        $className = is_object($class) ? $class::class : $class;
         if (!isset($this->cache[$className])) {
-            $this->cache[$className] = new ReflectionClassReader(new ReflectionClass($className));
+            $this->cache[$className] = new ReflectionClassReader(new ReflectionClass($class));
         }
         return $this->cache[$className];
     }

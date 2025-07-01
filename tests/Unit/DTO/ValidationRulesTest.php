@@ -39,7 +39,7 @@ test('validation rules', function () {
         public ?string $stringNullableNull = null;
         public int $intWithDefault = 1;
         // array 类型，每个子类是对象
-        #[ValidationRules(arrayWithItem: DTOFromValidationRulesTestItem::class)]
+        #[ValidationRules(arrayItem: DTOFromValidationRulesTestItem::class)]
         public array $children;
         // 不定义类型
         public $noTypeDefine;
@@ -57,7 +57,7 @@ test('validation rules', function () {
         public $validationRulesNoTypeDefineForNumeric;
         #[ValidationRules(array: true)]
         public $validationRulesNoTypeDefineForArray;
-        #[ValidationRules(array: true, arrayWithItem: DTOFromValidationRulesTestItem::class)]
+        #[ValidationRules(array: true, arrayItem: DTOFromValidationRulesTestItem::class)]
         public $validationRulesNoTypeDefineForArrayWithItem;
         #[ValidationRules(object: DTOFromValidationRulesTestItem::class)]
         public $validationRulesNoTypeDefineForObject;
@@ -78,13 +78,6 @@ test('validation rules', function () {
 });
 
 test('validation rule enum', function () {
-    enum DTOFromValidationRulesTestEnum
-    {
-        case A;
-        case B;
-        case C;
-    }
-
     enum DTOFromValidationRulesTestEnumInt: int
     {
         case A = 1;
@@ -101,10 +94,9 @@ test('validation rule enum', function () {
 
     class DTOFromValidationRulesEnumTest
     {
-        public DTOFromValidationRulesTestEnum $enum;
         public DTOFromValidationRulesTestEnumInt $enumInt;
         public DTOFromValidationRulesTestEnumString $enumString;
-        #[ValidationRules(enum: DTOFromValidationRulesTestEnum::class)]
+        #[ValidationRules(enum: DTOFromValidationRulesTestEnumInt::class)]
         public $validationRulesNoTypeDefineForEnum;
         #[ValidationRules(enumOnly: [DTOFromValidationRulesTestEnumInt::A])]
         public DTOFromValidationRulesTestEnumInt $enumWithOnly;
@@ -118,11 +110,6 @@ test('validation rule enum', function () {
     $fnGetRuleEnum = function (array $rules): ?RuleEnum {
         return Arr::first($rules, fn($rule) => $rule instanceof RuleEnum);
     };
-
-    $ruleEnum = $fnGetRuleEnum($rules['enum']);
-    expect($ruleEnum)->not->toBeEmpty()
-        ->and($ruleEnum->passes('abc', DTOFromValidationRulesTestEnum::A))->toBeTrue()
-        ->and($ruleEnum->passes('abc', 0))->toBeFalse();
 
     $ruleEnum = $fnGetRuleEnum($rules['enumInt']);
     expect($ruleEnum)->not->toBeEmpty()

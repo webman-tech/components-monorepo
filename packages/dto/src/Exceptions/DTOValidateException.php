@@ -4,11 +4,11 @@ namespace WebmanTech\DTO\Exceptions;
 
 use Illuminate\Support\Arr;
 
-class DTOValidateFailsException extends \Exception
+final class DTOValidateException extends DTOException
 {
     public function __construct(private readonly array $errors, ?\Throwable $previous = null)
     {
-        parent::__construct('DTOValidateFailsException', previous: $previous);
+        parent::__construct('DTOValidateException', previous: $previous);
     }
 
     public function getErrors(): array
