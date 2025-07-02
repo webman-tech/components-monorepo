@@ -11,33 +11,33 @@ use WebmanTech\DTO\Reflection\ReflectionReaderFactory;
 final class ValidationRules
 {
     public function __construct(
-        public null|string|array $rules = null,
-        public null|true         $required = null,
-        public null|true         $nullable = null,
-        public null|true         $string = null,
-        public null|true         $boolean = null,
-        public null|true         $integer = null,
-        public null|true         $numeric = null,
+        public null|string|array           $rules = null,
+        public null|true                   $required = null,
+        public null|true                   $nullable = null,
+        public null|true                   $string = null,
+        public null|true                   $boolean = null,
+        public null|true                   $integer = null,
+        public null|true                   $numeric = null,
         /**
          * @var class-string<BackedEnum>|null
          */
-        public null|string       $enum = null,
-        public null|array        $enumOnly = null,
-        public null|array        $enumExcept = null,
-        public null|true         $array = null,
+        public null|string                 $enum = null,
+        public null|array                  $enumOnly = null,
+        public null|array                  $enumExcept = null,
+        public null|true                   $array = null,
         /**
          * @var class-string|null
          */
-        public null|string       $arrayItem = null,
+        public null|string|ValidationRules $arrayItem = null,
         /**
          * @var class-string|null
          */
-        public null|string       $object = null,
-        public null|int|float    $min = null,
-        public null|int|float    $max = null,
-        public null|int          $minLength = null,
-        public null|int          $maxLength = null,
-        public null|array        $in = null,
+        public null|string                 $object = null,
+        public null|int|float              $min = null,
+        public null|int|float              $max = null,
+        public null|int                    $minLength = null,
+        public null|int                    $maxLength = null,
+        public null|array                  $in = null,
     )
     {
     }
@@ -69,8 +69,11 @@ final class ValidationRules
             }
         }
         if ($this->arrayItem) {
-            if (!class_exists($this->arrayItem)) {
-                throw new \InvalidArgumentException('arrayItem is not a class');
+            if (!(
+                is_string($this->arrayItem) && class_exists($this->arrayItem)
+                || $this->arrayItem instanceof ValidationRules
+            )) {
+                throw new \InvalidArgumentException('arrayItem must be class-string or ValidationRules instance');
             }
             $this->array = true;
         }

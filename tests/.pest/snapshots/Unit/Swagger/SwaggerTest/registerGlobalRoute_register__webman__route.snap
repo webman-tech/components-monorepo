@@ -1,0 +1,38 @@
+[
+    {
+        "path": "\/openapi",
+        "methods": [
+            "GET"
+        ]
+    },
+    {
+        "path": "\/openapi\/doc",
+        "methods": [
+            "GET"
+        ]
+    },
+    {
+        "path": "\/b",
+        "methods": [
+            "GET"
+        ]
+    },
+    {
+        "path": "\/b",
+        "methods": [
+            "POST"
+        ]
+    },
+    {
+        "path": "\/a\/get",
+        "methods": [
+            "GET"
+        ]
+    },
+    {
+        "path": "\/a\/post",
+        "methods": [
+            "POST"
+        ]
+    }
+]

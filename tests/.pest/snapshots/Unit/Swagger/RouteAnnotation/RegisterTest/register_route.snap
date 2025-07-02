@@ -1,0 +1,101 @@
+{
+    "GET:\/same-path": {
+        "desc": "",
+        "method": "GET",
+        "path": "\/same-path",
+        "controller": "\\Tests\\Fixtures\\Swagger\\RouteAnnotation\\ExampleAttribution\\controller\\SamePathController",
+        "action": "get",
+        "name": null,
+        "middlewares": null
+    },
+    "POST:\/same-path": {
+        "desc": "",
+        "method": "POST",
+        "path": "\/same-path",
+        "controller": "\\Tests\\Fixtures\\Swagger\\RouteAnnotation\\ExampleAttribution\\controller\\SamePathController",
+        "action": "post",
+        "name": null,
+        "middlewares": null
+    },
+    "PUT:\/same-path": {
+        "desc": "",
+        "method": "PUT",
+        "path": "\/same-path",
+        "controller": "\\Tests\\Fixtures\\Swagger\\RouteAnnotation\\ExampleAttribution\\controller\\SamePathController",
+        "action": "put",
+        "name": null,
+        "middlewares": null
+    },
+    "DELETE:\/same-path": {
+        "desc": "",
+        "method": "DELETE",
+        "path": "\/same-path",
+        "controller": "\\Tests\\Fixtures\\Swagger\\RouteAnnotation\\ExampleAttribution\\controller\\SamePathController",
+        "action": "delete",
+        "name": null,
+        "middlewares": null
+    },
+    "GET:\/crud": {
+        "desc": "\u5217\u8868",
+        "method": "GET",
+        "path": "\/crud",
+        "controller": "\\Tests\\Fixtures\\Swagger\\RouteAnnotation\\ExampleAttribution\\controller\\ExampleSourceController",
+        "action": "index",
+        "name": "crud.list",
+        "middlewares": [
+            "Tests\\Fixtures\\Swagger\\RouteAnnotation\\ExampleAttribution\\middleware\\SampleMiddleware",
+            [
+                "Tests\\Fixtures\\Swagger\\RouteAnnotation\\ExampleAttribution\\middleware\\SampleMiddleware2",
+                {
+                    "param": "use params array"
+                }
+            ],
+            "@named:sample_middleware3"
+        ]
+    },
+    "POST:\/crud": {
+        "desc": "\u65b0\u5efa",
+        "method": "POST",
+        "path": "\/crud",
+        "controller": "\\Tests\\Fixtures\\Swagger\\RouteAnnotation\\ExampleAttribution\\controller\\ExampleSourceController",
+        "action": "store",
+        "name": null,
+        "middlewares": null
+    },
+    "GET:\/crud\/{id:\\d+}": {
+        "desc": "\u8be6\u60c5",
+        "method": "GET",
+        "path": "\/crud\/{id:\\d+}",
+        "controller": "\\Tests\\Fixtures\\Swagger\\RouteAnnotation\\ExampleAttribution\\controller\\ExampleSourceController",
+        "action": "show",
+        "name": null,
+        "middlewares": null
+    },
+    "PUT:\/crud\/{id}": {
+        "desc": "\u66f4\u65b0",
+        "method": "PUT",
+        "path": "\/crud\/{id}",
+        "controller": "\\Tests\\Fixtures\\Swagger\\RouteAnnotation\\ExampleAttribution\\controller\\ExampleSourceController",
+        "action": "update",
+        "name": null,
+        "middlewares": null
+    },
+    "DELETE:\/crud\/{id}": {
+        "desc": "\u5220\u9664",
+        "method": "DELETE",
+        "path": "\/crud\/{id}",
+        "controller": "\\Tests\\Fixtures\\Swagger\\RouteAnnotation\\ExampleAttribution\\controller\\ExampleSourceController",
+        "action": "destroy",
+        "name": null,
+        "middlewares": null
+    },
+    "PUT:\/crud\/{id}\/recovery": {
+        "desc": "\u6062\u590d",
+        "method": "PUT",
+        "path": "\/crud\/{id}\/recovery",
+        "controller": "\\Tests\\Fixtures\\Swagger\\RouteAnnotation\\ExampleAttribution\\controller\\ExampleSourceController",
+        "action": "recovery",
+        "name": null,
+        "middlewares": null
+    }
+}

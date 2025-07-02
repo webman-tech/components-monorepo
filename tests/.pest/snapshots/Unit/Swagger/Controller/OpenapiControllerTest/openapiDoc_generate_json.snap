@@ -5,6 +5,40 @@
         "version": "0.1"
     },
     "paths": {
+        "/same-path": {
+            "get": {
+                "operationId": "a16af954711ddf37a3be80134cf418aa",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "3dfc4a91d3b7bb5bef9dc0784310e7e1",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "443d2de84262eb071730681473d1cca6",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "0cac586e86cf5c2796219368f0d0ca61",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
         "/crud": {
             "get": {
                 "tags": [
@@ -18,6 +52,7 @@
                         "in": "query",
                         "description": "页数",
                         "schema": {
+                            "schema": "Tests_Fixtures_Swagger_RouteAnnotation_ExampleAttribution_controller_ExampleSourceController",
                             "type": "integer"
                         }
                     },
@@ -26,6 +61,7 @@
                         "in": "query",
                         "description": "每页数量",
                         "schema": {
+                            "schema": "Tests_Fixtures_Swagger_RouteAnnotation_ExampleAttribution_controller_ExampleSourceController",
                             "type": "integer"
                         }
                     },
@@ -34,6 +70,7 @@
                         "in": "query",
                         "description": "用户名",
                         "schema": {
+                            "schema": "Tests_Fixtures_Swagger_RouteAnnotation_ExampleAttribution_controller_ExampleSourceController",
                             "type": "string"
                         }
                     },
@@ -42,6 +79,7 @@
                         "in": "query",
                         "description": "状态",
                         "schema": {
+                            "schema": "Tests_Fixtures_Swagger_RouteAnnotation_ExampleAttribution_controller_ExampleSourceController",
                             "type": "integer"
                         }
                     }
@@ -123,6 +161,7 @@
                         "description": "ID",
                         "required": true,
                         "schema": {
+                            "schema": "Tests_Fixtures_Swagger_RouteAnnotation_ExampleAttribution_controller_ExampleSourceController",
                             "type": "integer"
                         }
                     }
@@ -149,6 +188,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
+                                "schema": "Tests_Fixtures_Swagger_RouteAnnotation_ExampleAttribution_controller_ExampleSourceController",
                                 "properties": {
                                     "username": {
                                         "description": "用户名",
@@ -202,6 +242,7 @@
                         "description": "ID",
                         "required": true,
                         "schema": {
+                            "schema": "Tests_Fixtures_Swagger_RouteAnnotation_ExampleAttribution_controller_ExampleSourceController",
                             "type": "integer"
                         }
                     }
@@ -232,6 +273,7 @@
                         "description": "ID",
                         "required": true,
                         "schema": {
+                            "schema": "Tests_Fixtures_Swagger_RouteAnnotation_ExampleAttribution_controller_ExampleSourceController",
                             "type": "integer"
                         }
                     }

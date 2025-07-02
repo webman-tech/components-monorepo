@@ -1,22 +1,25 @@
 <?php
 
-use Webman\Route;
+use Tests\Fixtures\ClearableWebmanRoute;
+use WebmanTech\Swagger\RouteAnnotation\Reader;
 use WebmanTech\Swagger\RouteAnnotation\Register;
 
-test('registerRoute', function () {
-    $config = fixture_get_require('Swagger/RouteAnnotation/ExampleAttribution/controller/excepted_config.php');
+test('register route', function () {
+    $reader = new Reader();
+    $data = $reader->getData(fixture_get_path('Swagger/RouteAnnotation/ExampleAttribution'));
+    expect($data)->toMatchSnapshot();
 
-    $register = new Register($config);
+    $register = new Register($data);
     $register->registerRoute();
 
     $registeredRoutes = [];
-    foreach (Route::getRoutes() as $route) {
+    foreach (ClearableWebmanRoute::getRoutes() as $route) {
         foreach ($route->getMethods() as $method) {
             $path = $route->getPath();
             $middlewares = array_filter($route->getMiddleware(), function ($middleware) {
                 return is_string($middleware); // 暂时只支持一下字符串形式的中间件，callback 的不好校验
             });
-            $registeredRoutes[$method.':'.$path] = [
+            $registeredRoutes[$method . ':' . $path] = [
                 'name' => $route->getName(),
                 'method' => $method,
                 'path' => $path,
@@ -26,7 +29,7 @@ test('registerRoute', function () {
         }
     }
 
-    $exceptedRoutes = fixture_get_require('Swagger/RouteAnnotation/ExampleAttribution/controller/excepted_routes.php');
+    expect($registeredRoutes)->toMatchSnapshot();
 
-    expect($registeredRoutes)->toBe($exceptedRoutes);
+    ClearableWebmanRoute::clean();
 });

@@ -1,0 +1,14 @@
+[
+    {
+        "path": "\/openapi",
+        "methods": [
+            "GET"
+        ]
+    },
+    {
+        "path": "\/openapi\/doc",
+        "methods": [
+            "GET"
+        ]
+    }
+]

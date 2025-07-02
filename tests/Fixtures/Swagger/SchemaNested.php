@@ -3,15 +3,12 @@
 namespace Tests\Fixtures\Swagger;
 
 use OpenApi\Attributes as OA;
-use WebmanTech\Swagger\SchemaAnnotation\BaseSchema;
 
-/**
- * 嵌套用，不带 required
- */
-class SchemaNested extends BaseSchema
+#[OA\Schema]
+class SchemaNested
 {
+    #[OA\Property(type: 'string')]
+    public string $nestedName;
     #[OA\Property]
-    public string $string;
-    #[OA\Property]
-    public int $int;
+    public SchemaB $nestedB;
 }
