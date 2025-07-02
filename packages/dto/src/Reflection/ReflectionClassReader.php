@@ -60,6 +60,7 @@ final class ReflectionClassReader
         if (!$propertyReflection) {
             return null;
         }
+
         return $this->getValidationRules($propertyReflection);
     }
 
@@ -157,6 +158,11 @@ final class ReflectionClassReader
         return $this->constructParameterReflections;
     }
 
+    private function getConstructParameterReflectionByName(string $name): ?ReflectionParameter
+    {
+        return $this->getConstructParameterReflections()[$name] ?? null;
+    }
+
     private ?WeakMap $validationRules = null;
 
     private function getValidationRules(ReflectionParameter|ReflectionProperty $reflection): ValidationRules
@@ -173,11 +179,16 @@ final class ReflectionClassReader
             // 检查必填
             $isValueRequired = false;
             if ($reflection instanceof ReflectionProperty) {
-                $isValueRequired = $reflection->getType() // 有类型定义
+                $isValueRequired = $reflection->hasType() // 有类型定义
                     && !$reflection->hasDefaultValue() // 没有设置默认值
                 ;
+                if ($isValueRequired && $this->getConstructParameterReflectionByName($reflection->getName())?->isDefaultValueAvailable()) {
+                    // 如果属性是必填的，但是已经在 construct 上赋值过了，则不再是必填的了
+                    $isValueRequired = false;
+                }
             } elseif ($reflection instanceof ReflectionParameter) {
                 $isValueRequired = !$reflection->isOptional() // 非可选的
+                    && !$reflection->isDefaultValueAvailable() // 没有设置默认值
                 ;
             }
             if ($isValueRequired) {
@@ -219,7 +230,7 @@ final class ReflectionClassReader
         return $this->validationRules[$reflection];
     }
 
-    private function makeValueByValidationRules(ValidationRules $validationRules, string|int|float|array $value): mixed
+    private function makeValueByValidationRules(ValidationRules $validationRules, mixed $value): mixed
     {
         // 枚举
         if ($validationRules->enum) {

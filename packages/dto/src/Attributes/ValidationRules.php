@@ -60,11 +60,13 @@ final class ValidationRules
                 throw new \InvalidArgumentException('enum is not a BackedEnum class');
             }
         }
-        if ($this->object && $this->object !== \Closure::class) {
-            if (!class_exists($this->object)) {
+        if ($this->object) {
+            if ($this->object === \Closure::class) {
+                // 不能当 object 处理
+                $this->object = null;
+            } elseif (!class_exists($this->object)) {
                 throw new \InvalidArgumentException('object is not a class');
             }
-            $this->array = true;
         }
         if ($this->arrayItem) {
             if (!class_exists($this->arrayItem)) {
@@ -133,7 +135,7 @@ final class ValidationRules
             $this->boolean === true ? 'boolean' : null,
             $this->integer === true ? 'integer' : null,
             $this->numeric === true ? 'numeric' : null,
-            $this->array === true ? 'array' : null,
+            ($this->array === true || $this->object === true) ? 'array' : null,
             $this->min !== null ? 'min:' . $this->min : null,
             $this->max !== null ? 'max:' . $this->max : null,
         ]);

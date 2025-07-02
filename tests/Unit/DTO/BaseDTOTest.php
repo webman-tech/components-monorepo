@@ -79,6 +79,31 @@ test('fromData with extraValidateRules', function () {
     }
 });
 
+test('fromData use construct', function () {
+    class DTOFromDataUseConstructTest extends BaseDTO
+    {
+        public int $x = 123; // 属性定义，有默认值
+
+        public function __construct(
+            public string $name,
+                          $x, // 构造函数参数，无默认值
+            public int    $age = 18,
+            public        $y = 12, // 无类型定义，有默认值
+        )
+        {
+        }
+    }
+
+    $dto = DTOFromDataUseConstructTest::fromData([
+        'name' => 'nameValue',
+        'x' => '111',
+    ]);
+    expect($dto->name)->toBe('nameValue')
+        ->and($dto->x)->toBe(123)
+        ->and($dto->age)->toBe(18)
+        ->and($dto->y)->toBe(12);
+});
+
 test('toArray with public properties', function () {
     $dto = new class extends BaseDTO {
         public string $name = 'nameValue';
