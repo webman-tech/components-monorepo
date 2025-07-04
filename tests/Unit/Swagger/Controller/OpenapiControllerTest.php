@@ -23,4 +23,3 @@ test('openapiDoc generate json', function () {
     expect($response->rawBody())->toMatchSnapshot()
         ->and($response->getHeader('Content-Type'))->toBe('application/json');
 });
-
