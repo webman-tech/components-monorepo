@@ -2,6 +2,7 @@
 
 namespace WebmanTech\DTO\Reflection;
 
+use DateTime;
 use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionNamedType;
@@ -9,6 +10,7 @@ use ReflectionParameter;
 use ReflectionProperty;
 use WeakMap;
 use WebmanTech\DTO\Attributes\ValidationRules;
+use WebmanTech\DTO\BaseDTO;
 
 /**
  * @internal
@@ -234,15 +236,42 @@ final class ReflectionClassReader
     {
         // 枚举
         if ($validationRules->enum) {
+            if (!is_string($value) && !is_int($value)) {
+                throw new \InvalidArgumentException('cant make enum because value not string or int: ' . $validationRules->enum);
+            }
             return $validationRules->enum::from($value);
         }
         // 对象
         if ($validationRules->object) {
-            return ReflectionReaderFactory::fromClass($validationRules->object)->newInstanceByData($value);
+            if (is_a($validationRules->object, BaseDTO::class, true)) {
+                if (!is_array($value)) {
+                    throw new \InvalidArgumentException('cant make object because value not array: ' . $validationRules->object);
+                }
+                return $validationRules->object::fromData($value);
+            }
+            if (is_a($validationRules->object, DateTime::class, true)) {
+                return ReflectionReaderFactory::fromClass($validationRules->object)->newInstanceByData([
+                    'datetime' => $value,
+                    'time' => $value, // carbon 改变了参数名字，因此多传个 time
+                ]);
+            }
+            throw new \InvalidArgumentException('cant make object because type not support: ' . $validationRules->object);
         }
         // 数组
         if ($validationRules->arrayItem) {
-            return array_map(fn(array $item) => ReflectionReaderFactory::fromClass($validationRules->arrayItem)->newInstanceByData($item), $value);
+            $throwName = $validationRules->arrayItem instanceof ValidationRules
+                ? 'ValidationRules'
+                : $validationRules->arrayItem;
+            if (!is_array($value)) {
+                throw new \InvalidArgumentException('cant make arrayItem because value not array: ' . $throwName);
+            }
+            if (is_string($validationRules->arrayItem) && class_exists($validationRules->arrayItem)) {
+                return array_map(fn($item) => ReflectionReaderFactory::fromClass($validationRules->arrayItem)->newInstanceByData($item), $value);
+            }
+            if ($validationRules->arrayItem instanceof ValidationRules) {
+                return array_map(fn($item) => $this->makeValueByValidationRules($validationRules->arrayItem, $item), $value);
+            }
+            throw new \InvalidArgumentException('arrayItem must be class-string or ValidationRules instance');
         }
         // 其他直接赋值
         return $value;

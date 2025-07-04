@@ -4,7 +4,9 @@ namespace WebmanTech\DTO\Attributes;
 
 use Attribute;
 use BackedEnum;
+use DateTime;
 use Illuminate\Validation\Rule;
+use WebmanTech\DTO\BaseDTO;
 use WebmanTech\DTO\Reflection\ReflectionReaderFactory;
 
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
@@ -108,14 +110,18 @@ final class ValidationRules
         }
         $rules = $this->parsedRules ? [$key => $this->parsedRules] : [];
 
-        if ($this->object) {
+        if ($this->object && class_exists($this->object)) {
             foreach (ReflectionReaderFactory::fromClass($this->object)->getPublicPropertiesValidationRules() as $itemKey => $itemRules) {
                 $rules[$key . '.' . $itemKey] = $itemRules;
             }
         }
         if ($this->arrayItem) {
-            foreach (ReflectionReaderFactory::fromClass($this->arrayItem)->getPublicPropertiesValidationRules() as $itemKey => $itemRules) {
-                $rules[$key . '.*.' . $itemKey] = $itemRules;
+            if (is_string($this->arrayItem) && class_exists($this->arrayItem)) {
+                foreach (ReflectionReaderFactory::fromClass($this->arrayItem)->getPublicPropertiesValidationRules() as $itemKey => $itemRules) {
+                    $rules[$key . '.*.' . $itemKey] = $itemRules;
+                }
+            } elseif ($this->arrayItem instanceof ValidationRules) {
+                $rules[$key . '.*'] = $this->arrayItem->getRules('_PLACE_')['_PLACE_'];
             }
         }
 
@@ -138,10 +144,17 @@ final class ValidationRules
             $this->boolean === true ? 'boolean' : null,
             $this->integer === true ? 'integer' : null,
             $this->numeric === true ? 'numeric' : null,
-            ($this->array === true || $this->object === true) ? 'array' : null,
+            $this->array === true ? 'array' : null,
             $this->min !== null ? 'min:' . $this->min : null,
             $this->max !== null ? 'max:' . $this->max : null,
         ]);
+        if ($this->object) {
+            if (is_a($this->object, DateTime::class, true)) {
+                $rules2[] = 'date';
+            } elseif (is_a($this->object, BaseDTO::class, true)) {
+                $rules2[] = 'array';
+            }
+        }
 
         $rules3 = [];
         if ($this->enum) {

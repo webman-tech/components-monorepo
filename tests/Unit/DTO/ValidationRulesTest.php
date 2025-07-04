@@ -4,16 +4,17 @@ use Illuminate\Support\Arr;
 use Illuminate\Validation\Rules\Enum as RuleEnum;
 use Illuminate\Validation\Rules\In as RuleIn;
 use WebmanTech\DTO\Attributes\ValidationRules;
+use WebmanTech\DTO\BaseDTO;
 use WebmanTech\DTO\Reflection\ReflectionReaderFactory;
 
 test('validation rules', function () {
-    class DTOFromValidationRulesTestItem
+    class DTOFromValidationRulesTestItem extends BaseDTO
     {
         public string $name;
         public ?int $age = 18;
     }
 
-    class DTOFromValidationRulesTestParent
+    class DTOFromValidationRulesTestParent extends BaseDTO
     {
         public string $parent;
         public int $parentId;
@@ -29,6 +30,7 @@ test('validation rules', function () {
         public mixed $mixed;
         public Closure $closure;
         public array $array;
+        public DateTime $dateTime;
         public DTOFromValidationRulesTestItem $child;
         // 复合类型
         public string|int $stringOrInt;
@@ -41,6 +43,9 @@ test('validation rules', function () {
         // array 类型，每个子类是对象
         #[ValidationRules(arrayItem: DTOFromValidationRulesTestItem::class)]
         public array $children;
+        // array 类型，每个子类是 ValidationRules
+        #[ValidationRules(arrayItem: new ValidationRules(string: true))]
+        public array $childrenNames;
         // 不定义类型
         public $noTypeDefine;
         public $noTypeDefineWithDefault = 'abc';

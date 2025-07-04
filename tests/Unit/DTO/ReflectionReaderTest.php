@@ -1,6 +1,8 @@
 <?php
 
+use Carbon\Carbon;
 use WebmanTech\DTO\Attributes\ValidationRules;
+use WebmanTech\DTO\BaseDTO;
 use WebmanTech\DTO\Reflection\ReflectionReaderFactory;
 
 test('ReflectionReaderFactory instance', function () {
@@ -64,7 +66,7 @@ test('ReflectionClassReader newInstanceByData', function () {
         case B = 'b';
     }
 
-    class DTOFromReflectionClassReaderNewInstanceByDataTestItem
+    class DTOFromReflectionClassReaderNewInstanceByDataTestItem extends BaseDTO
     {
         public function __construct(
             public string $name,
@@ -73,26 +75,34 @@ test('ReflectionClassReader newInstanceByData', function () {
         }
     }
 
-    class DTOFromReflectionClassReaderNewInstanceByDataTest
+    class DTOFromReflectionClassReaderNewInstanceByDataTest extends BaseDTO
     {
         public string $propertyString;
         public int $propertyInt;
         public bool $propertyBool;
         public array $propertyArray;
+        public DateTime $propertyDatetime;
+        public Carbon $propertyCarbon;
         public DTOFromReflectionClassReaderNewInstanceByDataTestEnum $propertyEnum;
         public DTOFromReflectionClassReaderNewInstanceByDataTestItem $propertyObject;
         #[ValidationRules(arrayItem: DTOFromReflectionClassReaderNewInstanceByDataTestItem::class)]
         public array $propertyArrayWithItem;
+        #[ValidationRules(arrayItem: new ValidationRules(string: true))]
+        public array $propertyArrayWithItemValidationRules;
 
         public function __construct(
             public string                                                $string,
             public int                                                   $int,
             public bool                                                  $bool,
             public array                                                 $array,
+            public DateTime                                              $datetime,
+            public Carbon                                                $carbon,
             public DTOFromReflectionClassReaderNewInstanceByDataTestEnum $enum,
             public DTOFromReflectionClassReaderNewInstanceByDataTestItem $object,
             #[ValidationRules(arrayItem: DTOFromReflectionClassReaderNewInstanceByDataTestItem::class)]
             public array                                                 $arrayWithItem,
+            #[ValidationRules(arrayItem: new ValidationRules(string: true))]
+            public array                                                 $arrayWithItemValidationRules,
             public string                                                $stringWithDefault = 'default',
         )
         {
@@ -104,13 +114,18 @@ test('ReflectionClassReader newInstanceByData', function () {
         'int' => 1,
         'bool' => true,
         'array' => [1, 2, 3],
+        'datetime' => '2020-12-07 11:22:33',
+        'carbon' => '2023-03-04 12:23:34',
         'enum' => 'a',
         'object' => ['name' => 'abc'],
         'arrayWithItem' => [['name' => 'abc'], ['name' => 'def']],
+        'arrayWithItemValidationRules' => ['abc', 'def'],
         'propertyString' => 'propertyString',
         'propertyInt' => 2,
         'propertyBool' => false,
         'propertyArray' => [1, 2, 3],
+        'propertyDatetime' => '2020-12-08 11:22:33',
+        'propertyCarbon' => '2023-03-05 12:23:34',
         'propertyEnum' => 'b',
         'propertyObject' => ['name' => 'abc'],
         'propertyArrayWithItem' => [['name' => 'abc'], ['name' => 'def']],
@@ -120,6 +135,10 @@ test('ReflectionClassReader newInstanceByData', function () {
         ->and($obj->int)->toBe(1)
         ->and($obj->bool)->toBeTrue()
         ->and($obj->array)->toBe([1, 2, 3])
+        ->and($obj->datetime)->toBeInstanceOf(DateTime::class)
+        ->and($obj->datetime->format('Y-m-d H:i:s'))->toBe('2020-12-07 11:22:33')
+        ->and($obj->carbon)->toBeInstanceOf(Carbon::class)
+        ->and($obj->carbon->format('Y-m-d H:i:s'))->toBe('2023-03-04 12:23:34')
         ->and($obj->enum)->toBe(DTOFromReflectionClassReaderNewInstanceByDataTestEnum::A)
         ->and($obj->object)->toBeInstanceOf(DTOFromReflectionClassReaderNewInstanceByDataTestItem::class)
         ->and($obj->object->name)->toBe('abc')

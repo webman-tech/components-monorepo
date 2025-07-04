@@ -3,6 +3,7 @@
 use WebmanTech\DTO\BaseDTO;
 use WebmanTech\DTO\Exceptions\DTONewInstanceException;
 use WebmanTech\DTO\Exceptions\DTOValidateException;
+use WebmanTech\DTO\Helper\ConfigHelper;
 
 test('fromData with validate', function () {
     class DTOFromDataWithValidateTest extends BaseDTO
@@ -109,6 +110,16 @@ test('toArray with public properties', function () {
         public string $name = 'nameValue';
         public int $int = 123;
         public ?int $null = null;
+        public array $array = [1, 2, 3];
+        public array $array2 = [
+            'x' => 'y',
+        ];
+
+        public function __construct(
+            public DateTime $dateTime = new DateTime('2025-12-12 11:11:11'),
+        )
+        {
+        }
 
         protected string $protected = 'protectedValue';
     };
@@ -116,8 +127,31 @@ test('toArray with public properties', function () {
     expect($dto->toArray())->toBe([
         'name' => 'nameValue',
         'int' => 123,
-        'null' => null
+        'null' => null,
+        'array' => [1, 2, 3],
+        'array2' => [
+            'x' => 'y',
+        ],
+        'dateTime' => (new DateTime('2025-12-12 11:11:11'))->format(DateTimeInterface::ATOM),
     ]);
+});
+
+test('toArray with dateTimeFormat', function () {
+    $dto = new class extends BaseDTO {
+        public function __construct(
+            public DateTime $dateTime = new DateTime('2025-12-12 11:11:11'),
+        )
+        {
+        }
+    };
+
+    ConfigHelper::setForTest('dto.to_array_default_datetime_format', 'Y-m-d H:i');
+
+    expect($dto->toArray())->toBe([
+        'dateTime' => '2025-12-12 11:11',
+    ]);
+
+    ConfigHelper::setForTest();
 });
 
 test('toArray with include properties', function () {

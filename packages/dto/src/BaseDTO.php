@@ -2,9 +2,12 @@
 
 namespace WebmanTech\DTO;
 
+use DateTime;
+use DateTimeInterface;
 use Illuminate\Support\Arr;
 use WebmanTech\DTO\Exceptions\DTONewInstanceException;
 use WebmanTech\DTO\Exceptions\DTOValidateException;
+use WebmanTech\DTO\Helper\ConfigHelper;
 use WebmanTech\DTO\Reflection\ReflectionReaderFactory;
 
 class BaseDTO
@@ -84,6 +87,14 @@ class BaseDTO
     }
 
     /**
+     * 日期格式
+     */
+    protected function getDateTimeFormat(): string
+    {
+        return ConfigHelper::get('dto.to_array_default_datetime_format', DateTimeInterface::ATOM);
+    }
+
+    /**
      * 转为数组
      * @return array<string, mixed>
      */
@@ -108,6 +119,8 @@ class BaseDTO
                 }, $value);
             } elseif ($value instanceof self) {
                 $value = $value->toArray();
+            } elseif ($value instanceof DateTime) {
+                $value = $value->format($this->getDateTimeFormat());
             }
             $data[$property] = $value;
         }

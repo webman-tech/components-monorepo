@@ -34,6 +34,10 @@
         "required",
         "array"
     ],
+    "dateTime": [
+        "required",
+        "date"
+    ],
     "child": [
         "required",
         "array"
@@ -76,6 +80,13 @@
     "children.*.age": [
         "nullable",
         "integer"
+    ],
+    "childrenNames": [
+        "required",
+        "array"
+    ],
+    "childrenNames.*": [
+        "string"
     ],
     "noTypeDefine": [
         "nullable"
