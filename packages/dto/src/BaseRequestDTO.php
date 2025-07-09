@@ -2,17 +2,20 @@
 
 namespace WebmanTech\DTO;
 
-use Webman\Http\Request;
 use WebmanTech\DTO\Exceptions\DTONewInstanceException;
 use WebmanTech\DTO\Exceptions\DTOValidateException;
 
+/**
+ * @phpstan-import-type TypeRequest from Integrations\Request
+ */
 class BaseRequestDTO extends BaseDTO
 {
     /**
      * 从 request 创建
+     * @param TypeRequest $request
      * @throws DTOValidateException|DTONewInstanceException
      */
-    public static function fromRequest(Request $request, ?string $defaultRequestType = null, bool $validate = true): static
+    public static function fromRequest($request, ?string $defaultRequestType = null, bool $validate = true): static
     {
         $data = static::getDataFromRequest($request, $defaultRequestType);
 
@@ -30,14 +33,17 @@ class BaseRequestDTO extends BaseDTO
 
     /**
      * 从 request 获取数据
+     * @param TypeRequest $request
      * @return array<string, mixed>
      */
-    protected static function getDataFromRequest(Request $request, ?string $defaultRequestType = null): array
+    protected static function getDataFromRequest($request, ?string $defaultRequestType = null): array
     {
+        $request = Integrations\Request::from($request);
+
         $data = match ($defaultRequestType) {
-            'get' => $request->get(),
-            'post' => $request->post(),
-            'header' => $request->header(),
+            'get' => $request->getAll(),
+            'post' => $request->postAll(),
+            'header' => $request->headerAll(),
             null => [],
             default => throw new \InvalidArgumentException('defaultRequestType error: ' . $defaultRequestType),
         };
