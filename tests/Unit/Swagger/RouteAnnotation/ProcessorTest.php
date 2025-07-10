@@ -82,7 +82,7 @@ test('XSchemaRequestProcessor', function () {
     // 在 post 下自动将 schema 转为 requestBody
     $operation = $fnFindPathItemByPath('/post/schema', 'post');
     expect($operation->method)->toBe('post')
-        ->and($operation->requestBody->content['application/json']->schema->properties[0]->property)->toBe('name');
+        ->and($operation->requestBody->content['application/json']->schema->ref)->toBe('#/components/schemas/ControllerForXSchemaRequestSchemaA');
 
     // 支持 @ 自动识别 response
     $operation = $fnFindPathItemByPath('/get/schema-with-at', 'get');
@@ -119,24 +119,32 @@ test('XSchemaResponseProcessor', function () {
 
     // 单 string 类，转到 200 上
     $operation = $fnFindPathItemByPath('/get/schema', 'get');
-    expect($operation->responses[200]->content['application/json']->schema->properties[0]->property)->toBe('name')
+    expect($operation->responses[200]->content['application/json']->schema->ref)->toBe('#/components/schemas/ControllerForXSchemaResponseSchemaA')
         ->and($operation->x)->toBe(\OpenApi\Generator::UNDEFINED); // 用完被清理
 
     // 多维 index 数组，转到 200 上
     $operation = $fnFindPathItemByPath('/get/schema-multi', 'get');
-    expect($operation->responses[200]->content['application/json']->schema->properties[0]->property)->toBe('name')
-        ->and($operation->responses[200]->content['application/json']->schema->properties[1]->property)->toBe('age');
+    expect($operation->responses[200]->content['application/json']->schema->allOf)->toHaveCount(2);
+    $allOfRefs = array_map(fn(OA\Schema $schema) => $schema->ref, $operation->responses[200]->content['application/json']->schema->allOf);
+    expect($allOfRefs)->toBe([
+        '#/components/schemas/ControllerForXSchemaResponseSchemaA',
+        '#/components/schemas/ControllerForXSchemaResponseSchemaB',
+    ]);
 
     // status_code 单 string
     $operation = $fnFindPathItemByPath('/get/schema-status-code', 'get');
-    expect($operation->responses[200]->content['application/json']->schema->properties[0]->property)->toBe('name')
-        ->and($operation->responses[201]->content['application/json']->schema->properties[0]->property)->toBe('age');
+    expect($operation->responses[200]->content['application/json']->schema->ref)->toBe('#/components/schemas/ControllerForXSchemaResponseSchemaA')
+        ->and($operation->responses[201]->content['application/json']->schema->ref)->toBe('#/components/schemas/ControllerForXSchemaResponseSchemaB');
 
     // status_code 数组
     $operation = $fnFindPathItemByPath('/get/schema-status-code-multi', 'get');
-    expect($operation->responses[200]->content['application/json']->schema->properties[0]->property)->toBe('name')
-        ->and($operation->responses[200]->content['application/json']->schema->properties[1]->property)->toBe('age')
-        ->and($operation->responses[201]->content['application/json']->schema->properties[0]->property)->toBe('age');
+    expect($operation->responses[200]->content['application/json']->schema->allOf)->toHaveCount(2)
+        ->and($operation->responses[201]->content['application/json']->schema->ref)->toBe('#/components/schemas/ControllerForXSchemaResponseSchemaB');
+    $allOfRefs = array_map(fn(OA\Schema $schema) => $schema->ref, $operation->responses[200]->content['application/json']->schema->allOf);
+    expect($allOfRefs)->toBe([
+        '#/components/schemas/ControllerForXSchemaResponseSchemaA',
+        '#/components/schemas/ControllerForXSchemaResponseSchemaB',
+    ]);
 
     // x-in 的支持
     $operation = $fnFindPathItemByPath('/post/schema-x-in', 'post');
