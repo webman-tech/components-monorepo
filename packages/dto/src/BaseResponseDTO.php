@@ -2,8 +2,8 @@
 
 namespace WebmanTech\DTO;
 
-use Webman\Http\Response;
 use WebmanTech\DTO\Helper\ConfigHelper;
+use WebmanTech\DTO\Integrations\Response;
 
 class BaseResponseDTO extends BaseDTO
 {
@@ -11,9 +11,9 @@ class BaseResponseDTO extends BaseDTO
 
     /**
      * 转为 Response
-     * @return Response
+     * @return mixed
      */
-    public function toResponse(): Response
+    public function toResponse()
     {
         if ($this->toResponseFormat === null) {
             $this->toResponseFormat = ConfigHelper::get('dto.to_response_format', 'json');
@@ -22,7 +22,7 @@ class BaseResponseDTO extends BaseDTO
         $data = $this->toArray();
 
         if ($this->toResponseFormat === 'json') {
-            return json($data);
+            return Response::create()->json($data);
         }
         if ($this->toResponseFormat instanceof \Closure) {
             return call_user_func($this->toResponseFormat, $data);
