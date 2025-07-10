@@ -1,8 +1,10 @@
 <?php
 
-use WebmanTech\Swagger\Middleware\HostForbiddenMiddleware;
+namespace Tests\Unit\Swagger\Integrations;
 
-test('check', function () {
+use WebmanTech\Swagger\Integrations\Webman\HostForbiddenMiddleware;
+
+test('HostForbiddenMiddleware check', function () {
     $request = request_create_one();
 
     // 仅内网允许

@@ -1,16 +1,16 @@
 <?php
 
 use Tests\Fixtures\ClearableWebmanRoute;
+use WebmanTech\Swagger\Integrations\RouteRegister;
 use WebmanTech\Swagger\RouteAnnotation\Reader;
-use WebmanTech\Swagger\RouteAnnotation\Register;
 
 test('register route', function () {
     $reader = new Reader();
     $data = $reader->getData(fixture_get_path('Swagger/RouteAnnotation/ExampleAttribution'));
     expect($data)->toMatchSnapshot();
 
-    $register = new Register($data);
-    $register->registerRoute();
+    $register = RouteRegister::create();
+    $register->register($data);
 
     $registeredRoutes = [];
     foreach (ClearableWebmanRoute::getRoutes() as $route) {

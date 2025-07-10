@@ -33,7 +33,6 @@ class ExampleSourceController
             SchemaConstants::X_MIDDLEWARE => [
                 SampleMiddleware::class,
                 [SampleMiddleware2::class, ['param' => 'use params array']],
-                SchemaConstants::MIDDLEWARE_NAMED_PREFIX . 'sample_middleware3',
             ],
             // 指定路由别名
             SchemaConstants::X_NAME => 'crud.list',

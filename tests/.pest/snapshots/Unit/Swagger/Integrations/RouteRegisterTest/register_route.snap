@@ -49,8 +49,7 @@
                 {
                     "param": "use params array"
                 }
-            ],
-            "@named:sample_middleware3"
+            ]
         ]
     },
     "POST:\/crud": {
