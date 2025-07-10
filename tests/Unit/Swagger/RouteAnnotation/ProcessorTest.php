@@ -6,11 +6,13 @@ use Tests\Fixtures\Swagger\ControllerForXSchemaRequestSchemaA;
 use Tests\Fixtures\Swagger\ControllerForXSchemaRequestSchemaB;
 use Tests\Fixtures\Swagger\EnumColor;
 use Tests\Fixtures\Swagger\SchemaDTO;
+use Tests\Fixtures\Swagger\SchemaEloquentModel;
 use Tests\Fixtures\Swagger\TestFactory;
 use WebmanTech\Swagger\DTO\SchemaConstants;
 use WebmanTech\Swagger\RouteAnnotation\Processors\AppendResponseProcessor;
 use WebmanTech\Swagger\RouteAnnotation\Processors\DTOValidationRulesProcessor;
 use WebmanTech\Swagger\RouteAnnotation\Processors\EnumDescriptionProcessor;
+use WebmanTech\Swagger\RouteAnnotation\Processors\ExpandEloquentModelProcessor;
 use WebmanTech\Swagger\RouteAnnotation\Processors\MergeClassInfoProcessor;
 use WebmanTech\Swagger\RouteAnnotation\Processors\SortComponentsProcessor;
 use WebmanTech\Swagger\RouteAnnotation\Processors\XSchemaRequestProcessor;
@@ -242,4 +244,26 @@ test('EnumDescriptionProcessor', function () {
             '- green: G',
             '- blue: B',
         ]));
+});
+
+test('ExpandEloquentModelProcessor', function () {
+    $analysis = TestFactory::analysisFromFiles(['SchemaEloquentModel.php']);
+    $analysis->process([
+        new ExpandEloquentModelProcessor(),
+    ]);
+    $schema = $analysis->getSchemaForSource(SchemaEloquentModel::class);
+    $data = [];
+    foreach ($schema->properties as $property) {
+        $data[] = [
+            'property' => $property->property,
+            'type' => $property->type,
+            'description' => $property->description,
+        ];
+    }
+    expect($data)->toBe([
+        ['property' => 'id', 'type' => 'integer', 'description' => '(主键)'],
+        ['property' => 'username', 'type' => 'string', 'description' => '用户名'],
+        ['property' => 'access_token', 'type' => 'string', 'description' => 'Access Token'],
+        ['property' => 'created_at', 'type' => 'string', 'description' => '创建时间'],
+    ]);
 });
