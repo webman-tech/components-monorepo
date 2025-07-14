@@ -3,27 +3,6 @@ info:
   title: 'App OpenAPI'
   version: '0.1'
 paths:
-  /same-path:
-    get:
-      operationId: a16af954711ddf37a3be80134cf418aa
-      responses:
-        '200':
-          description: OK
-    put:
-      operationId: 3dfc4a91d3b7bb5bef9dc0784310e7e1
-      responses:
-        '200':
-          description: OK
-    post:
-      operationId: 443d2de84262eb071730681473d1cca6
-      responses:
-        '200':
-          description: OK
-    delete:
-      operationId: 0cac586e86cf5c2796219368f0d0ca61
-      responses:
-        '200':
-          description: OK
   /crud:
     get:
       tags:
@@ -192,6 +171,27 @@ paths:
       security:
         -
           api_key: []
+  /same-path:
+    get:
+      operationId: a16af954711ddf37a3be80134cf418aa
+      responses:
+        '200':
+          description: OK
+    put:
+      operationId: 3dfc4a91d3b7bb5bef9dc0784310e7e1
+      responses:
+        '200':
+          description: OK
+    post:
+      operationId: 443d2de84262eb071730681473d1cca6
+      responses:
+        '200':
+          description: OK
+    delete:
+      operationId: 0cac586e86cf5c2796219368f0d0ca61
+      responses:
+        '200':
+          description: OK
 tags:
   -
     name: crud
