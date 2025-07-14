@@ -18,6 +18,7 @@ test('registerGlobalRoute dont regsiter_webman_route', function () {
             'methods' => $route->getMethods(),
         ];
     }
+    $data = collect($data)->sortBy(fn(array $item) => $item['path'])->values()->toArray(); // 排个序，防止顺序问题
     expect($data)->toMatchSnapshot();
 
     ConfigHelper::setForTest();
@@ -41,6 +42,7 @@ test('registerGlobalRoute register_webman_route', function () {
             'methods' => $route->getMethods(),
         ];
     }
+    $data = collect($data)->sortBy(fn(array $item) => $item['path'])->values()->toArray(); // 排个序，防止顺序问题
     expect($data)->toMatchSnapshot();
 
     ConfigHelper::setForTest();
