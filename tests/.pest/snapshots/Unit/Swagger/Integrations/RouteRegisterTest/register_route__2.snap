@@ -1,31 +1,11 @@
 {
-    "GET:\/same-path": {
-        "name": "GET:\/same-path",
-        "method": "GET",
-        "path": "\/same-path",
+    "DELETE:\/crud\/{id}": {
+        "name": "DELETE:\/crud\/{id}",
+        "method": "DELETE",
+        "path": "\/crud\/{id}",
         "callback": [
-            "\\Tests\\Fixtures\\Swagger\\RouteAnnotation\\ExampleAttribution\\controller\\SamePathController",
-            "get"
-        ],
-        "middlewares": []
-    },
-    "POST:\/same-path": {
-        "name": "POST:\/same-path",
-        "method": "POST",
-        "path": "\/same-path",
-        "callback": [
-            "\\Tests\\Fixtures\\Swagger\\RouteAnnotation\\ExampleAttribution\\controller\\SamePathController",
-            "post"
-        ],
-        "middlewares": []
-    },
-    "PUT:\/same-path": {
-        "name": "PUT:\/same-path",
-        "method": "PUT",
-        "path": "\/same-path",
-        "callback": [
-            "\\Tests\\Fixtures\\Swagger\\RouteAnnotation\\ExampleAttribution\\controller\\SamePathController",
-            "put"
+            "\\Tests\\Fixtures\\Swagger\\RouteAnnotation\\ExampleAttribution\\controller\\ExampleSourceController",
+            "destroy"
         ],
         "middlewares": []
     },
@@ -51,6 +31,26 @@
             "Tests\\Fixtures\\Swagger\\RouteAnnotation\\ExampleAttribution\\middleware\\SampleMiddleware"
         ]
     },
+    "GET:\/crud\/{id:\\d+}": {
+        "name": "GET:\/crud\/{id:\\d+}",
+        "method": "GET",
+        "path": "\/crud\/{id:\\d+}",
+        "callback": [
+            "\\Tests\\Fixtures\\Swagger\\RouteAnnotation\\ExampleAttribution\\controller\\ExampleSourceController",
+            "show"
+        ],
+        "middlewares": []
+    },
+    "GET:\/same-path": {
+        "name": "GET:\/same-path",
+        "method": "GET",
+        "path": "\/same-path",
+        "callback": [
+            "\\Tests\\Fixtures\\Swagger\\RouteAnnotation\\ExampleAttribution\\controller\\SamePathController",
+            "get"
+        ],
+        "middlewares": []
+    },
     "POST:\/crud": {
         "name": "POST:\/crud",
         "method": "POST",
@@ -61,13 +61,13 @@
         ],
         "middlewares": []
     },
-    "GET:\/crud\/{id:\\d+}": {
-        "name": "GET:\/crud\/{id:\\d+}",
-        "method": "GET",
-        "path": "\/crud\/{id:\\d+}",
+    "POST:\/same-path": {
+        "name": "POST:\/same-path",
+        "method": "POST",
+        "path": "\/same-path",
         "callback": [
-            "\\Tests\\Fixtures\\Swagger\\RouteAnnotation\\ExampleAttribution\\controller\\ExampleSourceController",
-            "show"
+            "\\Tests\\Fixtures\\Swagger\\RouteAnnotation\\ExampleAttribution\\controller\\SamePathController",
+            "post"
         ],
         "middlewares": []
     },
@@ -81,16 +81,6 @@
         ],
         "middlewares": []
     },
-    "DELETE:\/crud\/{id}": {
-        "name": "DELETE:\/crud\/{id}",
-        "method": "DELETE",
-        "path": "\/crud\/{id}",
-        "callback": [
-            "\\Tests\\Fixtures\\Swagger\\RouteAnnotation\\ExampleAttribution\\controller\\ExampleSourceController",
-            "destroy"
-        ],
-        "middlewares": []
-    },
     "PUT:\/crud\/{id}\/recovery": {
         "name": "PUT:\/crud\/{id}\/recovery",
         "method": "PUT",
@@ -98,6 +88,16 @@
         "callback": [
             "\\Tests\\Fixtures\\Swagger\\RouteAnnotation\\ExampleAttribution\\controller\\ExampleSourceController",
             "recovery"
+        ],
+        "middlewares": []
+    },
+    "PUT:\/same-path": {
+        "name": "PUT:\/same-path",
+        "method": "PUT",
+        "path": "\/same-path",
+        "callback": [
+            "\\Tests\\Fixtures\\Swagger\\RouteAnnotation\\ExampleAttribution\\controller\\SamePathController",
+            "put"
         ],
         "middlewares": []
     }
