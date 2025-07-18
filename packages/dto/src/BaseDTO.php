@@ -5,6 +5,7 @@ namespace WebmanTech\DTO;
 use DateTime;
 use DateTimeInterface;
 use Illuminate\Support\Arr;
+use WebmanTech\DTO\Attributes\ToArrayConfig;
 use WebmanTech\DTO\Exceptions\DTONewInstanceException;
 use WebmanTech\DTO\Exceptions\DTOValidateException;
 use WebmanTech\DTO\Helper\ConfigHelper;
@@ -69,24 +70,6 @@ class BaseDTO
     }
 
     /**
-     * 需要额外包含的属性
-     * @return string[]
-     */
-    protected function getToArrayIncludeProperties(): array
-    {
-        return [];
-    }
-
-    /**
-     * 需要剔除的属性
-     * @return string[]
-     */
-    protected function getToArrayExcludeProperties(): array
-    {
-        return [];
-    }
-
-    /**
      * 日期格式
      */
     protected function getDateTimeFormat(): string
@@ -101,13 +84,22 @@ class BaseDTO
     public function toArray(): array
     {
         $data = [];
-        $properties = array_diff(
-            array_merge(
-                ReflectionReaderFactory::fromClass($this)->getPropertyNameList(),
-                $this->getToArrayIncludeProperties(),
-            ),
-            $this->getToArrayExcludeProperties()
-        );
+
+        $factory = ReflectionReaderFactory::fromClass($this);
+
+        $toArrayConfig = $factory->getPropertiesToArrayConfig() ?? new ToArrayConfig();
+        if ($toArrayConfig->only) {
+            $properties = $toArrayConfig->only;
+        } else {
+            $properties = $factory->getPropertyNameList();
+            if ($toArrayConfig->include) {
+                $properties = array_merge($properties, $toArrayConfig->include);
+            }
+            if ($toArrayConfig->exclude) {
+                $properties = array_diff($properties, $toArrayConfig->exclude);
+            }
+        }
+
         foreach ($properties as $property) {
             $value = $this->{$property};
             if (is_array($value)) {

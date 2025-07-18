@@ -9,6 +9,7 @@ use ReflectionParameter;
 use ReflectionProperty;
 use WeakMap;
 use WebmanTech\DTO\Attributes\RequestPropertyIn;
+use WebmanTech\DTO\Attributes\ToArrayConfig;
 use WebmanTech\DTO\Attributes\ValidationRules;
 
 /**
@@ -162,6 +163,17 @@ final class ReflectionClassReader
     }
 
     /**
+     * 获取 ToArrayConfig 注解实例
+     */
+    public function getPropertiesToArrayConfig(): ?ToArrayConfig
+    {
+        return $this->getFirstNamedAttributionInstance(
+            $this->reflectionClass,
+            ToArrayConfig::class,
+        );
+    }
+
+    /**
      * 获取全部属性的验证规则
      * @return array<string, array>
      */
@@ -233,10 +245,10 @@ final class ReflectionClassReader
      * @return T|null
      */
     private function getFirstNamedAttributionInstance(
-        ReflectionParameter|ReflectionProperty $reflection,
-        string                                 $attributionName,
-        ?Closure                               $default = null,
-        ?Closure                               $initializer = null,
+        ReflectionParameter|ReflectionProperty|ReflectionClass $reflection,
+        string                                                 $attributionName,
+        ?Closure                                               $default = null,
+        ?Closure                                               $initializer = null,
     ): ?object
     {
         if ($this->attributionCache === null) {

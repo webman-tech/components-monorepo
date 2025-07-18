@@ -1,5 +1,6 @@
 <?php
 
+use WebmanTech\DTO\Attributes\ToArrayConfig;
 use WebmanTech\DTO\BaseDTO;
 use WebmanTech\DTO\Exceptions\DTONewInstanceException;
 use WebmanTech\DTO\Exceptions\DTOValidateException;
@@ -154,35 +155,46 @@ test('toArray with dateTimeFormat', function () {
     ConfigHelper::setForTest();
 });
 
-test('toArray with include properties', function () {
-    $dto = new class extends BaseDTO {
+test('toArray with ToArrayConfig', function () {
+    // include
+    #[ToArrayConfig(include: ['protected'])]
+    class DTOToArrayWithToArrayConfigInclude extends BaseDTO
+    {
         public string $name = 'nameValue';
 
         protected string $protected = 'protectedValue';
+    }
 
-        protected function getToArrayIncludeProperties(): array
-        {
-            return ['protected'];
-        }
-    };
-
+    $dto = new DTOToArrayWithToArrayConfigInclude();
     expect($dto->toArray())->toBe([
         'name' => 'nameValue',
         'protected' => 'protectedValue',
     ]);
-});
 
-test('toArray with exclude properties', function () {
-    $dto = new class extends BaseDTO {
+    // exclude
+    #[ToArrayConfig(exclude: ['name2'])]
+    class DTOToArrayWithToArrayConfigExclude extends BaseDTO
+    {
         public string $name = 'nameValue';
-        public string $name2 = 'nameValue2';
 
-        protected function getToArrayExcludeProperties(): array
-        {
-            return ['name2'];
-        }
-    };
+        public string $name2 = 'protectedValue';
+    }
 
+    $dto = new DTOToArrayWithToArrayConfigExclude();
+    expect($dto->toArray())->toBe([
+        'name' => 'nameValue',
+    ]);
+
+    // only
+    #[ToArrayConfig(only: ['name'])]
+    class DTOToArrayWithToArrayConfigOnly extends BaseDTO
+    {
+        public string $name = 'nameValue';
+
+        public string $name2 = 'protectedValue';
+    }
+
+    $dto = new DTOToArrayWithToArrayConfigOnly();
     expect($dto->toArray())->toBe([
         'name' => 'nameValue',
     ]);
