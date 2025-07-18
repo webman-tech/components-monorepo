@@ -10,9 +10,9 @@ use Tests\Fixtures\Swagger\SchemaEloquentModel;
 use Tests\Fixtures\Swagger\TestFactory;
 use WebmanTech\Swagger\DTO\SchemaConstants;
 use WebmanTech\Swagger\RouteAnnotation\Processors\AppendResponseProcessor;
-use WebmanTech\Swagger\RouteAnnotation\Processors\DTOValidationRulesProcessor;
-use WebmanTech\Swagger\RouteAnnotation\Processors\EnumDescriptionProcessor;
+use WebmanTech\Swagger\RouteAnnotation\Processors\ExpandDTOAttributionsProcessor;
 use WebmanTech\Swagger\RouteAnnotation\Processors\ExpandEloquentModelProcessor;
+use WebmanTech\Swagger\RouteAnnotation\Processors\ExpandEnumDescriptionProcessor;
 use WebmanTech\Swagger\RouteAnnotation\Processors\MergeClassInfoProcessor;
 use WebmanTech\Swagger\RouteAnnotation\Processors\SortComponentsProcessor;
 use WebmanTech\Swagger\RouteAnnotation\Processors\XSchemaRequestProcessor;
@@ -93,13 +93,6 @@ test('XSchemaRequestProcessor', function () {
     // @ 自动识别 response 时，如果之前已经配置了，则不覆盖
     $operation = $fnFindPathItemByPath('/get/schema-with-at-already-has-response', 'get');
     expect($operation->x[SchemaConstants::X_SCHEMA_RESPONSE])->toBe(ControllerForXSchemaRequestSchemaA::class);
-
-    // x-in 的支持
-    $operation = $fnFindPathItemByPath('/post/schema-x-in', 'post');
-    expect($operation->parameters[0]->name)->toBe('query')
-        ->and($operation->parameters[0]->in)->toBe('query')
-        ->and($operation->parameters[1]->name)->toBe('header')
-        ->and($operation->parameters[1]->in)->toBe('header');
 });
 
 test('XSchemaResponseProcessor', function () {
@@ -145,17 +138,13 @@ test('XSchemaResponseProcessor', function () {
         '#/components/schemas/ControllerForXSchemaResponseSchemaA',
         '#/components/schemas/ControllerForXSchemaResponseSchemaB',
     ]);
-
-    // x-in 的支持
-    $operation = $fnFindPathItemByPath('/post/schema-x-in', 'post');
-    expect($operation->responses[200]->headers[0]->header)->toBe('header');
 });
 
-test('DTOValidationRulesProcessor', function () {
+test('ExpandDTOAttributionsProcessor', function () {
     $analysis = TestFactory::analysisFromFiles(['SchemaDTO.php']);
 
     $analysis->process(
-        new DTOValidationRulesProcessor(),
+        new ExpandDTOAttributionsProcessor(),
     );
 
     $schema = $analysis->getSchemaForSource(SchemaDTO::class);
@@ -196,10 +185,14 @@ test('DTOValidationRulesProcessor', function () {
     // 对象
     $property = $fnFindPropertyByName('child');
     expect($property->type)->toBe('object');
+
+    // RequestPropertyIn
+    $property = $fnFindPropertyByName('hasXin');
+    expect($property->x['in'])->toBe('header');
 });
 
-test('EnumDescriptionProcessor', function () {
-    // 未附加 EnumDescriptionProcessor 时
+test('ExpandEnumDescriptionProcessor', function () {
+    // 未附加 ExpandEnumDescriptionProcessor 时
     $analysis = TestFactory::analysisFromFiles(['EnumColor.php']);
     $analysis->process([
         new \OpenApi\Processors\ExpandEnums(),
@@ -208,11 +201,11 @@ test('EnumDescriptionProcessor', function () {
     expect($schema->enum)->toBe(['red', 'green', 'blue'])
         ->and($schema->description)->toBe('颜色枚举');
 
-    // 附加 EnumDescriptionProcessor 时
+    // 附加 ExpandEnumDescriptionProcessor 时
     $analysis = TestFactory::analysisFromFiles(['EnumColor.php']);
     $analysis->process([
         new \OpenApi\Processors\ExpandEnums(),
-        new EnumDescriptionProcessor(),
+        new ExpandEnumDescriptionProcessor(),
     ]);
     $schema = $analysis->getSchemaForSource(EnumColor::class);
     expect($schema->enum)->toBe(['red', 'green', 'blue'])
@@ -223,11 +216,11 @@ test('EnumDescriptionProcessor', function () {
             '- blue: 蓝色',
         ]));
 
-    // 附加 EnumDescriptionProcessor 时，使用指定的 method 获取
+    // 附加 ExpandEnumDescriptionProcessor 时，使用指定的 method 获取
     $analysis = TestFactory::analysisFromFiles(['EnumColor.php']);
     $analysis->process([
         new \OpenApi\Processors\ExpandEnums(),
-        new EnumDescriptionProcessor(descriptionMethod: 'getDescription'),
+        new ExpandEnumDescriptionProcessor(descriptionMethod: 'getDescription'),
     ]);
     $schema = $analysis->getSchemaForSource(EnumColor::class);
     expect($schema->enum)->toBe(['red', 'green', 'blue'])
@@ -238,11 +231,11 @@ test('EnumDescriptionProcessor', function () {
             '- blue: 蓝色1',
         ]));
 
-    // 附加 EnumDescriptionProcessor 时，使用指定的 method 不存在时
+    // 附加 ExpandEnumDescriptionProcessor 时，使用指定的 method 不存在时
     $analysis = TestFactory::analysisFromFiles(['EnumColor.php']);
     $analysis->process([
         new \OpenApi\Processors\ExpandEnums(),
-        new EnumDescriptionProcessor(descriptionMethod: 'getDescription2'),
+        new ExpandEnumDescriptionProcessor(descriptionMethod: 'getDescription2'),
     ]);
     $schema = $analysis->getSchemaForSource(EnumColor::class);
     expect($schema->enum)->toBe(['red', 'green', 'blue'])

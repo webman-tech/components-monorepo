@@ -3,6 +3,7 @@
 namespace Tests\Fixtures\Swagger;
 
 use OpenApi\Attributes as OA;
+use WebmanTech\DTO\Attributes\RequestPropertyInHeader;
 use WebmanTech\DTO\Attributes\ValidationRules;
 use WebmanTech\DTO\BaseDTO;
 
@@ -30,6 +31,10 @@ class SchemaDTO extends BaseDTO
     #[OA\Property]
     #[ValidationRules(arrayItem: new ValidationRules(string: true))]
     public array $stringList;
+
+    #[OA\Property]
+    #[RequestPropertyInHeader]
+    public ?string $hasXin = null;
 }
 
 class SchemaDTOChild extends BaseDTO
