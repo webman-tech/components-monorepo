@@ -2,8 +2,10 @@
 
 namespace WebmanTech\DTO;
 
+use WebmanTech\DTO\Enums\RequestPropertyInEnum;
 use WebmanTech\DTO\Exceptions\DTONewInstanceException;
 use WebmanTech\DTO\Exceptions\DTOValidateException;
+use WebmanTech\DTO\Reflection\ReflectionReaderFactory;
 
 /**
  * @phpstan-import-type TypeRequest from Integrations\Request
@@ -15,20 +17,11 @@ class BaseRequestDTO extends BaseDTO
      * @param TypeRequest $request
      * @throws DTOValidateException|DTONewInstanceException
      */
-    public static function fromRequest($request, ?string $defaultRequestType = null, bool $validate = true): static
+    public static function fromRequest($request, bool $validate = true): static
     {
-        $data = static::getDataFromRequest($request, $defaultRequestType);
+        $data = static::getDataFromRequest($request);
 
         return static::fromData($data, validate: $validate);
-    }
-
-    /**
-     * 通过配置从 request 获取指定的 key
-     * @return array<string, string> key => where 或 key => where|whereKey
-     */
-    protected static function getConfigRequestKeyFrom(): array
-    {
-        return [];
     }
 
     /**
@@ -36,33 +29,20 @@ class BaseRequestDTO extends BaseDTO
      * @param TypeRequest $request
      * @return array<string, mixed>
      */
-    protected static function getDataFromRequest($request, ?string $defaultRequestType = null): array
+    protected static function getDataFromRequest($request): array
     {
         $request = Integrations\Request::from($request);
 
-        $data = match ($defaultRequestType) {
-            'get' => $request->getAll(),
-            'post' => $request->postAll(),
-            'header' => $request->headerAll(),
-            null => [],
-            default => throw new \InvalidArgumentException('defaultRequestType error: ' . $defaultRequestType),
-        };
+        // 自动从 request 提取全部值
+        $data = [];
+        if ($requestPropertyIn = RequestPropertyInEnum::tryFromRequest($request)) {
+            $data = $requestPropertyIn->getAllFromRequest($request);
+        }
 
-        foreach (static::getConfigRequestKeyFrom() as $key => $from) {
-            $arr = explode('|', $from);
-            [$where, $whereKey] = match (count($arr)) {
-                1 => [$arr[0], $key],
-                2 => [$arr[0], $arr[1]],
-                default => throw new \InvalidArgumentException('getConfigRequestKeyFrom config error: ' . $from),
-            };
-            $value = match ($where) {
-                'get' => $request->get($whereKey),
-                'post' => $request->post($whereKey),
-                'header' => $request->header($whereKey),
-                'body' => $request->rawBody(),
-                default => null,
-            };
-            $data[$key] = $value;
+        // 从 RequestPropertyIn 的注解上提取特定值
+        foreach (ReflectionReaderFactory::fromClass(static::class)->getPublicPropertiesRequestPropertyIn() as $propertyName => $requestPropertyIn) {
+            $name = $requestPropertyIn->name ?: $propertyName;
+            $data[$propertyName] = $requestPropertyIn->getInEnum()->getFromRequest($request, $name);
         }
 
         return $data;

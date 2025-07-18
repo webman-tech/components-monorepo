@@ -24,6 +24,7 @@
 |
 */
 
+use Tests\Fixtures\TestRequest;
 use Webman\Context;
 use Webman\Http\Request;
 use Workerman\Protocols\Http\Session;
@@ -63,12 +64,12 @@ function fixture_get_require(string $path)
     return require fixture_get_path($path);
 }
 
-function request_create_one(): Request
+function request_create_one(): TestRequest
 {
     $buffer = strtr(fixture_get_content('misc/request_sample.txt'), [
         "\n" => "\r\n",
     ]);
-    $request = new Request($buffer);
+    $request = new TestRequest($buffer);
 
     // 设置请求对象到上下文，是的 webman 下 request() 可以获取到
     Context::set(Request::class, $request);

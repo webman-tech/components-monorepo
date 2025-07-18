@@ -17,51 +17,8 @@ final class Request
         return match (true) {
             $request instanceof WebmanRequest => new WebmanRequestIntegration($request),
             $request instanceof SymfonyRequest => new SymfonyRequestIntegration($request),
-            $request instanceof PsrServerRequest => new PsrRequestIntegration($request),
-            $request === 'php' => new PhpRequest(),
-            default => throw new \InvalidArgumentException('Invalid request type'),
+            default => throw new \InvalidArgumentException('Not support request type: ' . get_class($request)),
         };
-    }
-}
-
-/**
- * @internal
- */
-final class PhpRequest implements RequestInterface
-{
-    public function get(string $key): null|string|array
-    {
-        return $this->getAll()[$key] ?? null;
-    }
-
-    public function getAll(): array
-    {
-        return $_GET;
-    }
-
-    public function post(string $key): null|string|array
-    {
-        return $this->postAll() ?? null;
-    }
-
-    public function postAll(): array
-    {
-        return $_POST;
-    }
-
-    public function header(string $key): ?string
-    {
-        return $this->headerAll()[$key] ?? null;
-    }
-
-    public function headerAll(): array
-    {
-        return $_SERVER;
-    }
-
-    public function rawBody(): string
-    {
-        return file_get_contents('php://input');
     }
 }
 
@@ -74,44 +31,64 @@ final class WebmanRequestIntegration implements RequestInterface
     {
     }
 
+    public function getMethod(): string
+    {
+        return strtoupper($this->request->method() ?? 'GET');
+    }
+
+    public function getContentType(): string
+    {
+        return strtolower($this->request->header('Content-Type') ?? '');
+    }
+
     public function get(string $key): null|string|array
     {
         return $this->request->get($key);
     }
 
-    public function getAll(): array
+    public function path(string $key): null|string
     {
-        return $this->request->get();
-    }
-
-    public function post(string $key): null|string|array
-    {
-        return $this->request->post($key);
-    }
-
-    public function postAll(): array
-    {
-        return $this->request->post();
-    }
-
-    private function getHeaderFirstValue(?string $value): ?string
-    {
-        return $value ? explode(',', $value)[0] : null;
+        return $this->request->route?->param($key);
     }
 
     public function header(string $key): ?string
     {
-        return $this->getHeaderFirstValue($this->request->header($key));
+        return $this->request->header($key);
     }
 
-    public function headerAll(): array
+    public function cookie(string $name): ?string
     {
-        return array_map(fn(string $value) => $this->getHeaderFirstValue($value), $this->request->header());
+        return $this->request->cookie($name);
     }
 
     public function rawBody(): string
     {
         return $this->request->rawBody();
+    }
+
+    public function postForm(string $key): null|string|array
+    {
+        return $this->request->post($key);
+    }
+
+    public function postJson(string $key): null|string|int|float|bool|array
+    {
+        return $this->request->post($key);
+    }
+
+    public function allGet(): array
+    {
+        return $this->request->get();
+    }
+
+    public function allPostForm(): array
+    {
+        return $this->request->post();
+    }
+
+    public function allPostJson(): array
+    {
+        return $this->request->post();
     }
 }
 
@@ -124,24 +101,25 @@ final class SymfonyRequestIntegration implements RequestInterface
     {
     }
 
+    public function getMethod(): string
+    {
+        return strtoupper($this->request->getMethod() ?? 'GET');
+    }
+
+    public function getContentType(): string
+    {
+        return strtolower($this->request->headers->get('Content-Type') ?? '');
+    }
+
     public function get(string $key): null|string|array
     {
         return $this->request->query->get($key);
     }
 
-    public function getAll(): array
+    public function path(string $key): null|string
     {
-        return $this->request->query->all();
-    }
-
-    public function post(string $key): null|string|array
-    {
-        return $this->request->request->get($key);
-    }
-
-    public function postAll(): array
-    {
-        return $this->request->request->all();
+        // 不支持
+        return null;
     }
 
     public function header(string $key): ?string
@@ -149,63 +127,38 @@ final class SymfonyRequestIntegration implements RequestInterface
         return $this->request->headers->get($key);
     }
 
-    public function headerAll(): array
+    public function cookie(string $name): ?string
     {
-        return array_map(fn(array $value) => $value[0], $this->request->headers->all());
+        return $this->request->cookies->get($name);
     }
 
     public function rawBody(): string
     {
         return $this->request->getContent();
     }
-}
 
-/**
- * @internal
- */
-final class PsrRequestIntegration implements RequestInterface
-{
-    public function __construct(private readonly PsrServerRequest $request)
+    public function postForm(string $key): null|string|array
     {
+        return $this->request->request->get($key);
     }
 
-    public function get(string $key): null|string|array
+    public function postJson(string $key): null|string|int|float|bool|array
     {
-        return $this->getAll()[$key] ?? null;
+        return $this->request->request->get($key);
     }
 
-    public function getAll(): array
+    public function allGet(): array
     {
-        return $this->request->getQueryParams();
+        return $this->request->query->all();
     }
 
-    public function post(string $key): null|string|array
+    public function allPostForm(): array
     {
-        return $this->postAll()[$key] ?? null;
+        return $this->request->request->all();
     }
 
-    public function postAll(): array
+    public function allPostJson(): array
     {
-        $parsedBody = $this->request->getParsedBody();
-        if (!is_array($parsedBody)) {
-            return [];
-        }
-        return $parsedBody;
-    }
-
-    public function header(string $key): ?string
-    {
-        $value = $this->request->getHeaderLine($key);
-        return $value ? explode(',', $value)[0] : null;
-    }
-
-    public function headerAll(): array
-    {
-        return array_map(fn(array $values) => $values[0], $this->request->getHeaders());
-    }
-
-    public function rawBody(): string
-    {
-        return $this->request->getBody()->getContents();
+        return $this->request->request->all();
     }
 }

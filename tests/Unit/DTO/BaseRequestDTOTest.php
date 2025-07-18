@@ -1,8 +1,11 @@
 <?php
 
+use WebmanTech\DTO\Attributes\RequestPropertyInHeader;
+use WebmanTech\DTO\Attributes\RequestPropertyInJson;
+use WebmanTech\DTO\Attributes\RequestPropertyInQuery;
 use WebmanTech\DTO\BaseRequestDTO;
 
-test('fromRequest use defaultRequestType', function () {
+test('fromRequest use different method', function () {
     class DTOFromRequestUseDefaultRequestType extends BaseRequestDTO
     {
         public string $name = 'nameValue';
@@ -11,34 +14,32 @@ test('fromRequest use defaultRequestType', function () {
 
     $request = request_create_one();
     $request->setGet('name', 'newNameValue');
-    $dto = DTOFromRequestUseDefaultRequestType::fromRequest($request, 'get');
+    $dto = DTOFromRequestUseDefaultRequestType::fromRequest($request);
     expect($dto->name)->toBe('newNameValue')
         ->and($dto->name2)->toBe('nameValue2');
 
-    $dto = DTOFromRequestUseDefaultRequestType::fromRequest($request, 'post');
-    expect($dto->name)->toBe('nameValue')
+    $request = request_create_one();
+    $request->setData('method', 'POST');
+    $request->setHeader('content-type', 'application/json');
+    $request->setPost('name', 'newNameValue2');
+    $dto = DTOFromRequestUseDefaultRequestType::fromRequest($request);
+    expect($dto->name)->toBe('newNameValue2')
         ->and($dto->name2)->toBe('nameValue2');
 });
 
-test('fromRequest with getConfigRequestKeyFrom', function () {
+test('fromRequest with RequestPropertyIn', function () {
     class DTOFromRequestWithConfigRequestKeyFrom extends BaseRequestDTO
     {
+        #[RequestPropertyInQuery]
         public string $name;
+        #[RequestPropertyInJson]
         public string $name2;
+        #[RequestPropertyInHeader]
         public string $name3;
+        #[RequestPropertyInQuery(name: 'new_key1')]
         public string $name4;
+        #[RequestPropertyInJson(name: 'new_key2')]
         public string $name5;
-
-        protected static function getConfigRequestKeyFrom(): array
-        {
-            return [
-                'name' => 'get',
-                'name2' => 'post',
-                'name3' => 'header',
-                'name4' => 'get|new_key1',
-                'name5' => 'post|new_key2',
-            ];
-        }
     }
 
     $request = request_create_one();

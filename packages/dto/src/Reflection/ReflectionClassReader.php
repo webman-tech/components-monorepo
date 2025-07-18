@@ -9,6 +9,7 @@ use ReflectionNamedType;
 use ReflectionParameter;
 use ReflectionProperty;
 use WeakMap;
+use WebmanTech\DTO\Attributes\RequestPropertyIn;
 use WebmanTech\DTO\Attributes\ValidationRules;
 use WebmanTech\DTO\BaseDTO;
 
@@ -49,6 +50,20 @@ final class ReflectionClassReader
         }
 
         return $rules;
+    }
+
+    /**
+     * @return array<string, RequestPropertyIn>
+     */
+    public function getPublicPropertiesRequestPropertyIn(): array
+    {
+        $data = [];
+        foreach ($this->getPublicPropertyReflections() as $key => $propertyReflection) {
+            if ($value = $this->getRequestPropertyIn($propertyReflection)) {
+                $data[$key] = $value;
+            }
+        }
+        return $data;
     }
 
     /**
@@ -113,6 +128,7 @@ final class ReflectionClassReader
     private ?array $publicPropertyReflections = null;
 
     /**
+     * 获取全部的 public 属性的反射
      * @return array<string, ReflectionProperty>
      */
     public function getPublicPropertyReflections(): array
@@ -230,6 +246,24 @@ final class ReflectionClassReader
         }
 
         return $this->validationRules[$reflection];
+    }
+
+    private ?WeakMap $requestPropertyIns = null;
+
+    private function getRequestPropertyIn(ReflectionParameter|ReflectionProperty $reflection): ?RequestPropertyIn
+    {
+        if ($this->requestPropertyIns === null) {
+            $this->requestPropertyIns = new WeakMap();
+        }
+        if (!isset($this->requestPropertyIns[$reflection])) {
+            $reflectionAttributes = $reflection->getAttributes(RequestPropertyIn::class, ReflectionAttribute::IS_INSTANCEOF);
+            $value = empty($reflectionAttributes)
+                ? null
+                : $reflectionAttributes[0]->newInstance();
+            $this->requestPropertyIns[$reflection] = $value;
+        }
+
+        return $this->requestPropertyIns[$reflection];
     }
 
     private function makeValueByValidationRules(ValidationRules $validationRules, mixed $value): mixed
