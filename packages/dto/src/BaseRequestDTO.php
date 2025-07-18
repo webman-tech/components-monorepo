@@ -40,7 +40,7 @@ class BaseRequestDTO extends BaseDTO
         }
 
         // 从 RequestPropertyIn 的注解上提取特定值
-        foreach (ReflectionReaderFactory::fromClass(static::class)->getPublicPropertiesRequestPropertyIn() as $propertyName => $requestPropertyIn) {
+        foreach (ReflectionReaderFactory::fromClass(static::class)->getAttributionRequestPropertyInList() as $propertyName => $requestPropertyIn) {
             $name = $requestPropertyIn->name ?: $propertyName;
             $data[$propertyName] = $requestPropertyIn->getInEnum()->getFromRequest($request, $name);
         }

@@ -39,7 +39,7 @@ test('ReflectionClassReader getPublicPropertiesName', function () {
 
     $reflectionClassReader = ReflectionReaderFactory::fromClass(DTOFromReflectionClassReaderTest::class);
 
-    expect($reflectionClassReader->getPublicPropertiesName())->toBe(['parent', 'parentId', 'name', 'age']);
+    expect($reflectionClassReader->getPropertyNameList())->toBe(['parent', 'parentId', 'name', 'age']);
 });
 
 test('ReflectionClassReader getPublicPropertiesName speed', function () {
@@ -53,7 +53,7 @@ test('ReflectionClassReader getPublicPropertiesName speed', function () {
     $startAt = microtime(true);
     for ($i = 0; $i < 10000; $i++) {
         $reflectionClassReader = ReflectionReaderFactory::fromClass(DTOFromReflectionClassReaderGetPublicPropertiesNameSpeedTest::class);
-        $reflectionClassReader->getPublicPropertiesName();
+        $reflectionClassReader->getPropertyNameList();
     }
     $endAt = microtime(true);
     expect($endAt - $startAt)->toBeLessThan(0.1);

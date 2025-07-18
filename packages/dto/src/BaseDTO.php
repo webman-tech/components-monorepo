@@ -22,7 +22,7 @@ class BaseDTO
 
         if ($validate) {
             // 验证必须的规则
-            $data = static::validateData($data, $factory->getPublicPropertiesValidationRules());
+            $data = static::validateData($data, $factory->getPropertiesValidationRules());
             // 验证自定义的规则
             $data = static::validateData($data, static::getExtraValidationRules());
         }
@@ -103,7 +103,7 @@ class BaseDTO
         $data = [];
         $properties = array_diff(
             array_merge(
-                ReflectionReaderFactory::fromClass($this)->getPublicPropertiesName(),
+                ReflectionReaderFactory::fromClass($this)->getPropertyNameList(),
                 $this->getToArrayIncludeProperties(),
             ),
             $this->getToArrayExcludeProperties()

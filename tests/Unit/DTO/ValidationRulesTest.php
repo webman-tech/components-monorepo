@@ -77,7 +77,7 @@ test('validation rules', function () {
     }
 
     $rules = ReflectionReaderFactory::fromClass(DTOFromValidationRulesTest::class)
-        ->getPublicPropertiesValidationRules();
+        ->getPropertiesValidationRules();
 
     expect($rules)->toMatchSnapshot();
 });
@@ -110,7 +110,7 @@ test('validation rule enum', function () {
     }
 
     $rules = ReflectionReaderFactory::fromClass(DTOFromValidationRulesEnumTest::class)
-        ->getPublicPropertiesValidationRules();
+        ->getPropertiesValidationRules();
 
     $fnGetRuleEnum = function (array $rules): ?RuleEnum {
         return Arr::first($rules, fn($rule) => $rule instanceof RuleEnum);
@@ -148,7 +148,7 @@ test('validation rule in', function () {
     }
 
     $rules = ReflectionReaderFactory::fromClass(DTOFromValidationRulesInTest::class)
-        ->getPublicPropertiesValidationRules();
+        ->getPropertiesValidationRules();
 
     $fnGetRuleIn = function (array $rules): ?RuleIn {
         return Arr::first($rules, fn($rule) => $rule instanceof RuleIn);
