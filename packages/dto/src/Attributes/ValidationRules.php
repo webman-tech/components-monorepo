@@ -9,6 +9,7 @@ use Illuminate\Validation\Rule;
 use ReflectionNamedType;
 use ReflectionParameter;
 use ReflectionProperty;
+use UnitEnum;
 use WebmanTech\DTO\BaseDTO;
 use WebmanTech\DTO\Reflection\ReflectionReaderFactory;
 
@@ -24,7 +25,7 @@ final class ValidationRules
         public null|true                   $integer = null,
         public null|true                   $numeric = null,
         /**
-         * @var class-string<BackedEnum>|null
+         * @var class-string<UnitEnum>|null
          */
         public null|string                 $enum = null,
         public null|array                  $enumOnly = null,
@@ -201,7 +202,9 @@ final class ValidationRules
             if (!is_string($value) && !is_int($value)) {
                 throw new \InvalidArgumentException('cant make enum because value not string or int: ' . $this->enum);
             }
-            return $this->enum::from($value);
+            /** @var class-string<BackedEnum> $enum normalize 中已经校验过 */
+            $enum = $this->enum;
+            return $enum::from($value);
         }
         // 对象
         if ($this->object) {

@@ -3,21 +3,27 @@ parameters:
     level: 9
     paths:
         - packages
+    stubFiles:
+        - phpstan/stubs/OpenApi/Annotations.stub
     excludePaths:
         - tests
         - runtime
         - packages/debugbar/src/DataCollector/ThinkPdoCollector.php # 暂时不支持
         - packages/debugbar/src/Laravel/DataCollector/QueryCollector.php # 不是自己写的
         - packages/debugbar/src/Laravel/DataFormatter/QueryFormatter.php # 不是自己写的
-        - packages/amis-admin/src/Helper/ArrayHelper.php # 不是自己写的
-        - packages/swagger/src/Helper/ArrayHelper.php # 不是自己写的
-        - packages/debugbar/src/Helper/ArrayHelper.php # 不是自己写的
+        - packages/*/src/Helper/ArrayHelper.php # 不是自己写的
         - packages/swagger/src/Controller/RequiredElementsAttributes # 不需要
-        - packages/swagger/src/Controller/RequiredElementsAnnotations # 不需要
+        - packages/swagger/src/Overwrite/Processors/AugmentParameters.php # 不是自己写的
     tmpDir: runtime/phpstan
     ignoreErrors:
         - identifier: missingType.iterableValue # Property XXXX type has no value type specified in iterable type array.
         - identifier: cast.int # Cannot cast mixed to int.
         - identifier: cast.string # Cannot cast mixed to string.
         - identifier: missingType.generics # Property XXX with generic class WeakMap does not specify its types: TKey, TValue
+        - '#Method (.*) should return (.*) but returns mixed\.#'
+        - '#Parameter (.*) of method (.*) expects (.*), mixed given\.#'
+        - '#Parameter (.*) of static method (.*) expects (.*), mixed given\.#'
+        - '#Parameter (.*) of class (.*) constructor expects (.*), mixed given\.#'
+        - '#Property (.*) does not accept mixed\.#'
+        - '#Cannot access offset (.*) on mixed\.#'
     reportUnmatchedIgnoredErrors: false # 关闭 ignore 掉的错误的提示

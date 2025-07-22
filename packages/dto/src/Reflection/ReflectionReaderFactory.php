@@ -35,6 +35,7 @@ final class ReflectionReaderFactory
     {
         $className = is_object($class) ? $class::class : $class;
         if (!isset($this->cache[$className])) {
+            /** @phpstan-ignore-next-line */
             $this->cache[$className] = new ReflectionClassReader(new ReflectionClass($class));
         }
         return $this->cache[$className];

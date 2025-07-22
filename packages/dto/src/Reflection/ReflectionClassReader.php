@@ -106,6 +106,7 @@ final class ReflectionClassReader
 
     /**
      * 获取单个属性的 ValidationRules 注解实例
+     * @return ($property is string ? ValidationRules|null : ValidationRules)
      */
     public function getAttributionValidationRules(string|ReflectionProperty|ReflectionParameter $property): ?ValidationRules
     {
@@ -257,6 +258,7 @@ final class ReflectionClassReader
         if (!isset($this->attributionCache[$reflection])) {
             $this->attributionCache[$reflection] = [];
         }
+        /** @var array $cache */
         $cache = $this->attributionCache[$reflection];
 
         if (!isset($cache[$attributionName])) {

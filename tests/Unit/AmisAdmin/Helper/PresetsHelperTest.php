@@ -6,7 +6,7 @@ use WebmanTech\AmisAdmin\Amis\FormField;
 use WebmanTech\AmisAdmin\Amis\GridColumn;
 use WebmanTech\AmisAdmin\Helper\DTO\PresetItem;
 use WebmanTech\AmisAdmin\Helper\PresetsHelper;
-use WebmanTech\AmisAdmin\Repository\AbsRepository;
+use WebmanTech\AmisAdmin\Repository\RepositoryInterface;
 
 function components_to_array(array $items): array
 {
@@ -49,10 +49,10 @@ test('support withCrudSceneKeys', function () {
     expect($presetsHelper->pickLabel())->toBe(['id' => 'ID', 'code' => 'Code']);
     $presetsHelper->withCrudSceneKeys(['id']);
     expect($presetsHelper->pickLabel())->toBe(['id' => 'ID', 'code' => 'Code'])
-        ->and($presetsHelper->withScene(AbsRepository::SCENE_CREATE)->pickLabel())->toBe(['id' => 'ID'])
-        ->and($presetsHelper->withScene(AbsRepository::SCENE_CREATE)->pickLabel())->toBe(['id' => 'ID'])
-        ->and($presetsHelper->withScene(AbsRepository::SCENE_UPDATE)->pickLabel())->toBe(['id' => 'ID'])
-        ->and($presetsHelper->withScene(AbsRepository::SCENE_DETAIL)->pickLabel())->toBe(['id' => 'ID']);
+        ->and($presetsHelper->withScene(RepositoryInterface::SCENE_CREATE)->pickLabel())->toBe(['id' => 'ID'])
+        ->and($presetsHelper->withScene(RepositoryInterface::SCENE_CREATE)->pickLabel())->toBe(['id' => 'ID'])
+        ->and($presetsHelper->withScene(RepositoryInterface::SCENE_UPDATE)->pickLabel())->toBe(['id' => 'ID'])
+        ->and($presetsHelper->withScene(RepositoryInterface::SCENE_DETAIL)->pickLabel())->toBe(['id' => 'ID']);
 });
 
 test('support withSceneKeys', function () {
@@ -258,7 +258,7 @@ test('support rule Scene add sometimes rule', function () {
                 rule: 'sometimes|required',
             ),
         ]);
-    expect($presetsHelper->withScene(AbsRepository::SCENE_UPDATE)->pickRules())->toBe([
+    expect($presetsHelper->withScene(RepositoryInterface::SCENE_UPDATE)->pickRules())->toBe([
         'default' => ['sometimes', 'nullable'],
         'change_rule' => ['sometimes', 'required'],
         'change_rule2' => ['sometimes', 'required'],

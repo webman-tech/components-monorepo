@@ -4,6 +4,7 @@ namespace WebmanTech\DTO;
 
 use DateTime;
 use DateTimeInterface;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Support\Arr;
 use WebmanTech\DTO\Attributes\ToArrayConfig;
 use WebmanTech\DTO\Exceptions\DTONewInstanceException;
@@ -55,6 +56,7 @@ class BaseDTO
         if (!$rules) {
             return $data;
         }
+        /** @var Validator $validator */
         $validator = validator($data, $rules);
         if ($validator->fails()) {
             throw new DTOValidateException(

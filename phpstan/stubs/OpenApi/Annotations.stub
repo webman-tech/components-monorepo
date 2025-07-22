@@ -1,0 +1,38 @@
+<?php
+
+namespace OpenApi\Annotations;
+
+use OpenApi\Context;
+use OpenApi\Generator;
+
+abstract class AbstractAnnotation implements \JsonSerializable
+{
+    /**
+     * @var Context
+     */
+    public $_context;
+}
+
+class RequestBody extends AbstractAnnotation
+{
+    /**
+     * @var array<string, MediaType>
+     */
+    public $content = Generator::UNDEFINED;
+}
+
+class Response extends AbstractAnnotation
+{
+    /**
+     * @var array<string, MediaType>
+     */
+    public $content = Generator::UNDEFINED;
+}
+
+class Schema extends AbstractAnnotation
+{
+    /**
+     * @var array<string|int>
+     */
+    public $enum = Generator::UNDEFINED;
+}

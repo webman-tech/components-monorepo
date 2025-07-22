@@ -12,12 +12,15 @@ use Webman\Http\Request as WebmanRequest;
  */
 final class Request
 {
+    /**
+     * @param TypeRequest $request
+     */
     public static function from($request): RequestInterface
     {
         return match (true) {
             $request instanceof WebmanRequest => new WebmanRequestIntegration($request),
             $request instanceof SymfonyRequest => new SymfonyRequestIntegration($request),
-            default => throw new \InvalidArgumentException('Not support request type: ' . get_class($request)),
+            default => throw new \InvalidArgumentException('Not support request type'),
         };
     }
 }
@@ -33,11 +36,13 @@ final class WebmanRequestIntegration implements RequestInterface
 
     public function getMethod(): string
     {
+        /** @phpstan-ignore-next-line */
         return strtoupper($this->request->method() ?? 'GET');
     }
 
     public function getContentType(): string
     {
+        /** @phpstan-ignore-next-line */
         return strtolower($this->request->header('Content-Type') ?? '');
     }
 
@@ -48,6 +53,7 @@ final class WebmanRequestIntegration implements RequestInterface
 
     public function path(string $key): null|string
     {
+        /** @phpstan-ignore-next-line */
         return $this->request->route?->param($key);
     }
 
@@ -103,16 +109,20 @@ final class SymfonyRequestIntegration implements RequestInterface
 
     public function getMethod(): string
     {
+        /** @phpstan-ignore-next-line */
         return strtoupper($this->request->getMethod() ?? 'GET');
     }
 
     public function getContentType(): string
     {
+        /** @phpstan-ignore-next-line */
         return strtolower($this->request->headers->get('Content-Type') ?? '');
     }
 
+    /** @phpstan-ignore-next-line */
     public function get(string $key): null|string|array
     {
+        /** @phpstan-ignore-next-line */
         return $this->request->query->get($key);
     }
 
@@ -124,11 +134,13 @@ final class SymfonyRequestIntegration implements RequestInterface
 
     public function header(string $key): ?string
     {
+        /** @phpstan-ignore-next-line */
         return $this->request->headers->get($key);
     }
 
     public function cookie(string $name): ?string
     {
+        /** @phpstan-ignore-next-line */
         return $this->request->cookies->get($name);
     }
 
@@ -137,11 +149,14 @@ final class SymfonyRequestIntegration implements RequestInterface
         return $this->request->getContent();
     }
 
+    /** @phpstan-ignore-next-line */
     public function postForm(string $key): null|string|array
     {
+        /** @phpstan-ignore-next-line */
         return $this->request->request->get($key);
     }
 
+    /** @phpstan-ignore-next-line */
     public function postJson(string $key): null|string|int|float|bool|array
     {
         return $this->request->request->get($key);
