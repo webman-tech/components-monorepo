@@ -118,7 +118,7 @@ final class ReflectionClassReader
             $reflection,
             ValidationRules::class,
             default: fn() => new ValidationRules(),
-            initializer: function (ValidationRules $attribution) use ($reflection) {
+            initializer: function (ValidationRules $attribution) use ($reflection): void {
                 $attribution->fillWithReflection($reflection);
                 $attribution->normalize();
             }
@@ -271,7 +271,7 @@ final class ReflectionClassReader
                 $initializer($value);
             }
 
-            $cache[$attributionName] = $value === null ? '__NULL__' : $value;
+            $cache[$attributionName] = $value ?? '__NULL__';
             $this->attributionCache[$reflection] = $cache;
         }
 

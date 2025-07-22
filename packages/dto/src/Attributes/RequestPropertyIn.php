@@ -16,7 +16,7 @@ class RequestPropertyIn
          * 来源
          * @see RequestPropertyInEnum
          */
-        private string $in,
+        private readonly string $in,
         /**
          * 属性名，为 null 时自动取属性名
          */

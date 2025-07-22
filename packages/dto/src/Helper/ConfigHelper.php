@@ -17,11 +17,7 @@ final class ConfigHelper
      */
     public static function get(string $key, mixed $default = null)
     {
-        if (isset(self::$testKV[$key])) {
-            return self::$testKV[$key];
-        }
-
-        return config("plugin.webman-tech.dto.{$key}", $default);
+        return self::$testKV[$key] ?? config("plugin.webman-tech.dto.{$key}", $default);
     }
 
     /**

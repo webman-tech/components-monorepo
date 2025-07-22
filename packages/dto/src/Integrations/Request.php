@@ -28,9 +28,9 @@ final class Request
 /**
  * @internal
  */
-final class WebmanRequestIntegration implements RequestInterface
+final readonly class WebmanRequestIntegration implements RequestInterface
 {
-    public function __construct(private readonly WebmanRequest $request)
+    public function __construct(private WebmanRequest $request)
     {
     }
 
@@ -101,9 +101,9 @@ final class WebmanRequestIntegration implements RequestInterface
 /**
  * @internal
  */
-final class SymfonyRequestIntegration implements RequestInterface
+final readonly class SymfonyRequestIntegration implements RequestInterface
 {
-    public function __construct(private readonly SymfonyRequest $request)
+    public function __construct(private SymfonyRequest $request)
     {
     }
 
