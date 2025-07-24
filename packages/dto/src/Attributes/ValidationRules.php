@@ -176,9 +176,14 @@ final class ValidationRules
         }
         $rules = $this->parsedRules ? [$key => $this->parsedRules] : [];
 
-        if ($this->object && class_exists($this->object)) {
+        if ($this->object && $this->object !== true && class_exists($this->object)) {
             foreach (ReflectionReaderFactory::fromClass($this->object)->getPropertiesValidationRules() as $itemKey => $itemRules) {
-                $rules[$key . '.' . $itemKey] = $itemRules;
+                $rules[$key . '.' . $itemKey] = array_map(function ($rule) use ($key) {
+                    if ($rule === 'required') {
+                        return 'required_with:' . $key;
+                    }
+                    return $rule;
+                }, $itemRules);
             }
         }
         if ($this->arrayItem) {

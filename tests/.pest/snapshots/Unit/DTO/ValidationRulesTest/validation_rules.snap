@@ -46,10 +46,22 @@
         "array"
     ],
     "child.name": [
-        "required",
+        "required_with:child",
         "string"
     ],
     "child.age": [
+        "nullable",
+        "integer"
+    ],
+    "childNullable": [
+        "nullable",
+        "array"
+    ],
+    "childNullable.name": [
+        "required_with:childNullable",
+        "string"
+    ],
+    "childNullable.age": [
         "nullable",
         "integer"
     ],
@@ -138,7 +150,7 @@
         "array"
     ],
     "validationRulesNoTypeDefineForObject.name": [
-        "required",
+        "required_with:validationRulesNoTypeDefineForObject",
         "string"
     ],
     "validationRulesNoTypeDefineForObject.age": [

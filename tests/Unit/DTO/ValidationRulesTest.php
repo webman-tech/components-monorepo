@@ -34,6 +34,7 @@ test('validation rules', function () {
         public DateTime $dateTime;
         public UploadFile $file;
         public DTOFromValidationRulesTestItem $child;
+        public ?DTOFromValidationRulesTestItem $childNullable = null;
         // 复合类型
         public string|int $stringOrInt;
         public string|int|null $stringOrIntOrNull;
