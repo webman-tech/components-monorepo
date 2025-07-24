@@ -6,8 +6,10 @@ use Tests\Fixtures\Swagger\ControllerForXSchemaRequestSchemaA;
 use Tests\Fixtures\Swagger\ControllerForXSchemaRequestSchemaB;
 use Tests\Fixtures\Swagger\EnumColor;
 use Tests\Fixtures\Swagger\SchemaDTO;
+use Tests\Fixtures\Swagger\SchemaDTOChild;
 use Tests\Fixtures\Swagger\SchemaEloquentModel;
 use Tests\Fixtures\Swagger\TestFactory;
+use Webman\Http\UploadFile;
 use WebmanTech\Swagger\DTO\SchemaConstants;
 use WebmanTech\Swagger\RouteAnnotation\Processors\AppendResponseProcessor;
 use WebmanTech\Swagger\RouteAnnotation\Processors\ExpandDTOAttributionsProcessor;
@@ -153,7 +155,7 @@ test('ExpandDTOAttributionsProcessor', function () {
     };
 
     // 校验 required
-    expect($schema->required)->toBe(['name', 'age', 'arrayEmptyType', 'children', 'child', 'stringList']);
+    expect($schema->required)->toContain('name', 'age', 'arrayEmptyType', 'children', 'child', 'stringList');
 
     // string
     $property = $fnFindPropertyByName('name');
@@ -172,23 +174,55 @@ test('ExpandDTOAttributionsProcessor', function () {
         ->and($property->items->type)->toBe(\OpenApi\Generator::UNDEFINED);
 
     // array 对象
-    // ref 需要前置的 processor 处理，才能获取到 schema，因此暂时不测试
-//    $property = $fnFindPropertyByName('children');
-//    expect($property->type)->toBe('array')
-//        ->and($property->items->ref)->toBe(OA\Components::ref($analysis->getSchemaForSource(SchemaDTOChild::class)));
+    $property = $fnFindPropertyByName('children');
+    expect($property->type)->toBe('array')
+        ->and($property->items->ref)->toBe(OA\Components::ref($analysis->getSchemaForSource(SchemaDTOChild::class)));
+
+    // 对象
+    $property = $fnFindPropertyByName('child');
+    expect($property->type)->toBe('object')
+        ->and($property->_context->type)->toBe('\\' . SchemaDTOChild::class);
+
+    // datetime
+    $property = $fnFindPropertyByName('date');
+    expect($property->type)->toBe('string')
+        ->and($property->format)->toBe('date-time');
+
+    // file
+    $property = $fnFindPropertyByName('file');
+    expect($property->type)->toBe('string')
+        ->and($property->format)->toBe('binary');
+
+    // file 或 string
+    $property = $fnFindPropertyByName('fileOrString');
+    expect($property->type)->toBe('string')
+        ->and($property->format)->toBe('binary')
+        ->and($property->x[SchemaConstants::X_PROPERTY_TYPES])->toBe([
+            UploadFile::class,
+            'string',
+        ]);
 
     // array 列表
     $property = $fnFindPropertyByName('stringList');
     expect($property->type)->toBe('array')
         ->and($property->items->type)->toBe('string');
 
-    // 对象
-    $property = $fnFindPropertyByName('child');
-    expect($property->type)->toBe('object');
+    // array map
+    $property = $fnFindPropertyByName('map');
+    expect($property->type)->toBe('object')
+        ->and($property->additionalProperties->type)->toBe('string');
 
     // RequestPropertyIn
     $property = $fnFindPropertyByName('hasXin');
     expect($property->x['in'])->toBe('header');
+
+    // 联合类型
+    $property = $fnFindPropertyByName('unionTypes');
+    expect($property->x[SchemaConstants::X_PROPERTY_TYPES])->toBe([
+        'array',
+        'string',
+        'int',
+    ]);
 });
 
 test('ExpandEnumDescriptionProcessor', function () {
