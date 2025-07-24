@@ -11,6 +11,7 @@ class ToArrayConfig
         public ?array $only = null, // 仅包含
         public ?array $include = null, // 额外包含
         public ?array $exclude = null, // 排除部分
+        public ?bool  $ignoreNull = null, // 忽略值为 null 的
     )
     {
     }

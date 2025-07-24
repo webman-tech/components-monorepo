@@ -111,10 +111,19 @@ class BaseDTO
                     }
                     return $item;
                 }, $value);
+                if ($toArrayConfig->ignoreNull) {
+                    $value = array_filter($value, fn($v) => $v !== null);
+                }
             } elseif ($value instanceof self) {
                 $value = $value->toArray();
+                if ($toArrayConfig->ignoreNull) {
+                    $value = array_filter($value, fn($v) => $v !== null);
+                }
             } elseif ($value instanceof DateTime) {
                 $value = $value->format($this->getDateTimeFormat());
+            }
+            if ($toArrayConfig->ignoreNull && $value === null) {
+                continue;
             }
             $data[$property] = $value;
         }

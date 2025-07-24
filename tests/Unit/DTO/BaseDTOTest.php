@@ -205,6 +205,64 @@ test('toArray with ToArrayConfig', function () {
     ]);
 });
 
+test('toArray with ToArrayConfig ignoreNull', function () {
+    class DTOToArrayWithToArrayConfigIgnoreNullChild extends BaseDTO
+    {
+        public ?string $name = null;
+    }
+
+    #[ToArrayConfig(ignoreNull: true)]
+    class DTOToArrayWithToArrayConfigIgnoreNull extends BaseDTO
+    {
+        public string $name = 'nameValue';
+
+        public ?string $name2 = null;
+
+        public array $array = [
+            'x' => 'x',
+            'y' => null,
+        ];
+
+        public ?DTOToArrayWithToArrayConfigIgnoreNullChild $child = null;
+    }
+
+    // 忽略普通的 null
+    $dto = new DTOToArrayWithToArrayConfigIgnoreNull();
+    expect($dto->toArray())->toBe([
+        'name' => 'nameValue',
+        'array' => [
+            'x' => 'x',
+        ],
+    ]);
+    // 嵌套忽略
+    $dto = DTOToArrayWithToArrayConfigIgnoreNull::fromData([
+        'child' => [],
+    ]);
+    expect($dto->toArray())->toBe([
+        'name' => 'nameValue',
+        'array' => [
+            'x' => 'x',
+        ],
+        'child' => [
+        ],
+    ]);
+    // 嵌套赋值
+    $dto = DTOToArrayWithToArrayConfigIgnoreNull::fromData([
+        'child' => [
+            'name' => 'child',
+        ],
+    ]);
+    expect($dto->toArray())->toBe([
+        'name' => 'nameValue',
+        'array' => [
+            'x' => 'x',
+        ],
+        'child' => [
+            'name' => 'child',
+        ],
+    ]);
+});
+
 test('toArray with parent class', function () {
     class DTOToArrayWithParentDTO extends BaseDTO
     {
