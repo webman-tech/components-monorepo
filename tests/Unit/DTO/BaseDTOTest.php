@@ -1,5 +1,6 @@
 <?php
 
+use Webman\Http\UploadFile;
 use WebmanTech\DTO\Attributes\ToArrayConfig;
 use WebmanTech\DTO\BaseDTO;
 use WebmanTech\DTO\Exceptions\DTONewInstanceException;
@@ -87,23 +88,27 @@ test('fromData use construct', function () {
         public int $x = 123; // 属性定义，有默认值
 
         public function __construct(
-            public string $name,
-                          $x, // 构造函数参数，无默认值
-            public int    $age = 18,
-            public        $y = 12, // 无类型定义，有默认值
+            public string     $name,
+            public UploadFile $file, // 文件类型
+                              $x, // 构造函数参数，无默认值
+            public int        $age = 18,
+            public            $y = 12, // 无类型定义，有默认值
         )
         {
         }
     }
 
+    $uploadFile = new UploadFile('abc.txt', 'upload.txt', 'text/plain', 0);
     $dto = DTOFromDataUseConstructTest::fromData([
         'name' => 'nameValue',
         'x' => '111',
+        'file' => $uploadFile,
     ]);
     expect($dto->name)->toBe('nameValue')
         ->and($dto->x)->toBe(123)
         ->and($dto->age)->toBe(18)
-        ->and($dto->y)->toBe(12);
+        ->and($dto->y)->toBe(12)
+        ->and($dto->file)->toBe($uploadFile);
 });
 
 test('toArray with public properties', function () {

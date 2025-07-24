@@ -42,7 +42,7 @@ interface RequestInterface
     /**
      * 获取 post form 上的某个参数
      */
-    public function postForm(string $key): null|string|array;
+    public function postForm(string $key): null|string|array|object;
 
     /**
      * 获取 post json 上的某个参数

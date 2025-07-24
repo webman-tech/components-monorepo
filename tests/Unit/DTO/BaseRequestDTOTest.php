@@ -25,6 +25,14 @@ test('fromRequest use different method', function () {
     $dto = DTOFromRequestUseDefaultRequestType::fromRequest($request);
     expect($dto->name)->toBe('newNameValue2')
         ->and($dto->name2)->toBe('nameValue2');
+
+    $request = request_create_one();
+    $request->setData('method', 'POST');
+    $request->setHeader('content-type', 'multipart/form-data');
+    $request->setPost('name', 'newNameValue2');
+    $dto = DTOFromRequestUseDefaultRequestType::fromRequest($request);
+    expect($dto->name)->toBe('newNameValue2')
+        ->and($dto->name2)->toBe('nameValue2');
 });
 
 test('fromRequest with RequestPropertyIn', function () {

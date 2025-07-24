@@ -3,6 +3,7 @@
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rules\Enum as RuleEnum;
 use Illuminate\Validation\Rules\In as RuleIn;
+use Webman\Http\UploadFile;
 use WebmanTech\DTO\Attributes\ValidationRules;
 use WebmanTech\DTO\BaseDTO;
 use WebmanTech\DTO\Reflection\ReflectionReaderFactory;
@@ -31,6 +32,7 @@ test('validation rules', function () {
         public Closure $closure;
         public array $array;
         public DateTime $dateTime;
+        public UploadFile $file;
         public DTOFromValidationRulesTestItem $child;
         // 复合类型
         public string|int $stringOrInt;
@@ -66,6 +68,8 @@ test('validation rules', function () {
         public $validationRulesNoTypeDefineForArrayWithItem;
         #[ValidationRules(object: DTOFromValidationRulesTestItem::class)]
         public $validationRulesNoTypeDefineForObject;
+        #[ValidationRules(object: true, arrayItem: new ValidationRules(string: true))]
+        public array $validationRulesWithTypeArrayButObject;
         #[ValidationRules(min: 100, max: 1000)]
         public int $validationRulesIntMinMax;
         #[ValidationRules(minLength: 100, maxLength: 1000)]

@@ -3,8 +3,10 @@
 namespace WebmanTech\DTO\Integrations;
 
 use Psr\Http\Message\ServerRequestInterface as PsrServerRequest;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 use Webman\Http\Request as WebmanRequest;
+use Webman\Http\UploadFile;
 
 /**
  * @internal
@@ -72,9 +74,9 @@ final readonly class WebmanRequestIntegration implements RequestInterface
         return $this->request->rawBody();
     }
 
-    public function postForm(string $key): null|string|array
+    public function postForm(string $key): null|string|array|UploadFile
     {
-        return $this->request->post($key);
+        return $this->allPostForm()[$key] ?? null;
     }
 
     public function postJson(string $key): null|string|int|float|bool|array
@@ -89,7 +91,10 @@ final readonly class WebmanRequestIntegration implements RequestInterface
 
     public function allPostForm(): array
     {
-        return $this->request->post();
+        return array_merge(
+            $this->request->post(),
+            $this->request->file(),
+        );
     }
 
     public function allPostJson(): array
@@ -150,10 +155,9 @@ final readonly class SymfonyRequestIntegration implements RequestInterface
     }
 
     /** @phpstan-ignore-next-line */
-    public function postForm(string $key): null|string|array
+    public function postForm(string $key): null|string|array|UploadedFile
     {
-        /** @phpstan-ignore-next-line */
-        return $this->request->request->get($key);
+        return $this->allPostForm()[$key] ?? null;
     }
 
     /** @phpstan-ignore-next-line */
@@ -169,7 +173,10 @@ final readonly class SymfonyRequestIntegration implements RequestInterface
 
     public function allPostForm(): array
     {
-        return $this->request->request->all();
+        return array_merge(
+            $this->request->request->all(),
+            $this->request->files->all(),
+        );
     }
 
     public function allPostJson(): array

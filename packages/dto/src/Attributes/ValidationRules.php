@@ -9,7 +9,9 @@ use Illuminate\Validation\Rule;
 use ReflectionNamedType;
 use ReflectionParameter;
 use ReflectionProperty;
+use Symfony\Component\HttpFoundation\File\UploadedFile as SymfonyUploadFile;
 use UnitEnum;
+use Webman\Http\UploadFile as WebmanUploadFile;
 use WebmanTech\DTO\BaseDTO;
 use WebmanTech\DTO\Reflection\ReflectionReaderFactory;
 
@@ -36,9 +38,9 @@ final class ValidationRules
          */
         public null|string|ValidationRules $arrayItem = null,
         /**
-         * @var class-string|null
+         * @var class-string|true|null
          */
-        public null|string                 $object = null,
+        public null|string|true            $object = null,
         public null|int|float              $min = null,
         public null|int|float              $max = null,
         public null|int                    $minLength = null,
@@ -131,8 +133,8 @@ final class ValidationRules
             if ($this->object === \Closure::class) {
                 // 不能当 object 处理
                 $this->object = null;
-            } elseif (!class_exists($this->object)) {
-                throw new \InvalidArgumentException('object is not a class');
+            } elseif (!is_bool($this->object) && !class_exists($this->object)) {
+                throw new \InvalidArgumentException('object type error');
             }
         }
         if ($this->arrayItem) {
@@ -207,7 +209,7 @@ final class ValidationRules
             return $enum::from($value);
         }
         // 对象
-        if ($this->object) {
+        if ($this->object && is_string($this->object)) {
             if (is_a($this->object, BaseDTO::class, true)) {
                 if (!is_array($value)) {
                     throw new \InvalidArgumentException('cant make object because value not array: ' . $this->object);
@@ -219,6 +221,13 @@ final class ValidationRules
                     'datetime' => $value,
                     'time' => $value, // carbon 改变了参数名字，因此多传个 time
                 ]);
+            }
+            if (
+                is_a($this->object, WebmanUploadFile::class, true)
+                || is_a($this->object, SymfonyUploadFile::class, true)
+            ) {
+                // 文件上传的类直接 返回赋值
+                return $value;
             }
             throw new \InvalidArgumentException('cant make object because type not support: ' . $this->object);
         }
@@ -262,7 +271,7 @@ final class ValidationRules
             $this->min !== null ? 'min:' . $this->min : null,
             $this->max !== null ? 'max:' . $this->max : null,
         ]);
-        if ($this->object) {
+        if ($this->object && is_string($this->object)) {
             if (is_a($this->object, DateTime::class, true)) {
                 $rules2[] = 'date';
             } elseif (is_a($this->object, BaseDTO::class, true)) {

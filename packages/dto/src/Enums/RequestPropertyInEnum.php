@@ -24,7 +24,10 @@ enum RequestPropertyInEnum: string
         if (str_contains($contentType, 'application/json')) {
             return self::Json;
         }
-        if (str_contains($contentType, 'application/x-www-form-urlencoded')) {
+        if (
+            str_contains($contentType, 'application/x-www-form-urlencoded')
+            || str_contains($contentType, 'multipart/form-data')
+        ) {
             return self::Form;
         }
         return null;
