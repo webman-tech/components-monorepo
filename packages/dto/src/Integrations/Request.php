@@ -2,27 +2,45 @@
 
 namespace WebmanTech\DTO\Integrations;
 
+use Closure;
 use Psr\Http\Message\ServerRequestInterface as PsrServerRequest;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
 use Webman\Http\Request as WebmanRequest;
 use Webman\Http\UploadFile;
+use WebmanTech\DTO\Helper\ConfigHelper;
 
 /**
  * @internal
- * @phpstan-type TypeRequest = WebmanRequest|SymfonyRequest|PsrServerRequest|string
+ * @phpstan-type TypeRequest = WebmanRequest|SymfonyRequest|PsrServerRequest|string|mixed
  */
 final class Request
 {
+    private static null|string|Closure $instanceClass = null;
+
     /**
-     * @param TypeRequest $request
+     * @param TypeRequest|null $request
      */
-    public static function from($request): RequestInterface
+    public static function from(mixed $request = null): RequestInterface
     {
+        if (self::$instanceClass === null) {
+            /** @var string|Closure|null $instanceClass */
+            $instanceClass = ConfigHelper::get('dto.request_class');
+            if ($instanceClass === null) {
+                $instanceClass = match (true) {
+                    $request instanceof WebmanRequest => WebmanRequestIntegration::class,
+                    $request instanceof SymfonyRequest => SymfonyRequestIntegration::class,
+                    default => throw new \InvalidArgumentException('not found request class'),
+                };
+            }
+            self::$instanceClass = $instanceClass;
+        }
+
+        $instanceClass = self::$instanceClass;
         return match (true) {
-            $request instanceof WebmanRequest => new WebmanRequestIntegration($request),
-            $request instanceof SymfonyRequest => new SymfonyRequestIntegration($request),
-            default => throw new \InvalidArgumentException('Not support request type'),
+            $instanceClass instanceof Closure => $instanceClass($request),
+            class_exists($instanceClass) && is_a($instanceClass, RequestInterface::class, true) => new $instanceClass($request),
+            default => throw new \InvalidArgumentException('Not support request class'),
         };
     }
 }
@@ -30,10 +48,14 @@ final class Request
 /**
  * @internal
  */
-final readonly class WebmanRequestIntegration implements RequestInterface
+final class WebmanRequestIntegration implements RequestInterface
 {
-    public function __construct(private WebmanRequest $request)
+    private WebmanRequest $request;
+
+    public function __construct(?WebmanRequest $request = null)
     {
+        /** @phpstan-ignore-next-line */
+        $this->request = $request ?? request();
     }
 
     public function getMethod(): string
@@ -74,6 +96,7 @@ final readonly class WebmanRequestIntegration implements RequestInterface
         return $this->request->rawBody();
     }
 
+    /** @phpstan-ignore-next-line */
     public function postForm(string $key): null|string|array|UploadFile
     {
         return $this->allPostForm()[$key] ?? null;
@@ -91,10 +114,8 @@ final readonly class WebmanRequestIntegration implements RequestInterface
 
     public function allPostForm(): array
     {
-        return array_merge(
-            $this->request->post(),
-            $this->request->file(),
-        );
+        /** @phpstan-ignore-next-line */
+        return array_merge($this->request->post(), $this->request->file());
     }
 
     public function allPostJson(): array
@@ -108,8 +129,11 @@ final readonly class WebmanRequestIntegration implements RequestInterface
  */
 final readonly class SymfonyRequestIntegration implements RequestInterface
 {
-    public function __construct(private SymfonyRequest $request)
+    private SymfonyRequest $request;
+
+    public function __construct(?SymfonyRequest $request = null)
     {
+        $this->request = $request ?? SymfonyRequest::createFromGlobals();
     }
 
     public function getMethod(): string

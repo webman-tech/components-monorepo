@@ -17,7 +17,7 @@ class BaseRequestDTO extends BaseDTO
      * @param TypeRequest $request
      * @throws DTOValidateException|DTONewInstanceException
      */
-    public static function fromRequest($request, bool $validate = true): static
+    public static function fromRequest(mixed $request = null, bool $validate = true): static
     {
         $data = static::getDataFromRequest($request);
 
@@ -29,7 +29,7 @@ class BaseRequestDTO extends BaseDTO
      * @param TypeRequest $request
      * @return array<string, mixed>
      */
-    protected static function getDataFromRequest($request): array
+    protected static function getDataFromRequest(mixed $request = null): array
     {
         $request = Integrations\Request::from($request);
 

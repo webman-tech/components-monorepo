@@ -4,6 +4,8 @@ use WebmanTech\DTO\Attributes\RequestPropertyInHeader;
 use WebmanTech\DTO\Attributes\RequestPropertyInJson;
 use WebmanTech\DTO\Attributes\RequestPropertyInQuery;
 use WebmanTech\DTO\BaseRequestDTO;
+use WebmanTech\DTO\Helper\ConfigHelper;
+use WebmanTech\DTO\Integrations\RequestInterface;
 
 test('fromRequest use different method', function () {
     class DTOFromRequestUseDefaultRequestType extends BaseRequestDTO
@@ -78,4 +80,80 @@ test('fromRequest with RequestPropertyIn', function () {
         ->and($dto->name3)->toBe('name3HeaderValue')
         ->and($dto->name4)->toBe('name4GetValue')
         ->and($dto->name5)->toBe('name5PostValue');
+});
+
+test('fromRequest with config requestInstance', function () {
+    class DTOFromRequestWithConfigRequestInstance extends BaseRequestDTO
+    {
+        public string $name;
+    }
+
+    ConfigHelper::setForTest('dto.request_class', function () {
+        return new class implements RequestInterface {
+            private array $request;
+
+            public function __construct()
+            {
+                $this->request = [
+                    'get' => [
+                        'name' => 'abc',
+                    ],
+                ];
+            }
+
+            public function getMethod(): string
+            {
+                return 'GET';
+            }
+
+            public function getContentType(): string
+            {
+            }
+
+            public function get(string $key): null|string|array
+            {
+                return $this->request['get'][$key] ?? null;
+            }
+
+            public function path(string $key): null|string
+            {
+            }
+
+            public function header(string $key): ?string
+            {
+            }
+
+            public function cookie(string $name): ?string
+            {
+            }
+
+            public function rawBody(): string
+            {
+            }
+
+            public function postForm(string $key): null|string|array|object
+            {
+            }
+
+            public function postJson(string $key): null|string|int|float|bool|array
+            {
+            }
+
+            public function allGet(): array
+            {
+                return $this->request['get'];
+            }
+
+            public function allPostForm(): array
+            {
+            }
+
+            public function allPostJson(): array
+            {
+            }
+        };
+    });
+
+    $dto = DTOFromRequestWithConfigRequestInstance::fromRequest();
+    expect($dto->name)->toBe('abc');
 });
