@@ -45,6 +45,17 @@ test('fromData with validate', function () {
     } catch (DTONewInstanceException $e) {
         expect($e->getClassName())->toBe(DTOFromDataWithValidateTest::class);
     }
+
+    // 默认只返回验证过后的数据
+    $dto = DTOFromDataWithValidateTest::fromData([
+        'name' => 'aaa',
+        'age' => 18,
+        'child' => false,
+    ]);
+    expect($dto->toArray())->toBe([
+        'name' => 'aaa',
+        'age' => 18,
+    ]);
 });
 
 test('fromData with extraValidateRules', function () {

@@ -69,3 +69,37 @@ test('with app config', function () {
 
     ConfigHelper::setForTest();
 });
+
+test('config construct not public', function () {
+    class DTOConfigConstructNotPublicTest extends BaseConfigDTO
+    {
+        public int $age;
+        public string $another_name_alias;
+
+        public function __construct(
+            public string $name = 'abc',
+            int|null      $age = null,
+            string|null   $another_name = null,
+        )
+        {
+            $this->age = $age ?? 18;
+            $this->another_name_alias = $another_name ?? 'another_name';
+        }
+    }
+
+    // 默认值情况
+    $config = DTOConfigConstructNotPublicTest::fromConfig();
+    expect($config->name)->toBe('abc')
+        ->and($config->age)->toBe(18)
+        ->and($config->another_name_alias)->toBe('another_name');
+
+    // 配置特定值
+    $config = DTOConfigConstructNotPublicTest::fromConfig([
+        'name' => 'b',
+        'age' => 20,
+        'another_name' => 'c',
+    ]);
+    expect($config->name)->toBe('b')
+        ->and($config->age)->toBe(20)
+        ->and($config->another_name_alias)->toBe('c');
+});
