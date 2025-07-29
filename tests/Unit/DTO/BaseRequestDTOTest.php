@@ -5,6 +5,7 @@ use WebmanTech\DTO\Attributes\RequestPropertyInJson;
 use WebmanTech\DTO\Attributes\RequestPropertyInQuery;
 use WebmanTech\DTO\BaseRequestDTO;
 use WebmanTech\DTO\Helper\ConfigHelper;
+use WebmanTech\DTO\Integrations\Request;
 use WebmanTech\DTO\Integrations\RequestInterface;
 
 test('fromRequest use different method', function () {
@@ -83,6 +84,8 @@ test('fromRequest with RequestPropertyIn', function () {
 });
 
 test('fromRequest with config requestInstance', function () {
+    Request::cleanForTest();
+
     class DTOFromRequestWithConfigRequestInstance extends BaseRequestDTO
     {
         public string $name;
@@ -156,4 +159,7 @@ test('fromRequest with config requestInstance', function () {
 
     $dto = DTOFromRequestWithConfigRequestInstance::fromRequest();
     expect($dto->name)->toBe('abc');
+
+    ConfigHelper::setForTest('dto.request_class');
+    Request::cleanForTest();
 });

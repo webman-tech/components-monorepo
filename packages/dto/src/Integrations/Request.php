@@ -43,6 +43,14 @@ final class Request
             default => throw new \InvalidArgumentException('Not support request class'),
         };
     }
+
+    /**
+     * @internal 测试环境清理使用
+     */
+    public static function cleanForTest(): void
+    {
+        self::$instanceClass = null;
+    }
 }
 
 /**
