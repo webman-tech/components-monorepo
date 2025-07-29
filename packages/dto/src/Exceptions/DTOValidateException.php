@@ -2,7 +2,7 @@
 
 namespace WebmanTech\DTO\Exceptions;
 
-use Illuminate\Support\Arr;
+use WebmanTech\DTO\Helper\ArrayHelper;
 
 final class DTOValidateException extends DTOException
 {
@@ -24,6 +24,6 @@ final class DTOValidateException extends DTOException
      */
     public function first(): string
     {
-        return Arr::first(Arr::wrap(Arr::first($this->errors)));
+        return ArrayHelper::first(ArrayHelper::wrap(ArrayHelper::first($this->errors, '')));
     }
 }

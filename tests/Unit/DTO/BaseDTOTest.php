@@ -52,12 +52,20 @@ test('fromData with extraValidateRules', function () {
     {
         public string $name;
         public int $age;
+        public string $page;
+        public string $abc;
 
         protected static function getExtraValidationRules(): array
         {
             return [
                 'name' => 'url',
                 'age' => 'integer|max:10',
+                'page' => function () {
+                    return true;
+                },
+                'abc' => ['string', function () {
+                    return true;
+                }]
             ];
         }
     }
@@ -66,6 +74,8 @@ test('fromData with extraValidateRules', function () {
     $dto = DTOFromDataWithExtraValidateRulesTest::fromData([
         'name' => 'name',
         'age' => 123,
+        'page' => 'page',
+        'abc' => 'abc',
     ], validate: false);
     expect($dto->name)->toBe('name');
 
@@ -74,6 +84,8 @@ test('fromData with extraValidateRules', function () {
         DTOFromDataWithExtraValidateRulesTest::fromData([
             'name' => 'name',
             'age' => 123,
+            'page' => 'page',
+            'abc' => 'abc',
         ]);
         throw new InvalidArgumentException();
     } catch (DTOValidateException $e) {

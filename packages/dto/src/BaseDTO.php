@@ -4,10 +4,10 @@ namespace WebmanTech\DTO;
 
 use DateTime;
 use DateTimeInterface;
-use Illuminate\Support\Arr;
 use WebmanTech\DTO\Attributes\ToArrayConfig;
 use WebmanTech\DTO\Exceptions\DTONewInstanceException;
 use WebmanTech\DTO\Exceptions\DTOValidateException;
+use WebmanTech\DTO\Helper\ArrayHelper;
 use WebmanTech\DTO\Helper\ConfigHelper;
 use WebmanTech\DTO\Integrations\Validation;
 use WebmanTech\DTO\Reflection\ReflectionReaderFactory;
@@ -49,11 +49,19 @@ class BaseDTO
                 if (is_string($keyRules)) {
                     $keyRules = explode('|', $keyRules);
                 }
-                $keyRules = Arr::wrap($keyRules);
+                $keyRules = ArrayHelper::wrap($keyRules);
                 if (!isset($rules[$key])) {
                     $rules[$key] = $keyRules;
                 } else {
-                    $rules[$key] = array_values(array_unique(array_merge($rules[$key], $keyRules)));
+                    $allRules = array_merge($rules[$key], $keyRules);
+                    $uniqueAllRules = [];
+                    foreach ($allRules as $rule) {
+                        if (is_string($rule) && in_array($rule, $uniqueAllRules, true)) {
+                            continue;
+                        }
+                        $uniqueAllRules[] = $rule;
+                    }
+                    $rules[$key] = $uniqueAllRules;
                 }
             }
         }

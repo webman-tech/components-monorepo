@@ -38,4 +38,27 @@ final class ArrayHelper
         }
         return $result;
     }
+
+    public static function wrap(mixed $value): array
+    {
+        if (is_null($value)) {
+            return [];
+        }
+
+        return is_array($value) ? $value : [$value];
+    }
+
+    /**
+     * @template T
+     * @param array<int|string, T> $array
+     * @param T|null $default
+     * @return T|null
+     */
+    public static function first(array $array, $default = null)
+    {
+        foreach ($array as $value) {
+            return $value;
+        }
+        return $default;
+    }
 }
