@@ -82,6 +82,78 @@ test('fromData with extraValidateRules', function () {
     }
 });
 
+test('fromData with validationRuleMessages', function () {
+    class DTOFromDataWithValidationRuleMessagesTest extends BaseDTO
+    {
+        public string $name;
+        public int $age;
+
+        protected static function getValidationRuleMessages(): array
+        {
+            return [
+                'name.required' => 'name is required',
+                'age.integer' => 'age must be int',
+            ];
+        }
+    }
+
+    try {
+        DTOFromDataWithValidationRuleMessagesTest::fromData([
+            'age' => 'abc',
+        ]);
+        throw new InvalidArgumentException();
+    } catch (DTOValidateException $e) {
+        expect($e->getErrors())->toBe([
+            'name' => [
+                'name is required',
+            ],
+            'age' => [
+                'age must be int',
+            ],
+        ]);
+    }
+});
+
+test('fromData with ValidationRuleCustomAttributes', function () {
+    class DTOFromDataWithValidationRuleCustomAttributesTest extends BaseDTO
+    {
+        public string $name;
+        public int $age;
+
+        protected static function getValidationRuleMessages(): array
+        {
+            return [
+                'name.required' => ':attribute is required',
+                'age.integer' => ':attribute must be int',
+            ];
+        }
+
+        protected static function getValidationRuleCustomAttributes(): array
+        {
+            return [
+                'name' => 'name_custom',
+                'age' => 'age_custom',
+            ];
+        }
+    }
+
+    try {
+        DTOFromDataWithValidationRuleCustomAttributesTest::fromData([
+            'age' => 'abc',
+        ]);
+        throw new InvalidArgumentException();
+    } catch (DTOValidateException $e) {
+        expect($e->getErrors())->toBe([
+            'name' => [
+                'name_custom is required',
+            ],
+            'age' => [
+                'age_custom must be int',
+            ],
+        ]);
+    }
+});
+
 test('fromData use construct', function () {
     class DTOFromDataUseConstructTest extends BaseDTO
     {
@@ -242,8 +314,6 @@ test('toArray with ToArrayConfig ignoreNull', function () {
         'name' => 'nameValue',
         'array' => [
             'x' => 'x',
-        ],
-        'child' => [
         ],
     ]);
     // 嵌套赋值

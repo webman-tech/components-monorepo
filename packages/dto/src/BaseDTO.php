@@ -4,12 +4,12 @@ namespace WebmanTech\DTO;
 
 use DateTime;
 use DateTimeInterface;
-use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Support\Arr;
 use WebmanTech\DTO\Attributes\ToArrayConfig;
 use WebmanTech\DTO\Exceptions\DTONewInstanceException;
 use WebmanTech\DTO\Exceptions\DTOValidateException;
 use WebmanTech\DTO\Helper\ConfigHelper;
+use WebmanTech\DTO\Integrations\Validation;
 use WebmanTech\DTO\Reflection\ReflectionReaderFactory;
 
 class BaseDTO
@@ -23,10 +23,9 @@ class BaseDTO
         $factory = ReflectionReaderFactory::fromClass(static::class);
 
         if ($validate) {
-            // 验证必须的规则
-            $data = static::validateData($data, $factory->getPropertiesValidationRules());
-            // 验证自定义的规则
-            $data = static::validateData($data, static::getExtraValidationRules());
+            // 必须的规则
+            $rules = static::getValidationRules();
+            $data = static::validateData($data, $rules);
         }
 
         try {
@@ -37,10 +36,54 @@ class BaseDTO
     }
 
     /**
+     * 获取全部的验证规则
+     * @return array<string, array>
+     */
+    protected static function getValidationRules(): array
+    {
+        // 必须的规则
+        $rules = ReflectionReaderFactory::fromClass(static::class)->getPropertiesValidationRules();
+        if ($extraRules = static::getExtraValidationRules()) {
+            // 合并自定义规则
+            foreach ($extraRules as $key => $keyRules) {
+                if (is_string($keyRules)) {
+                    $keyRules = explode('|', $keyRules);
+                }
+                $keyRules = Arr::wrap($keyRules);
+                if (!isset($rules[$key])) {
+                    $rules[$key] = $keyRules;
+                } else {
+                    $rules[$key] = array_values(array_unique(array_merge($rules[$key], $keyRules)));
+                }
+            }
+        }
+
+        return $rules;
+    }
+
+    /**
      * 获取额外的验证规则
-     * @return array
+     * @return array<string, array|string>
      */
     protected static function getExtraValidationRules(): array
+    {
+        return [];
+    }
+
+    /**
+     * 验证规则的错误信息
+     * @return array<string, string>
+     */
+    protected static function getValidationRuleMessages(): array
+    {
+        return [];
+    }
+
+    /**
+     * 验证规则的自定义属性
+     * @return array<string, string>
+     */
+    protected static function getValidationRuleCustomAttributes(): array
     {
         return [];
     }
@@ -56,19 +99,7 @@ class BaseDTO
         if (!$rules) {
             return $data;
         }
-        /** @var Validator $validator */
-        $validator = validator($data, $rules);
-        if ($validator->fails()) {
-            throw new DTOValidateException(
-            // 只取每个 key 的第一次个错误
-                array_map(
-                    fn($messages) => is_array($messages) ? Arr::first($messages) : $messages,
-                    $validator->errors()->toArray(),
-                )
-            );
-        }
-
-        return $data;
+        return Validation::create()->validate($data, $rules, static::getValidationRuleMessages(), static::getValidationRuleCustomAttributes());
     }
 
     /**
