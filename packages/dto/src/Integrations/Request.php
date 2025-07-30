@@ -56,7 +56,7 @@ final class Request
 /**
  * @internal
  */
-final class WebmanRequestIntegration implements RequestInterface
+final readonly class WebmanRequestIntegration implements RequestInterface
 {
     private WebmanRequest $request;
 
