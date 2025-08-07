@@ -7,7 +7,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/utils.php';
 
 $listContent = get_packages()
-    ->map(fn($package) => "- [{$package['composer_name']}](./packages/{$package['dir_name']}/README.md)")
+    ->map(fn($package) => "- [{$package['composer_name']}]({$package['git_url']})")
     ->implode("\n");
 
 $readmeFile = root_path('README.md');

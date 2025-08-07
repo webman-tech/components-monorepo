@@ -21,14 +21,14 @@ composer require webman-tech/auth
 
 <!-- packages:start -->
 
-- [webman-tech/amis-admin](./packages/amis-admin/README.md)
-- [webman-tech/auth](./packages/auth/README.md)
-- [webman-tech/crontab-task](./packages/crontab-task/README.md)
-- [webman-tech/debugbar](./packages/debugbar/README.md)
-- [webman-tech/dto](./packages/dto/README.md)
-- [webman-tech/log-reader](./packages/log-reader/README.md)
-- [webman-tech/logger](./packages/logger/README.md)
-- [webman-tech/swagger](./packages/swagger/README.md)
+- [webman-tech/amis-admin](https://github.com/webman-tech/amis-admin)
+- [webman-tech/auth](https://github.com/webman-tech/auth)
+- [webman-tech/crontab-task](https://github.com/webman-tech/crontab-task)
+- [webman-tech/debugbar](https://github.com/webman-tech/debugbar)
+- [webman-tech/dto](https://github.com/webman-tech/dto)
+- [webman-tech/log-reader](https://github.com/webman-tech/log-reader)
+- [webman-tech/logger](https://github.com/webman-tech/logger)
+- [webman-tech/swagger](https://github.com/webman-tech/swagger)
 
 <!-- packages:end -->
 

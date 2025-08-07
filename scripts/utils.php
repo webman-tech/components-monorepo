@@ -51,6 +51,7 @@ function get_packages()
                 'composer_name' => $composerName,
                 'git_name' => $gitName,
                 'class_namespace' => 'WebmanTech\\' . (in_array($dirName, $uppercaseWords) ? strtoupper($dirName) : Str::studly($dirName)),
+                'git_url' => 'https://github.com/' . $gitName
             ];
         });
 
