@@ -3,6 +3,7 @@
 use Webman\Http\UploadFile;
 use WebmanTech\DTO\Attributes\ToArrayConfig;
 use WebmanTech\DTO\BaseDTO;
+use WebmanTech\DTO\Enums\RequestPropertyInEnum;
 use WebmanTech\DTO\Exceptions\DTONewInstanceException;
 use WebmanTech\DTO\Exceptions\DTOValidateException;
 use WebmanTech\DTO\Helper\ConfigHelper;
@@ -237,10 +238,11 @@ test('toArray with public properties', function () {
     ]);
 });
 
-test('toArray with dateTimeFormat', function () {
+test('toArray with special type', function () {
     $dto = new class extends BaseDTO {
         public function __construct(
-            public DateTime $dateTime = new DateTime('2025-12-12 11:11:11'),
+            public DateTime              $dateTime = new DateTime('2025-12-12 11:11:11'),
+            public RequestPropertyInEnum $requestPropertyInEnum = RequestPropertyInEnum::Json,
         )
         {
         }
@@ -250,6 +252,7 @@ test('toArray with dateTimeFormat', function () {
 
     expect($dto->toArray())->toBe([
         'dateTime' => '2025-12-12 11:11',
+        'requestPropertyInEnum' => 'json',
     ]);
 
     ConfigHelper::setForTest();

@@ -2,6 +2,7 @@
 
 namespace WebmanTech\DTO;
 
+use BackedEnum;
 use DateTime;
 use DateTimeInterface;
 use WebmanTech\DTO\Attributes\ToArrayConfig;
@@ -160,6 +161,8 @@ class BaseDTO
                 }
             } elseif ($value instanceof DateTime) {
                 $value = $value->format($this->getDateTimeFormat());
+            } elseif ($value instanceof BackedEnum) {
+                $value = $value->value;
             }
             if ($toArrayConfig->ignoreNull && $value === null) {
                 continue;
