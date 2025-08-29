@@ -104,8 +104,11 @@ final readonly class WebmanRequestIntegration implements RequestInterface
         return $this->request->rawBody();
     }
 
+    /**
+     * @return string|array|null|UploadFile
+     */
     /** @phpstan-ignore-next-line */
-    public function postForm(string $key): null|string|array|UploadFile
+    public function postForm(string $key): null|string|array|object
     {
         return $this->allPostForm()[$key] ?? null;
     }
@@ -186,8 +189,11 @@ final readonly class SymfonyRequestIntegration implements RequestInterface
         return $this->request->getContent();
     }
 
+    /**
+     * @return string|array|null|UploadedFile
+     */
     /** @phpstan-ignore-next-line */
-    public function postForm(string $key): null|string|array|UploadedFile
+    public function postForm(string $key): null|string|array|object
     {
         return $this->allPostForm()[$key] ?? null;
     }
