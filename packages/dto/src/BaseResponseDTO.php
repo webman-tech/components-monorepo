@@ -28,6 +28,6 @@ class BaseResponseDTO extends BaseDTO
             return call_user_func($this->toResponseFormat, $data);
         }
 
-        throw new \InvalidArgumentException('toResponseFormat error: ' . $this->toResponseFormat);
+        throw new \InvalidArgumentException('toResponseFormat error');
     }
 }
