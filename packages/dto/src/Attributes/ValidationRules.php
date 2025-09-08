@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile as SymfonyUploadFile;
 use UnitEnum;
 use Webman\Http\UploadFile as WebmanUploadFile;
 use WebmanTech\DTO\BaseDTO;
+use WebmanTech\DTO\Helper\DocBlockHelper;
 use WebmanTech\DTO\Reflection\ReflectionReaderFactory;
 
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
@@ -27,18 +28,18 @@ final class ValidationRules
         public null|true                   $integer = null,
         public null|true                   $numeric = null,
         /**
-         * @var class-string<UnitEnum>|null
+         * @var null|class-string<UnitEnum>
          */
         public null|string                 $enum = null,
         public null|array                  $enumOnly = null,
         public null|array                  $enumExcept = null,
         public null|true                   $array = null,
         /**
-         * @var class-string|null
+         * @var null|class-string|ValidationRules
          */
         public null|string|ValidationRules $arrayItem = null,
         /**
-         * @var class-string|true|null
+         * @var null|class-string|true
          */
         public null|string|true            $object = null,
         public null|int|float              $min = null,
@@ -104,6 +105,12 @@ final class ValidationRules
                         $this->object = $typeName;
                     }
                 }
+            }
+        }
+        // 对 array 的 arrayItem 进行提取
+        if ($this->array && !$this->arrayItem) {
+            if ($reflection instanceof ReflectionProperty) {
+                $this->arrayItem = DocBlockHelper::extractClassPropertyArrayItemType($reflection);
             }
         }
     }
