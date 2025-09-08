@@ -46,9 +46,17 @@ test('validation rules', function () {
         // array 类型，每个子类是对象
         #[ValidationRules(arrayItem: DTOFromValidationRulesTestItem::class)]
         public array $children;
+        /**
+         * @var array|DTOFromValidationRulesTestItem[]
+         */
+        public array $childrenUseDoc;
         // array 类型，每个子类是 ValidationRules
         #[ValidationRules(arrayItem: new ValidationRules(string: true))]
         public array $childrenNames;
+        /**
+         * @var string[]
+         */
+        public array $childrenNamesUseDoc;
         // 不定义类型
         public $noTypeDefine;
         public $noTypeDefineWithDefault = 'abc';

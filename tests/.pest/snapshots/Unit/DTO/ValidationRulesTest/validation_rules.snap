@@ -96,11 +96,30 @@
         "nullable",
         "integer"
     ],
+    "childrenUseDoc": [
+        "required",
+        "array"
+    ],
+    "childrenUseDoc.*.name": [
+        "required",
+        "string"
+    ],
+    "childrenUseDoc.*.age": [
+        "nullable",
+        "integer"
+    ],
     "childrenNames": [
         "required",
         "array"
     ],
     "childrenNames.*": [
+        "string"
+    ],
+    "childrenNamesUseDoc": [
+        "required",
+        "array"
+    ],
+    "childrenNamesUseDoc.*": [
         "string"
     ],
     "noTypeDefine": [
