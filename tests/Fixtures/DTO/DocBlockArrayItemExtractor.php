@@ -11,6 +11,10 @@ final class DocBlockArrayItemExtractor
      */
     public array $array_string;
     /**
+     * @var array<string>
+     */
+    public array $array_string2;
+    /**
      * @var int[]
      */
     public array $array_int;
@@ -38,4 +42,29 @@ final class DocBlockArrayItemExtractor
      * @var Dir\DocBlockArrayItemExtractorDirItem2[]
      */
     public array $array_object_half_use_class;
+
+    /**
+     * @var array<string, string>
+     */
+    public array $object_string;
+    /**
+     * @var array<string, int>
+     */
+    public array $object_int;
+    /**
+     * @var array<int, bool>
+     */
+    public array $object_bool;
+    /**
+     * @var array<string, float>
+     */
+    public array $object_float;
+    /**
+     * @var array<string, DocBlockArrayItemExtractorItem>
+     */
+    public array $object_object;
+    /**
+     * @var array<string, DocBlockArrayItemExtractorItem|null>
+     */
+    public array $object_object_nullable;
 }

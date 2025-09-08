@@ -12,6 +12,9 @@ test('extractVarTypes', function () {
     $result = DocBlockHelper::extractClassPropertyArrayItemType($reflectionClass->getProperty('array_string'));
     expect($result->string)->toBeTrue();
 
+    $result = DocBlockHelper::extractClassPropertyArrayItemType($reflectionClass->getProperty('array_string2'));
+    expect($result->string)->toBeTrue();
+
     $result = DocBlockHelper::extractClassPropertyArrayItemType($reflectionClass->getProperty('array_int'));
     expect($result->integer)->toBeTrue();
 
@@ -32,4 +35,29 @@ test('extractVarTypes', function () {
 
     $result = DocBlockHelper::extractClassPropertyArrayItemType($reflectionClass->getProperty('array_object_half_use_class'));
     expect($result)->toBe(DocBlockArrayItemExtractorDirItem2::class);
+
+    $result = DocBlockHelper::extractClassPropertyArrayItemType($reflectionClass->getProperty('object_string'));
+    expect($result->object)->toBeTrue()
+        ->and($result->arrayItem->string)->toBeTrue();
+
+    $result = DocBlockHelper::extractClassPropertyArrayItemType($reflectionClass->getProperty('object_int'));
+    expect($result->object)->toBeTrue()
+        ->and($result->arrayItem->integer)->toBeTrue();
+
+    $result = DocBlockHelper::extractClassPropertyArrayItemType($reflectionClass->getProperty('object_float'));
+    expect($result->object)->toBeTrue()
+        ->and($result->arrayItem->numeric)->toBeTrue();
+
+    $result = DocBlockHelper::extractClassPropertyArrayItemType($reflectionClass->getProperty('object_bool'));
+    expect($result->object)->toBeTrue()
+        ->and($result->arrayItem->boolean)->toBeTrue();
+
+    $result = DocBlockHelper::extractClassPropertyArrayItemType($reflectionClass->getProperty('object_object'));
+    expect($result->object)->toBeTrue()
+        ->and($result->arrayItem)->toBe(DocBlockArrayItemExtractorItem::class);
+
+    $result = DocBlockHelper::extractClassPropertyArrayItemType($reflectionClass->getProperty('object_object_nullable'));
+    expect($result->object)->toBeTrue()
+        ->and($result->arrayItem)->toBe(DocBlockArrayItemExtractorItem::class)
+        ->and($result->nullable)->toBeTrue();
 });
