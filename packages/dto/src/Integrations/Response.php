@@ -47,7 +47,7 @@ final class Response
  */
 final class WebmanResponseFactory implements ResponseInterface
 {
-    public function json(array $data): WebmanResponse
+    public function json(mixed $data): WebmanResponse
     {
         return new WebmanResponse(
             headers: ['Content-Type' => 'application/json'],
@@ -61,7 +61,7 @@ final class WebmanResponseFactory implements ResponseInterface
  */
 final class SymfonyResponseFactory implements ResponseInterface
 {
-    public function json(array $data): SymfonyResponse
+    public function json(mixed $data): SymfonyResponse
     {
         return new SymfonyJsonResponse($data);
     }

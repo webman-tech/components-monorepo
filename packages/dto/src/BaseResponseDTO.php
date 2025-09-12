@@ -22,7 +22,7 @@ class BaseResponseDTO extends BaseDTO
         $data = $this->toArray();
 
         if ($this->toResponseFormat === 'json') {
-            return Response::create()->json($data);
+            return Response::create()->json($data === [] ? new \stdClass() : $data);
         }
         if ($this->toResponseFormat instanceof \Closure) {
             return call_user_func($this->toResponseFormat, $data);
