@@ -6,6 +6,7 @@ use Attribute;
 use BackedEnum;
 use DateTime;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Enum as RuleEnum;
 use ReflectionNamedType;
 use ReflectionParameter;
 use ReflectionProperty;
@@ -293,7 +294,7 @@ final class ValidationRules
 
         $rules3 = [];
         if ($this->enum) {
-            $rule = Rule::enum($this->enum);
+            $rule = new RuleEnum($this->enum);
             if ($this->enumOnly) {
                 $rule->only($this->enumOnly);
             }
