@@ -22,4 +22,25 @@ class ControllerWithInfo
     {
 
     }
+
+    #[OA\Get(
+        path: '/get-more-tag',
+        tags: ['more-tag']
+    )]
+    public function getMoreTag()
+    {
+
+    }
+
+    #[OA\Get(
+        path: '/get-skip-class',
+        tags: [
+            '--class-skip',
+            'only-tag',
+        ]
+    )]
+    public function getSkipClass()
+    {
+
+    }
 }

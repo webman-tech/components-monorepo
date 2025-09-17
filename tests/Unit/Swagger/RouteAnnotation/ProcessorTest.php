@@ -49,8 +49,10 @@ test('MergeClassInfoProcessor', function () {
     );
 
     // tag
-    expect($analysis->openapi->paths[0]->get->tags)->toMatchArray(['controller'])
-        ->and($analysis->openapi->paths[1]->post->tags)->toMatchArray(['controller']);
+    expect($analysis->openapi->paths[0]->get->tags)->toBe(['controller'])
+        ->and($analysis->openapi->paths[1]->post->tags)->toBe(['controller'])
+        ->and($analysis->openapi->paths[2]->get->tags)->toBe(['controller', 'more-tag'])
+        ->and($analysis->openapi->paths[3]->get->tags)->toBe(['only-tag']);
 });
 
 test('XSchemaRequestProcessor', function () {
