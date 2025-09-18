@@ -47,10 +47,11 @@ final class Response
  */
 final class WebmanResponseFactory implements ResponseInterface
 {
-    public function json(mixed $data): WebmanResponse
+    public function json(mixed $data, int $status = 200, array $headers = []): WebmanResponse
     {
         return new WebmanResponse(
-            headers: ['Content-Type' => 'application/json'],
+            status: $status,
+            headers: array_merge(['Content-Type' => 'application/json'], $headers),
             body: json_encode($data) ?: '',
         );
     }
@@ -61,8 +62,8 @@ final class WebmanResponseFactory implements ResponseInterface
  */
 final class SymfonyResponseFactory implements ResponseInterface
 {
-    public function json(mixed $data): SymfonyResponse
+    public function json(mixed $data, int $status = 200, array $headers = []): SymfonyResponse
     {
-        return new SymfonyJsonResponse($data);
+        return new SymfonyJsonResponse($data, status: $status, headers: $headers);
     }
 }
