@@ -1,6 +1,7 @@
 <?php
 
 use Webman\Http\Response;
+use WebmanTech\DTO\Attributes\ToArrayConfig;
 use WebmanTech\DTO\BaseResponseDTO;
 use WebmanTech\DTO\Helper\ConfigHelper;
 
@@ -42,6 +43,19 @@ test('json 下返回空对象时', function () {
     $response = $dto->toResponse();
     expect($response)->toBeInstanceOf(Response::class)
         ->and($response->rawBody())->toBe('{}');
+});
+
+test('json 下返回的数据中存在空数组时', function () {
+    #[ToArrayConfig(emptyArrayAsObject: true)]
+    class DTOToResponseEmptyData extends BaseResponseDTO
+    {
+        public array $arr = [];
+    }
+
+    $dto = new DTOToResponseEmptyData();
+    $response = $dto->toResponse();
+    expect($response)->toBeInstanceOf(Response::class)
+        ->and($response->rawBody())->toBe('{"arr":{}}');
 });
 
 test('传递 headers 和 status', function () {

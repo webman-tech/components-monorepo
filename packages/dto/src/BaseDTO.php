@@ -5,6 +5,7 @@ namespace WebmanTech\DTO;
 use BackedEnum;
 use DateTime;
 use DateTimeInterface;
+use stdClass;
 use WebmanTech\DTO\Attributes\ToArrayConfig;
 use WebmanTech\DTO\Exceptions\DTONewInstanceException;
 use WebmanTech\DTO\Exceptions\DTOValidateException;
@@ -153,6 +154,12 @@ class BaseDTO
                 }, $value);
                 if ($toArrayConfig->ignoreNull) {
                     $value = array_filter($value, fn($v) => $v !== null);
+                }
+                if (
+                    $toArrayConfig->emptyArrayAsObject === true
+                    || in_array($property, $toArrayConfig->emptyArrayAsObject, true)
+                ) {
+                    $value = $value ?: new stdClass();
                 }
             } elseif ($value instanceof self) {
                 $value = $value->toArray();

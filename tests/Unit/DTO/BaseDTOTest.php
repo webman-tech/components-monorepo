@@ -423,3 +423,26 @@ test('toArray with nested type', function () {
         ],
     ]);
 });
+
+test('toArray with emptyArray', function () {
+    #[ToArrayConfig(emptyArrayAsObject: true)]
+    class DTOToArrayWithEmptyArray1 extends BaseDTO
+    {
+        public array $array = [];
+    }
+
+    $dto = new DTOToArrayWithEmptyArray1();
+    expect($dto->toArray()['array'])->toBeInstanceOf(stdClass::class);
+
+    #[ToArrayConfig(emptyArrayAsObject: ['arr1'])]
+    class DTOToArrayWithEmptyArray2 extends BaseDTO
+    {
+        public array $arr1 = [];
+        public array $arr2 = [];
+    }
+
+    $dto = new DTOToArrayWithEmptyArray2();
+    $data = $dto->toArray();
+    expect($data['arr1'])->toBeInstanceOf(stdClass::class)
+        ->and($data['arr2'])->toBe([]);
+});
