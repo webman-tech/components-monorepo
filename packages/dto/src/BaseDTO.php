@@ -157,7 +157,10 @@ class BaseDTO
                 }
                 if (
                     $toArrayConfig->emptyArrayAsObject === true
-                    || in_array($property, $toArrayConfig->emptyArrayAsObject, true)
+                    || (
+                        is_array($toArrayConfig->emptyArrayAsObject)
+                        && in_array($property, $toArrayConfig->emptyArrayAsObject, true)
+                    )
                 ) {
                     $value = $value ?: new stdClass();
                 }
