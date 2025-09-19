@@ -2,6 +2,7 @@
   "name": "webman-tech/components-monorepo",
   "description": "webman components monorepo",
   "type": "library",
+  "license": "MIT",
   "authors": [
     {
       "name": "kriss",
