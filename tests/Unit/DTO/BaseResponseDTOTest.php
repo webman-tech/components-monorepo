@@ -22,10 +22,11 @@ test('不同 format', function () {
         ->and($response->getHeader('Content-Type'))->toBe('application/json');
 
     // 通过 config 配置
-    ConfigHelper::setForTest('dto.to_response_format', function (array $data) {
-        return response(json_encode($data), 201);
+    ConfigHelper::setForTest('dto.to_response_format', function (DTOToResponseForFormat $response) {
+        return response(json_encode($response->toArray()), $response->getResponseStatus());
     });
     $dto = new DTOToResponseForFormat(name: 'nameValue');
+    $dto->withResponseStatus(201);
     $response = $dto->toResponse();
     expect($response)->toBeInstanceOf(Response::class)
         ->and($response->getStatusCode())->toBe(201);

@@ -58,17 +58,12 @@ class BaseResponseDTO extends BaseDTO
             $this->toResponseFormat = ConfigHelper::get('dto.to_response_format', 'json');
         }
 
-        $data = $this->toArray();
-
         if ($this->toResponseFormat === 'json') {
-            return Response::create()->json(
-                data: $data === [] ? new \stdClass() : $data,
-                responseDTO: $this,
-            );
+            return Response::create()->json($this);
         }
 
         if ($this->toResponseFormat instanceof \Closure) {
-            return ($this->toResponseFormat)($data, $this);
+            return ($this->toResponseFormat)($this);
         }
 
         throw new \InvalidArgumentException('toResponseFormat error');

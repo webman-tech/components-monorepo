@@ -48,8 +48,10 @@ final class Response
  */
 final class WebmanResponseFactory implements ResponseInterface
 {
-    public function json(mixed $data, BaseResponseDTO $responseDTO): WebmanResponse
+    public function json(BaseResponseDTO $responseDTO): WebmanResponse
     {
+        $data = $responseDTO->toArray();
+        $data = $data === [] ? new \stdClass() : $data;
         $response = new WebmanResponse(
             status: $responseDTO->getResponseStatus(),
             headers: array_merge(['Content-Type' => 'application/json'], $responseDTO->getResponseHeaders()),
@@ -67,8 +69,10 @@ final class WebmanResponseFactory implements ResponseInterface
  */
 final class SymfonyResponseFactory implements ResponseInterface
 {
-    public function json(mixed $data, BaseResponseDTO $responseDTO): SymfonyResponse
+    public function json(BaseResponseDTO $responseDTO): SymfonyResponse
     {
+        $data = $responseDTO->toArray();
+        $data = $data === [] ? new \stdClass() : $data;
         $response = new SymfonyJsonResponse($data, headers: $responseDTO->getResponseHeaders());
         $response->setStatusCode($responseDTO->getResponseStatus(), $responseDTO->getResponseStatusText());
         return $response;
