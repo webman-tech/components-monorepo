@@ -32,6 +32,11 @@ final class Request
                     $request instanceof SymfonyRequest => SymfonyRequestIntegration::class,
                     default => throw new \InvalidArgumentException('not found request class'),
                 };
+            } elseif (is_string($instanceClass)) {
+                $instanceClass = [
+                    'webman' => WebmanRequestIntegration::class,
+                    'symfony' => SymfonyRequestIntegration::class,
+                ][$instanceClass] ?? $instanceClass;
             }
             self::$instanceClass = $instanceClass;
         }
