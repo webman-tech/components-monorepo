@@ -15,12 +15,35 @@ class BaseResponseDTO extends BaseDTO
         return $this;
     }
 
+    public function getResponseHeaders(): array
+    {
+        return $this->responseHeaders;
+    }
+
     private int $responseStatus = 200;
 
     public function withResponseStatus(int $status): static
     {
         $this->responseStatus = $status;
         return $this;
+    }
+
+    public function getResponseStatus(): int
+    {
+        return $this->responseStatus;
+    }
+
+    private ?string $responseStatusText = null;
+
+    public function withResponseStatusText(?string $text): static
+    {
+        $this->responseStatusText = $text;
+        return $this;
+    }
+
+    public function getResponseStatusText(): ?string
+    {
+        return $this->responseStatusText;
     }
 
     private string|\Closure|null $toResponseFormat = null;
@@ -40,13 +63,12 @@ class BaseResponseDTO extends BaseDTO
         if ($this->toResponseFormat === 'json') {
             return Response::create()->json(
                 data: $data === [] ? new \stdClass() : $data,
-                status: $this->responseStatus,
-                headers: $this->responseHeaders,
+                responseDTO: $this,
             );
         }
 
         if ($this->toResponseFormat instanceof \Closure) {
-            return call_user_func($this->toResponseFormat, $data, $this->responseStatus, $this->responseHeaders);
+            return ($this->toResponseFormat)($data, $this);
         }
 
         throw new \InvalidArgumentException('toResponseFormat error');

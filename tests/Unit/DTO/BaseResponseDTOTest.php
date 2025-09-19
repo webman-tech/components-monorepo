@@ -71,10 +71,15 @@ test('传递 headers 和 status', function () {
     // 默认 json
     $dto = new DTOToResponseForHeadersAndStatus(name: 'nameValue');
     $dto->withResponseStatus(201)
+        ->withResponseStatusText('Created Abc')
         ->withResponseHeaders(['X-Test' => 'test']);
+    expect($dto->getResponseStatus())->toBe(201)
+        ->and($dto->getResponseStatusText())->toBe('Created Abc')
+        ->and($dto->getResponseHeaders())->toBe(['X-Test' => 'test']);
     $response = $dto->toResponse();
     expect($response)->toBeInstanceOf(Response::class)
         ->and($response->getHeader('Content-Type'))->toBe('application/json')
         ->and($response->getHeader('X-Test'))->toBe('test')
-        ->and($response->getStatusCode())->toBe(201);
+        ->and($response->getStatusCode())->toBe(201)
+        ->and($response->getReasonPhrase())->toBe('Created Abc');
 });

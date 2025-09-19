@@ -6,6 +6,7 @@ use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\JsonResponse as SymfonyJsonResponse;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 use Webman\Http\Response as WebmanResponse;
+use WebmanTech\DTO\BaseResponseDTO;
 use WebmanTech\DTO\Helper\ConfigHelper;
 
 /**
@@ -47,13 +48,17 @@ final class Response
  */
 final class WebmanResponseFactory implements ResponseInterface
 {
-    public function json(mixed $data, int $status = 200, array $headers = []): WebmanResponse
+    public function json(mixed $data, BaseResponseDTO $responseDTO): WebmanResponse
     {
-        return new WebmanResponse(
-            status: $status,
-            headers: array_merge(['Content-Type' => 'application/json'], $headers),
+        $response = new WebmanResponse(
+            status: $responseDTO->getResponseStatus(),
+            headers: array_merge(['Content-Type' => 'application/json'], $responseDTO->getResponseHeaders()),
             body: json_encode($data) ?: '',
         );
+        if ($text = $responseDTO->getResponseStatusText()) {
+            $response->withStatus($response->getStatusCode(), $text);
+        }
+        return $response;
     }
 }
 
@@ -62,8 +67,10 @@ final class WebmanResponseFactory implements ResponseInterface
  */
 final class SymfonyResponseFactory implements ResponseInterface
 {
-    public function json(mixed $data, int $status = 200, array $headers = []): SymfonyResponse
+    public function json(mixed $data, BaseResponseDTO $responseDTO): SymfonyResponse
     {
-        return new SymfonyJsonResponse($data, status: $status, headers: $headers);
+        $response = new SymfonyJsonResponse($data, headers: $responseDTO->getResponseHeaders());
+        $response->setStatusCode($responseDTO->getResponseStatus(), $responseDTO->getResponseStatusText());
+        return $response;
     }
 }
