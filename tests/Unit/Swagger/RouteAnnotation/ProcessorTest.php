@@ -7,7 +7,10 @@ use Tests\Fixtures\Swagger\ControllerForXSchemaRequestSchemaB;
 use Tests\Fixtures\Swagger\EnumColor;
 use Tests\Fixtures\Swagger\SchemaDTO;
 use Tests\Fixtures\Swagger\SchemaDTOChild;
+use Tests\Fixtures\Swagger\SchemaEloquentAbsModel;
+use Tests\Fixtures\Swagger\SchemaEloquentHiddenModel;
 use Tests\Fixtures\Swagger\SchemaEloquentModel;
+use Tests\Fixtures\Swagger\SchemaEloquentVisibleModel;
 use Tests\Fixtures\Swagger\TestFactory;
 use Webman\Http\UploadFile;
 use WebmanTech\Swagger\DTO\SchemaConstants;
@@ -284,23 +287,44 @@ test('ExpandEnumDescriptionProcessor', function () {
 });
 
 test('ExpandEloquentModelProcessor', function () {
-    $analysis = TestFactory::analysisFromFiles(['SchemaEloquentModel.php']);
+    $analysis = TestFactory::analysisFromFiles([
+        'SchemaEloquentModel.php',
+        'SchemaEloquentHiddenModel.php',
+        'SchemaEloquentVisibleModel.php',
+        'SchemaEloquentAbsModel.php',
+    ]);
     $analysis->process([
         new ExpandEloquentModelProcessor(),
     ]);
-    $schema = $analysis->getSchemaForSource(SchemaEloquentModel::class);
-    $data = [];
-    foreach ($schema->properties as $property) {
-        $data[] = [
-            'property' => $property->property,
-            'type' => $property->type,
-            'description' => $property->description,
-        ];
-    }
-    expect($data)->toBe([
+
+    $fnGetData = function (string $className) use ($analysis) {
+        $schema = $analysis->getSchemaForSource($className);
+        $data = [];
+        foreach ($schema->properties as $property) {
+            $data[] = [
+                'property' => $property->property,
+                'type' => $property->type,
+                'description' => $property->description,
+            ];
+        }
+        return $data;
+    };
+    expect($fnGetData(SchemaEloquentModel::class))->toBe([
         ['property' => 'id', 'type' => 'integer', 'description' => '(主键)'],
         ['property' => 'username', 'type' => 'string', 'description' => '用户名'],
         ['property' => 'access_token', 'type' => 'string', 'description' => 'Access Token'],
+        ['property' => 'created_at', 'type' => 'string', 'description' => '创建时间'],
+    ]);
+    expect($fnGetData(SchemaEloquentHiddenModel::class))->toBe([
+        ['property' => 'id', 'type' => 'integer', 'description' => '(主键)'],
+        ['property' => 'username', 'type' => 'string', 'description' => '用户名'],
+        ['property' => 'created_at', 'type' => 'string', 'description' => '创建时间'],
+    ]);
+    expect($fnGetData(SchemaEloquentVisibleModel::class))->toBe([
+        ['property' => 'id', 'type' => 'integer', 'description' => '(主键)'],
+        ['property' => 'username', 'type' => 'string', 'description' => '用户名'],
+    ]);
+    expect($fnGetData(SchemaEloquentAbsModel::class))->toBe([
         ['property' => 'created_at', 'type' => 'string', 'description' => '创建时间'],
     ]);
 });
