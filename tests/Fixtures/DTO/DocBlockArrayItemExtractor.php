@@ -3,6 +3,7 @@
 namespace Tests\Fixtures\DTO;
 
 use Tests\Fixtures\DTO\Dir\DocBlockArrayItemExtractorDirItem2;
+use Tests\Fixtures\DTO\Dir\DocBlockArrayItemExtractorDirItem2 as DocBlockArrayItemExtractorDirItem3;
 
 final class DocBlockArrayItemExtractor
 {
@@ -42,6 +43,10 @@ final class DocBlockArrayItemExtractor
      * @var Dir\DocBlockArrayItemExtractorDirItem2[]
      */
     public array $array_object_half_use_class;
+    /**
+     * @var DocBlockArrayItemExtractorDirItem3[]
+     */
+    public array $array_object_use_as_class;
 
     /**
      * @var array<string, string>

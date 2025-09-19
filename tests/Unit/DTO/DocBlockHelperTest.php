@@ -36,6 +36,9 @@ test('extractVarTypes', function () {
     $result = DocBlockHelper::extractClassPropertyArrayItemType($reflectionClass->getProperty('array_object_half_use_class'));
     expect($result)->toBe(DocBlockArrayItemExtractorDirItem2::class);
 
+    $result = DocBlockHelper::extractClassPropertyArrayItemType($reflectionClass->getProperty('array_object_use_as_class'));
+    expect($result)->toBe(DocBlockArrayItemExtractorDirItem2::class);
+
     $result = DocBlockHelper::extractClassPropertyArrayItemType($reflectionClass->getProperty('object_string'));
     expect($result->object)->toBeTrue()
         ->and($result->arrayItem->string)->toBeTrue();

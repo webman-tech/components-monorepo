@@ -124,6 +124,12 @@ final class DocBlockHelper
             /** @phpstan-ignore-next-line */
             return $matches[1];
         }
+        // 从 use Xxx as Xxx 里提取
+        preg_match('/use\s+(.*)\s+as\s+' . $singleType . ';$/m', $content, $matches);
+        if (isset($matches[1])) {
+            /** @phpstan-ignore-next-line */
+            return $matches[1];
+        }
         // use 里没有的，与当前类同 namespace
         $className = $reflectionClass->getNamespaceName() . '\\' . $singleType;
         if (class_exists($className)) {
