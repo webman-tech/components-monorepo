@@ -212,8 +212,18 @@ test('ExpandDTOAttributionsProcessor', function () {
     expect($property->type)->toBe('array')
         ->and($property->items->type)->toBe('string');
 
+    // array 列表，使用注释的
+    $property = $fnFindPropertyByName('stringListUseDoc');
+    expect($property->type)->toBe('array')
+        ->and($property->items->type)->toBe('string');
+
     // array map
     $property = $fnFindPropertyByName('map');
+    expect($property->type)->toBe('object')
+        ->and($property->additionalProperties->type)->toBe('string');
+
+    // array map 使用注释的
+    $property = $fnFindPropertyByName('mapUseDoc');
     expect($property->type)->toBe('object')
         ->and($property->additionalProperties->type)->toBe('string');
 

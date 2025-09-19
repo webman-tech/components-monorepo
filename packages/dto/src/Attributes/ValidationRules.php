@@ -111,7 +111,15 @@ final class ValidationRules
         // 对 array 的 arrayItem 进行提取
         if ($this->array && !$this->arrayItem) {
             if ($reflection instanceof ReflectionProperty) {
-                $this->arrayItem = DocBlockHelper::extractClassPropertyArrayItemType($reflection);
+                $arrayItemType = DocBlockHelper::extractClassPropertyArrayItemType($reflection);
+                if ($arrayItemType instanceof ValidationRules && $arrayItemType->object === true) {
+                    // 当解析时个对象时，当前实例应该是个对象，而不是 array
+                    $this->array = null;
+                    $this->object = true;
+                    $this->arrayItem = $arrayItemType->arrayItem;
+                } else {
+                    $this->arrayItem = $arrayItemType;
+                }
             }
         }
     }

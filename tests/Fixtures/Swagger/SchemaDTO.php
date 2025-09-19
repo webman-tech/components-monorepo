@@ -43,9 +43,21 @@ class SchemaDTO extends BaseDTO
     #[ValidationRules(arrayItem: new ValidationRules(string: true))]
     public array $stringList;
 
+    /**
+     * @var string[]
+     */
+    #[OA\Property]
+    public array $stringListUseDoc;
+
     #[OA\Property]
     #[ValidationRules(arrayItem: new ValidationRules(string: true), object: true)]
     public array $map;
+
+    /**
+     * @var array<string, string>
+     */
+    #[OA\Property]
+    public array $mapUseDoc;
 
     #[OA\Property]
     #[RequestPropertyInHeader]

@@ -79,6 +79,10 @@ test('validation rules', function () {
         public $validationRulesNoTypeDefineForObject;
         #[ValidationRules(object: true, arrayItem: new ValidationRules(string: true))]
         public array $validationRulesWithTypeArrayButObject;
+        /**
+         * @var array<string, string>
+         */
+        public array $validationRulesWithTypeArrayButObjectUseDoc;
         #[ValidationRules(min: 100, max: 1000)]
         public int $validationRulesIntMinMax;
         #[ValidationRules(minLength: 100, maxLength: 1000)]

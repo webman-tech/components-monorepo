@@ -183,6 +183,13 @@
     "validationRulesWithTypeArrayButObject.*": [
         "string"
     ],
+    "validationRulesWithTypeArrayButObjectUseDoc": [
+        "required",
+        "array"
+    ],
+    "validationRulesWithTypeArrayButObjectUseDoc.*": [
+        "string"
+    ],
     "validationRulesIntMinMax": [
         "required",
         "integer",
