@@ -15,7 +15,7 @@ class User extends Model implements IdentityRepositoryInterface, IdentityInterfa
     private bool $isLogin = false;
     private bool $isRefreshed = false;
 
-    public function findIdentity(string $token, string $type = null): ?IdentityInterface
+    public function findIdentity(string $token, ?string $type = null): ?IdentityInterface
     {
         if ($token === self::MOCK_TOKEN || $token === self::MOCK_TOKEN_BASIC) {
             $self = new self();
