@@ -1,8 +1,8 @@
 {
   "name": "webman-tech/components-monorepo",
   "description": "webman components monorepo",
-  "type": "library",
   "license": "MIT",
+  "type": "library",
   "authors": [
     {
       "name": "kriss",
@@ -16,7 +16,7 @@
     "php-debugbar/php-debugbar": "^2.0",
     "webman-tech/dto": ">=1.0 || dev-main",
     "workerman/crontab": "^1.0",
-    "zircote/swagger-php": "^5.2"
+    "zircote/swagger-php": ">=5.2 <5.5"
   },
   "require-dev": {
     "ergebnis/composer-normalize": "^2.47",
