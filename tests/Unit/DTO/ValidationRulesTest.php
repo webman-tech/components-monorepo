@@ -178,3 +178,11 @@ test('validation rule in', function () {
     $ruleIn = $rules['inString'][0];
     expect($ruleIn)->toBe('in:a,b,c');
 });
+
+test('makeValueFromRawType with nullable', function () {
+    $validationRules = new ValidationRules(nullable: true, arrayItem: new ValidationRules(string: true));
+    $value = null;
+    expect($validationRules->makeValueFromRawType($value))->toBe($value);
+    $value = [1, 2];
+    expect($validationRules->makeValueFromRawType($value))->toBe($value);
+});

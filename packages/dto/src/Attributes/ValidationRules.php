@@ -220,6 +220,10 @@ final class ValidationRules
      */
     public function makeValueFromRawType(mixed $value): mixed
     {
+        // null 支持
+        if ($this->nullable && is_null($value)) {
+            return null;
+        }
         // 枚举
         if ($this->enum) {
             if (!is_string($value) && !is_int($value)) {
