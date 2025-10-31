@@ -32,6 +32,17 @@ composer require webman-tech/auth
 
 <!-- packages:end -->
 
+## 目录结构
+
+- packages: 各个组件目录
+- scripts: 辅助 monorepo 的一些常用脚本
+- phpstan: phpstan 一些扩展和配置的文件
+- src: 预留目录，暂时为空
+- tests: 测试目录
+    - Fixtures: 测试数据，按照各个组件的目录
+    - Unit: 单元测试，按照各个组件的目录
+    - webman: 用于单元测试的一个 webman 极小项目结构
+
 # 新加包的流程
 
 1. 在 src 下建立新的目录，可以复制 `packages/_template` 然后改下内容
