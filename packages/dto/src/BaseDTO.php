@@ -41,7 +41,7 @@ class BaseDTO
      * 获取全部的验证规则
      * @return array<string, array>
      */
-    protected static function getValidationRules(): array
+    public static function getValidationRules(): array
     {
         // 必须的规则
         $rules = ReflectionReaderFactory::fromClass(static::class)->getPropertiesValidationRules();

@@ -238,6 +238,9 @@ test('ExpandDTOAttributionsProcessor', function () {
         'string',
         'int',
     ]);
+
+    // 会将 validation rules 放到 description
+    expect($schema->description)->toContain('Validation Rules', 'string');
 });
 
 test('ExpandEnumDescriptionProcessor', function () {
