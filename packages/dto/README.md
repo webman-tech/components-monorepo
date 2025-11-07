@@ -189,13 +189,13 @@ DTO 组件提供强大的数据验证功能：
 ```php
 class UserCreateDTO extends BaseDTO
 {
-    #[ValidationRules(required: true, string: true, minLength: 2, maxLength: 50)]
+    #[ValidationRules(minLength: 2, maxLength: 50)]
     public string $name;
     
-    #[ValidationRules(required: true, integer: true, min: 18, max: 100)]
+    #[ValidationRules(min: 18, max: 100)]
     public int $age;
     
-    #[ValidationRules(required: true, rules: 'email')]
+    #[ValidationRules(rules: 'email')]
     public string $email;
     
     #[ValidationRules(enum: UserRole::class)]
@@ -220,31 +220,31 @@ class UserCreateDTO extends BaseDTO
 }
 ```
 
+注意：DTO 会自动根据当前属性的类型和是否有默认值来设置必填和数据类型验证
+
 ### 类型转换
 
 支持多种类型的自动转换：
 
 ```php
+use WebmanTech\DTO\BaseDTO;
+
 class ProductDTO extends BaseDTO
 {
     // 基本类型转换
-    #[ValidationRules(integer: true)]
     public int $id;
     
     // 枚举类型转换
-    #[ValidationRules(enum: ProductStatus::class)]
     public ProductStatus $status;
     
     // 日期时间转换
-    #[ValidationRules(object: DateTime::class)]
     public DateTime $createdAt;
     
     // 嵌套对象转换
-    #[ValidationRules(object: CategoryDTO::class)]
     public CategoryDTO $category;
     
     // 数组项转换
-    #[ValidationRules(array: true, arrayItem: TagDTO::class)]
+    #[ValidationRules(arrayItem: TagDTO::class)]
     public array $tags;
 }
 ```
@@ -254,6 +254,8 @@ class ProductDTO extends BaseDTO
 从 HTTP 请求中自动提取数据：
 
 ```php
+use WebmanTech\DTO\BaseRequestDTO;
+
 class UserCreateRequest extends BaseRequestDTO
 {
     #[RequestPropertyInJson(required: true)]
@@ -279,6 +281,8 @@ public function create(Request $request)
 生成结构化的响应数据：
 
 ```php
+use WebmanTech\DTO\BaseResponseDTO;
+
 class UserResponse extends BaseResponseDTO
 {
     public function __construct(
@@ -302,6 +306,8 @@ public function show(int $id)
 处理应用配置数据：
 
 ```php
+use WebmanTech\DTO\BaseConfigDTO;
+
 class DatabaseConfig extends BaseConfigDTO
 {
     public function __construct(
@@ -316,6 +322,8 @@ class DatabaseConfig extends BaseConfigDTO
 $config = DatabaseConfig::fromConfig(config('database'));
 ```
 
+注意：为了性能和出错的可能性考虑，`fromConfig` 默认是不校验传参的数据的
+
 ## 扩展功能
 
 ### 自定义验证规则
@@ -323,7 +331,9 @@ $config = DatabaseConfig::fromConfig(config('database'));
 可以通过重写 `getExtraValidationRules` 方法添加自定义验证规则：
 
 ```php
-class CustomDTO extends BaseDTO
+use WebmanTech\DTO\BaseRequestDTO;
+
+class CustomDTO extends BaseRequestDTO
 {
     #[ValidationRules(required: true)]
     public string $field;
@@ -331,7 +341,7 @@ class CustomDTO extends BaseDTO
     protected static function getExtraValidationRules(): array
     {
         return [
-            'field' => ['custom_rule:parameter']
+            'field' => 'unique:users,field'
         ];
     }
 }
@@ -342,7 +352,9 @@ class CustomDTO extends BaseDTO
 通过重写 `getValidationRuleMessages` 方法自定义错误消息：
 
 ```php
-class CustomDTO extends BaseDTO
+use WebmanTech\DTO\BaseRequestDTO;
+
+class CustomDTO extends BaseRequestDTO
 {
     protected static function getValidationRuleMessages(): array
     {
@@ -358,7 +370,9 @@ class CustomDTO extends BaseDTO
 通过重写 `getValidationRuleCustomAttributes` 方法自定义属性名称：
 
 ```php
-class CustomDTO extends BaseDTO
+use WebmanTech\DTO\BaseRequestDTO;
+
+class CustomDTO extends BaseRequestDTO
 {
     protected static function getValidationRuleCustomAttributes(): array
     {
