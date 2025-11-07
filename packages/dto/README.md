@@ -145,7 +145,8 @@ use WebmanTech\DTO\Attributes\ToArrayConfig;
     only: ['name', 'age'],           // 仅包含指定字段
     exclude: ['password'],           // 排除指定字段
     ignoreNull: true,                // 忽略空值
-    emptyArrayAsObject: ['items']    // 空数组转为空对象
+    emptyArrayAsObject: ['items'],   // 空数组转为空对象
+    singleKey: 'name',               // 将单个 key 的值作为 toArray 的结果
 )]
 class UserResponseDTO extends BaseResponseDTO
 {

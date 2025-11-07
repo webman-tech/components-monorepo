@@ -446,3 +446,15 @@ test('toArray with emptyArray', function () {
     expect($data['arr1'])->toBeInstanceOf(stdClass::class)
         ->and($data['arr2'])->toBe([]);
 });
+
+test('toArray use singleKey', function () {
+    #[ToArrayConfig(singleKey: 'list')]
+    class DTOToArrayUseSingleKey extends BaseDTO
+    {
+        public array $list = [];
+    }
+
+    $dto = new DTOToArrayUseSingleKey();
+    $dto->list = [['id' => 1], ['id' => 2]];
+    expect($dto->toArray())->toBe($dto->list);
+});

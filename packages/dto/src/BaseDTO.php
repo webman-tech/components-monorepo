@@ -122,15 +122,24 @@ class BaseDTO
 
     /**
      * 转为数组
-     * @return array<string, mixed>
+     * @return array<string, mixed>|mixed
      */
-    public function toArray(): array
+    public function toArray(): mixed
     {
         $data = [];
 
         $factory = ReflectionReaderFactory::fromClass($this);
 
         $toArrayConfig = $factory->getPropertiesToArrayConfig() ?? new ToArrayConfig();
+
+        if ($toArrayConfig->singleKey) {
+            $data = $this->{$toArrayConfig->singleKey};
+            if ($data instanceof self) {
+                $data = $data->toArray();
+            }
+            return $data;
+        }
+
         if ($toArrayConfig->only) {
             $properties = $toArrayConfig->only;
         } else {
@@ -142,7 +151,6 @@ class BaseDTO
                 $properties = array_diff($properties, $toArrayConfig->exclude);
             }
         }
-
         foreach ($properties as $property) {
             $value = $this->{$property};
             if (is_array($value)) {
