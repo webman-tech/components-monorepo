@@ -124,13 +124,13 @@ class BaseDTO
      * 转为数组
      * @return array<string, mixed>|mixed
      */
-    public function toArray(): mixed
+    public function toArray(?ToArrayConfig $toArrayConfig = null): mixed
     {
         $data = [];
 
         $factory = ReflectionReaderFactory::fromClass($this);
 
-        $toArrayConfig = $factory->getPropertiesToArrayConfig() ?? new ToArrayConfig();
+        $toArrayConfig ??= $factory->getPropertiesToArrayConfig() ?? new ToArrayConfig();
 
         if ($toArrayConfig->singleKey) {
             $data = $this->{$toArrayConfig->singleKey};

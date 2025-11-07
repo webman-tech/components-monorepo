@@ -301,6 +301,13 @@ test('toArray with ToArrayConfig', function () {
     expect($dto->toArray())->toBe([
         'name' => 'nameValue',
     ]);
+
+    // 在 toArray 时传递 toArrayConfig（会覆盖类上的）
+    $dto = new DTOToArrayWithToArrayConfigOnly();
+    $toArrayConfig = new ToArrayConfig(only: ['name2']);
+    expect($dto->toArray($toArrayConfig))->toBe([
+        'name2' => 'protectedValue',
+    ]);
 });
 
 test('toArray with ToArrayConfig ignoreNull', function () {

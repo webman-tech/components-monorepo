@@ -157,6 +157,8 @@ class UserResponseDTO extends BaseResponseDTO
 }
 ```
 
+提醒：可以在 `toArray` 时传递 `ToArrayConfig` 作为参数（注意此时会覆盖类上定义的配置）
+
 ### RequestPropertyIn 请求属性来源
 
 用于指定请求中属性的数据来源：
