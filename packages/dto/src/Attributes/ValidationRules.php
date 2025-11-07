@@ -280,31 +280,34 @@ final class ValidationRules
     {
         $this->normalize();
 
-        $rules1 = $this->rules ?? [];
-        if (is_string($rules1)) {
-            $rules1 = explode('|', $rules1);
-        }
+        $rulesAll = collect();
 
-        $rules2 = array_filter([
-            $this->required === true ? 'required' : null,
-            $this->nullable === true ? 'nullable' : null,
-            $this->string === true ? 'string' : null,
-            $this->boolean === true ? 'boolean' : null,
-            $this->integer === true ? 'integer' : null,
-            $this->numeric === true ? 'numeric' : null,
-            $this->array === true ? 'array' : null,
-            $this->min !== null ? 'min:' . $this->min : null,
-            $this->max !== null ? 'max:' . $this->max : null,
-        ]);
+        // 是否必填放最前面
+        $rulesAll
+            ->add($this->required === true ? 'required' : null)
+            ->add($this->nullable === true ? 'nullable' : null);
+
+        // 数据类型校验
+        $rulesAll
+            ->add(($this->string === true || $this->minLength || $this->maxLength) ? 'string' : null)
+            ->add($this->boolean === true ? 'boolean' : null)
+            ->add($this->integer === true ? 'integer' : null)
+            ->add($this->numeric === true ? 'numeric' : null)
+            ->add($this->array === true ? 'array' : null);
         if ($this->object && is_string($this->object)) {
             if (is_a($this->object, DateTime::class, true)) {
-                $rules2[] = 'date';
+                $rulesAll->add('date');
             } elseif (is_a($this->object, BaseDTO::class, true)) {
-                $rules2[] = 'array';
+                $rulesAll->add('array');
             }
         }
 
-        $rules3 = [];
+        // 数据范围检查
+        $rulesAll
+            ->add($this->min !== null ? ('min:' . $this->min) : null)
+            ->add($this->max !== null ? ('max:' . $this->max) : null)
+            ->add($this->minLength !== null ? ('min:' . $this->minLength) : null)
+            ->add($this->maxLength !== null ? ('max:' . $this->maxLength) : null);
         if ($this->enum) {
             $rule = new RuleEnum($this->enum);
             if ($this->enumOnly) {
@@ -313,24 +316,21 @@ final class ValidationRules
             if ($this->enumExcept) {
                 $rule->except($this->enumExcept);
             }
-            $rules3[] = $rule;
+            $rulesAll->add($rule);
         }
         if ($this->in) {
-            $rules3[] = Rule::in($this->in);
-        }
-        if ($this->minLength || $this->maxLength) {
-            $rules3[] = 'string';
-            if ($this->minLength) {
-                $rules3[] = 'min:' . $this->minLength;
-            }
-            if ($this->maxLength) {
-                $rules3[] = 'max:' . $this->maxLength;
-            }
+            $rulesAll->add(Rule::in($this->in));
         }
 
-        return collect($rules1)
-            ->merge($rules2)
-            ->merge($rules3)
+        // 自定义 rule
+        $rules = $this->rules ?? [];
+        if (is_string($rules)) {
+            $rules = explode('|', $rules);
+        }
+        $rulesAll = $rulesAll->merge($rules);
+
+        return $rulesAll
+            ->filter(fn($item) => $item !== null)
             ->unique(function ($item) {
                 if (is_string($item)) {
                     return explode(':', $item)[0];

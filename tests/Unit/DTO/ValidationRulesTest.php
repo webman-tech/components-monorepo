@@ -89,7 +89,7 @@ test('validation rules', function () {
         public $validationRulesStringMinMax;
         //#[ValidationRules(in: ['a', 'b', 'c'])]
         //public $validationRulesIn;
-        #[ValidationRules(rules: 'required|string')]
+        #[ValidationRules(rules: 'string|max:1000')]
         public $validationRulesRules;
     }
 
@@ -167,15 +167,18 @@ test('validation rule in', function () {
     $rules = ReflectionReaderFactory::fromClass(DTOFromValidationRulesInTest::class)
         ->getPropertiesValidationRules();
 
-    $fnGetRuleIn = function (array $rules): ?RuleIn {
-        return Arr::first($rules, fn($rule) => $rule instanceof RuleIn);
+    $fnGetRuleIn = function (array $rules) {
+        return Arr::first($rules, fn($rule) => (
+            $rule instanceof RuleIn
+            || (is_string($rule) && str_starts_with($rule, 'in:'))
+        ));
     };
 
     $ruleIn = $fnGetRuleIn($rules['in']);
     expect($ruleIn)->not->toBeEmpty()
         ->and($ruleIn->__toString())->toBe('in:"a","b","c"');
 
-    $ruleIn = $rules['inString'][0];
+    $ruleIn = $fnGetRuleIn($rules['inString']);
     expect($ruleIn)->toBe('in:a,b,c');
 });
 

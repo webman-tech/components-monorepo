@@ -203,8 +203,8 @@
         "max:1000"
     ],
     "validationRulesRules": [
-        "required",
+        "nullable",
         "string",
-        "nullable"
+        "max:1000"
     ]
 }
