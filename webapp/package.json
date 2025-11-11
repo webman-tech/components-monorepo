@@ -1,0 +1,12 @@
+{
+  "name": "components-monorepo-webapp",
+  "private": true,
+  "version": "0.0.0",
+  "packageManager": "pnpm@10.3.0",
+  "scripts": {
+    "dev": "pnpm --filter dto-generator dev",
+    "build": "pnpm --filter dto-generator build",
+    "preview": "pnpm --filter dto-generator preview",
+    "lint": "pnpm --filter dto-generator lint"
+  }
+}

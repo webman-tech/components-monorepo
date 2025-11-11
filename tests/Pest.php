@@ -81,3 +81,12 @@ function request_create_one(): TestRequest
 
     return $request;
 }
+
+function path_runtime(?string $path = null): string
+{
+    $local = __DIR__ . '/../runtime';
+    if ($path) {
+        $local = $local . '/' . $path;
+    }
+    return $local;
+}

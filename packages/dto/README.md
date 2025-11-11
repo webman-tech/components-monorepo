@@ -18,6 +18,7 @@ webman 数据传输对象（DTO）组件，提供一套完整的数据处理解�
 - **配置数据处理**：专门处理应用配置数据
 - **灵活的序列化控制**：通过注解控制对象到数组的转换行为
 - **丰富的属性注解**：提供多种内置注解满足不同场景需求
+- **代码生成工具**：提供基于 Web 的界面，可从 JSON 数据自动生成 DTO 类
 
 ## 安装
 
@@ -50,16 +51,17 @@ class UserDTO extends BaseDTO
 
 ### 2. 使用 DTO
 
-```php
+``php
 // 从数组创建 DTO 实例
 $userDTO = UserDTO::fromData([
-    'name' => 'John',
-    'age' => 30,
-    'status' => UserStatus::Active
+'name' => 'John',
+'age' => 30,
+'status' => UserStatus::Active
 ]);
 
 // 转换为数组
 $userData = $userDTO->toArray();
+
 ```
 
 ## 核心组件
@@ -327,6 +329,35 @@ $config = DatabaseConfig::fromConfig(config('database'));
 
 注意：为了性能和出错的可能性考虑，`fromConfig` 默认是不校验传参的数据的
 
+## DTO 代码生成器（Web 版）
+
+仓库提供了一个前端版本的 DTO 代码生成器，构建产物位于 `web/index.html`，特点如下：
+
+- 基于 Vue + CodeMirror，输入 JSON/JSON5 即可预览生成的 PHP DTO 代码
+- 支持 Base DTO 与 Form DTO 两种模式，可复制或下载生成结果
+- 允许通过 URL 查询参数或 `window.__DTO_GENERATOR_CONFIG` 动态配置默认生成类型、DTO 命名空间等
+- 所有资源均被内联，`index.html` + `favicon.svg` 即可离线使用，也方便在 PHP 路由中用 `file_get_contents` 读取后输出
+
+快速使用：
+
+1. 进入仓库根目录的 `web`
+2. 双击 `index.html` 或部署到任意 Web 服务器
+3. 输入 JSON 数据和类名，点击“生成 DTO”即可复制或下载
+
+若要在不同项目中自定义默认参数，可在输出的 HTML 中注入脚本：
+
+```html
+
+<script>
+    window.__DTO_GENERATOR_CONFIG = {
+        defaultGenerationType: 'form',
+        defaultNamespace: 'App\\Admin'
+    };
+</script>
+```
+
+更详细的开发与构建流程见 `webapp/apps/dto-generator/README.md`。
+
 ## 扩展功能
 
 ### 自定义验证规则
@@ -395,3 +426,4 @@ class CustomDTO extends BaseRequestDTO
 5. **性能考虑**：对于大量数据处理，注意性能优化
 6. **错误处理**：妥善处理验证失败和转换异常
 7. **文档注释**：为 DTO 属性添加清晰的文档注释
+8. **使用代码生成器**：对于复杂数据结构，可使用 `web/index.html` 快速生成初始 DTO 代码

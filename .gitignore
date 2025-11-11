@@ -9,3 +9,6 @@ phpstan.neon
 /app
 /plugin
 /resource
+
+node_modules
+
