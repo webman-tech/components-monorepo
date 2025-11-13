@@ -80,18 +80,22 @@ const createThemeExtension = (height: string): Extension => {
 };
 
 const createReadOnlyExtension = (readOnly: boolean): Extension => {
-  const extensions: Extension[] = [EditorView.editable.of(true)];
-  if (readOnly) {
-    extensions.push(
-      EditorState.transactionFilter.of((tr: Transaction) => {
-        if (tr.docChanged) {
-          return [];
-        }
-        return tr;
-      })
-    );
+  if (!readOnly) {
+    return EditorView.editable.of(true);
   }
-  return extensions;
+  return [
+    EditorView.editable.of(true),
+    EditorState.transactionFilter.of((tr: Transaction) => {
+      if (!tr.docChanged) {
+        return tr;
+      }
+      const userEvent = tr.annotation(Transaction.userEvent);
+      if (userEvent) {
+        return [];
+      }
+      return tr;
+    })
+  ];
 };
 
 const createState = () =>
