@@ -8,9 +8,10 @@ use Webman\Http\UploadFile;
 use WebmanTech\DTO\Attributes\RequestPropertyInHeader;
 use WebmanTech\DTO\Attributes\ValidationRules;
 use WebmanTech\DTO\BaseDTO;
+use WebmanTech\DTO\BaseRequestDTO;
 
 #[OA\Schema]
-class SchemaDTO extends BaseDTO
+class SchemaDTO extends BaseRequestDTO
 {
     #[OA\Property]
     #[ValidationRules(required: true, string: true, minLength: 5)]

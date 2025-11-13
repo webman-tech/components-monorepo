@@ -10,5 +10,11 @@
         "methods": [
             "GET"
         ]
+    },
+    {
+        "path": "\/openapi\/dto-generator",
+        "methods": [
+            "GET"
+        ]
     }
 ]

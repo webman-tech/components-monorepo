@@ -155,6 +155,7 @@ test('ExpandDTOAttributionsProcessor', function () {
     );
 
     $schema = $analysis->getSchemaForSource(SchemaDTO::class);
+    $schemaChild = $analysis->getSchemaForSource(SchemaDTOChild::class);
     $fnFindPropertyByName = function (string $propertyName) use ($schema): OA\Property {
         return Arr::first($schema->properties, fn(OA\Property $property) => $property->property === $propertyName);
     };
@@ -181,7 +182,7 @@ test('ExpandDTOAttributionsProcessor', function () {
     // array 对象
     $property = $fnFindPropertyByName('children');
     expect($property->type)->toBe('array')
-        ->and($property->items->ref)->toBe(OA\Components::ref($analysis->getSchemaForSource(SchemaDTOChild::class)));
+        ->and($property->items->ref)->toBe(OA\Components::ref($schemaChild));
 
     // 对象
     $property = $fnFindPropertyByName('child');
@@ -239,8 +240,9 @@ test('ExpandDTOAttributionsProcessor', function () {
         'int',
     ]);
 
-    // 会将 validation rules 放到 description
+    // 会将 validation rules 放到 description（仅 BaseRequestDTO）
     expect($schema->description)->toContain('Validation Rules', 'string');
+    expect($schemaChild->description)->not->toContain('Validation Rules');
 });
 
 test('ExpandEnumDescriptionProcessor', function () {
