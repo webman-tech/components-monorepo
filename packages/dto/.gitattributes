@@ -1,0 +1,2 @@
+*.stub linguist-language=PHP
+web/** linguist-generated
