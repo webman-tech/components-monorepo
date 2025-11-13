@@ -1,1 +1,2 @@
 *.stub linguist-language=PHP
+webapp export-ignore
