@@ -266,8 +266,27 @@ export class DtoGenerator {
 
   private generateNestedClassName(parentClassName: string, key: string, isArrayItem: boolean): string {
     const normalizedParent = parentClassName.replace(/.*\\/, '');
-    const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);
+    const capitalizedKey = this.toStudly(key);
     return isArrayItem ? `${normalizedParent}${capitalizedKey}Item` : `${normalizedParent}${capitalizedKey}`;
+  }
+
+  private toStudly(value: string): string {
+    const replaced = value
+      .replace(/[^a-zA-Z0-9]+/g, ' ')
+      .trim()
+      .toLowerCase();
+    const parts = replaced ? replaced.split(' ') : [];
+    const studly = parts
+      .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+      .join('');
+    if (studly) {
+      return studly;
+    }
+    const fallback = value.replace(/[^a-zA-Z0-9]/g, '');
+    if (!fallback) {
+      return '';
+    }
+    return fallback.charAt(0).toUpperCase() + fallback.slice(1);
   }
 
   private generateUseStatements(baseClass: string): string {
