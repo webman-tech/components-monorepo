@@ -79,7 +79,7 @@ export class DtoGenerator {
     if (className.endsWith('FormResult')) {
       return 'BaseResponseDTO';
     }
-    if (className.endsWith('Config')) {
+    if (className.endsWith('Config') || className.endsWith('ConfigDTO')) {
       return 'BaseConfigDTO';
     }
     return 'BaseDTO';

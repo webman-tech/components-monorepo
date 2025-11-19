@@ -70,7 +70,7 @@ ${h}`;const d=[l,f].filter(m=>m.trim().length>0);return d.length>0&&($+=`
 ${d.map(m=>m.trimEnd()).join(`
 `)}
 `),`${$.trimEnd()}
-`}extractClassName(e){return e.split("\\").at(-1)||"UnnamedDTO"}extractNamespace(e){const t=e.split("\\");return t.length<=1?"App\\DTO":(t.pop(),t.join("\\"))}determineBaseClass(e){return e.endsWith("Form")?"BaseRequestDTO":e.endsWith("FormResult")?"BaseResponseDTO":e.endsWith("Config")?"BaseConfigDTO":"BaseDTO"}shouldUseConstructor(e){return this.useConstructor!==null?this.useConstructor:e==="BaseResponseDTO"}generateClass(e,t,n,r){const s=r?this.generatePropertiesWithConstructor(t,e):this.generateProperties(t,e),O=n==="BaseRequestDTO"?`
+`}extractClassName(e){return e.split("\\").at(-1)||"UnnamedDTO"}extractNamespace(e){const t=e.split("\\");return t.length<=1?"App\\DTO":(t.pop(),t.join("\\"))}determineBaseClass(e){return e.endsWith("Form")?"BaseRequestDTO":e.endsWith("FormResult")?"BaseResponseDTO":e.endsWith("Config")||e.endsWith("ConfigDTO")?"BaseConfigDTO":"BaseDTO"}shouldUseConstructor(e){return this.useConstructor!==null?this.useConstructor:e==="BaseResponseDTO"}generateClass(e,t,n,r){const s=r?this.generatePropertiesWithConstructor(t,e):this.generateProperties(t,e),O=n==="BaseRequestDTO"?`
     public function handle(): ${e.endsWith("Form")?`${e}Result`:"mixed"}
     {
     }
