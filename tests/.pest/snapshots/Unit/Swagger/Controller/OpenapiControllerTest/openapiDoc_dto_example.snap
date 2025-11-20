@@ -1,0 +1,137 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "App OpenAPI",
+        "version": "0.1"
+    },
+    "paths": {
+        "/users": {
+            "post": {
+                "tags": [
+                    "users"
+                ],
+                "summary": "Create a new user",
+                "operationId": "f03d1f6286d9a69256961d50d130f680",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserCreateForm"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserCreateFormResult"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "UserCreateForm": {
+                "description": "```php\n// Validation Rules\n[\n    'name' => ['required', 'string'],\n    'age' => ['required', 'integer'],\n    'is_admin' => ['required', 'boolean'],\n    'address' => ['nullable', 'array'],\n    'address.*.city' => ['required', 'string'],\n    'address.*.address' => ['required', 'string'],\n    'id_card' => ['nullable', 'array'],\n    'id_card.type' => ['required_with:id_card', 'integer'],\n    'id_card.number' => ['required_with:id_card', 'string'],\n]\n```",
+                "required": [
+                    "name",
+                    "age",
+                    "is_admin"
+                ],
+                "properties": {
+                    "name": {
+                        "description": "姓名",
+                        "type": "string",
+                        "example": "张三"
+                    },
+                    "age": {
+                        "type": "integer",
+                        "example": "18"
+                    },
+                    "is_admin": {
+                        "type": "boolean",
+                        "example": "false"
+                    },
+                    "address": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/UserCreateFormAddressItem"
+                        },
+                        "nullable": true
+                    },
+                    "id_card": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/UserCreateFormIdCard"
+                            }
+                        ],
+                        "nullable": true,
+                        "description": "身份证",
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "UserCreateFormAddressItem": {
+                "required": [
+                    "city",
+                    "address"
+                ],
+                "properties": {
+                    "city": {
+                        "description": "城市",
+                        "type": "string",
+                        "example": "苏州"
+                    },
+                    "address": {
+                        "type": "string",
+                        "example": "18 栋"
+                    }
+                },
+                "type": "object"
+            },
+            "UserCreateFormIdCard": {
+                "required": [
+                    "type",
+                    "number"
+                ],
+                "properties": {
+                    "type": {
+                        "type": "integer",
+                        "example": "1"
+                    },
+                    "number": {
+                        "type": "string",
+                        "example": "123456789"
+                    }
+                },
+                "type": "object"
+            },
+            "UserCreateFormResult": {
+                "required": [
+                    "success"
+                ],
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": "true"
+                    }
+                },
+                "type": "object"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "users",
+            "description": "用户管理"
+        }
+    ]
+}

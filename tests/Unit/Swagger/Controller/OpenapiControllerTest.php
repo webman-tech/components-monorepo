@@ -23,3 +23,15 @@ test('openapiDoc generate json', function () {
     expect($response->rawBody())->toMatchSnapshot()
         ->and($response->getHeader('Content-Type'))->toBe('application/json');
 });
+
+test('openapiDoc dto example', function () {
+    $controller = new OpenapiController();
+    $response = $controller->openapiDoc([
+        'scan_path' => fixture_get_path('Swagger/ExampleDTO'),
+        'format' => 'json',
+        'cache_key' => 'json_dto',
+    ]);
+
+    expect($response->rawBody())->toMatchSnapshot()
+        ->and($response->getHeader('Content-Type'))->toBe('application/json');
+});
