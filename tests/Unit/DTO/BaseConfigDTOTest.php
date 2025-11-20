@@ -22,6 +22,10 @@ test('with app config', function () {
             public bool                            $bool = false,
             public array                           $array = [],
             public ?DTOConfigWithAppConfigTestItem $item = null,
+            /**
+             * @var DTOConfigWithAppConfigTestItem[]
+             */
+            public array                           $items = [],
         )
         {
             $this->item ??= DTOConfigWithAppConfigTestItem::fromConfig();
@@ -41,21 +45,24 @@ test('with app config', function () {
         ->and($config->bool)->toBeFalse()
         ->and($config->array)->toBe([])
         ->and($config->item)->toBeInstanceOf(DTOConfigWithAppConfigTestItem::class)
-        ->and($config->item->name)->toBe('abc');
+        ->and($config->item->name)->toBe('abc')
+        ->and($config->items)->toBe([]);
 
     // 从 AppConfig 取值
-    ConfigHelper::setForTest('app.mock_config', ['int' => 2, 'item' => ['name2' => 'b']]);
+    ConfigHelper::setForTest('app.mock_config', ['int' => 2, 'item' => ['name2' => 'b'], 'items' => [['name2' => 'c']]]);
     $config = DTOConfigWithAppConfigTest::fromConfig();
     expect($config->int)->toBe(2)
-        ->and($config->item->name2)->toBe('b');
+        ->and($config->item->name2)->toBe('b')
+        ->and($config->items[0]->name2)->toBe('c');
 
     // 从传参取值
-    $config = DTOConfigWithAppConfigTest::fromConfig(['string' => 'b', 'item' => ['name' => 'a']]);
+    $config = DTOConfigWithAppConfigTest::fromConfig(['string' => 'b', 'item' => ['name' => 'a'], 'items' => [['name' => 'x']]]);
     expect($config->string)->toBe('b')
         ->and($config->int)->toBe(2) // 不覆盖从 AppConfig 取值
         ->and($config->item->name)->toBe('a')
         ->and($config->item->name2)->toBe('b') // 不覆盖从 AppConfig 取值
-    ;
+        ->and($config->items[0]->name2)->toBe('c') // 注意此处 list 类型的 array 合并是产出多个数组，而不是合并
+        ->and($config->items[1]->name)->toBe('x'); // 同上
 
     // 指定为对象时，直接返回该对象
     $newConfig = DTOConfigWithAppConfigTest::fromConfig($config);

@@ -211,11 +211,18 @@ final class ReflectionClassReader
             }
             // 数据值
             $value = $data[$key];
-            // 已经处理过的剔除掉
-            unset($data[$key]);
             // 根据 ValidationRule 中定义出来的类型进行赋值
             $validationRules = $this->getAttributionValidationRules($parameterReflection);
             $constructArgs[$key] = $validationRules->makeValueFromRawType($value);
+            $shouldResolve = false;
+            if ($validationRules->array && !$validationRules->arrayItem && is_array($value) && array_is_list($value)) {
+                // 对于列表数组的值，在 construct 上无法解析注释进行正确的类型赋值，此时需要在 property 中重新处理，所以不能移除掉
+                $shouldResolve = true;
+            }
+            // 已经处理过的剔除掉
+            if (!$shouldResolve) {
+                unset($data[$key]);
+            }
         }
         $obj = $this->reflectionClass->newInstanceArgs($constructArgs);
 
