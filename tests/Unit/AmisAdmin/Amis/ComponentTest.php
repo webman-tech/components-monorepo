@@ -4,15 +4,14 @@ use WebmanTech\AmisAdmin\Amis\Component;
 use WebmanTech\AmisAdmin\Amis\DetailAttribute;
 use WebmanTech\AmisAdmin\Amis\FormField;
 use WebmanTech\AmisAdmin\Helper\ConfigHelper;
+use WebmanTech\CommonUtils\Testing\TestContainer;
 
 beforeEach(function () {
     ConfigHelper::$isForTest = true;
     ConfigHelper::reset();
 
     // 清空容器，否则会影响并行测试时修改 components.Xxx 的配置
-    /** @var \Tests\Fixtures\ClearableContainer $container */
-    $container = \support\Container::instance();
-    $container->clear();
+    TestContainer::clear();
 });
 
 test('toArray simple', function () {

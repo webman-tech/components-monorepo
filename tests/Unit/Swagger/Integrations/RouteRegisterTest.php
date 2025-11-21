@@ -1,6 +1,6 @@
 <?php
 
-use Tests\Fixtures\ClearableWebmanRoute;
+use Tests\Fixtures\TestWebmanRoute;
 use WebmanTech\Swagger\Integrations\RouteRegister;
 use WebmanTech\Swagger\RouteAnnotation\Reader;
 
@@ -14,7 +14,7 @@ test('register route', function () {
     $register->register($data);
 
     $registeredRoutes = [];
-    foreach (ClearableWebmanRoute::getRoutes() as $route) {
+    foreach (TestWebmanRoute::getRoutes() as $route) {
         foreach ($route->getMethods() as $method) {
             $path = $route->getPath();
             $middlewares = array_filter($route->getMiddleware(), function ($middleware) {
@@ -32,5 +32,5 @@ test('register route', function () {
     ksort($registeredRoutes); // 排个序，防止顺序问题
     expect($registeredRoutes)->toMatchSnapshot();
 
-    ClearableWebmanRoute::clean();
+    TestWebmanRoute::clean();
 });

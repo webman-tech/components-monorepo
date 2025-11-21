@@ -2,6 +2,8 @@
 
 namespace WebmanTech\DTO\Helper;
 
+use function WebmanTech\CommonUtils\config;
+
 /**
  * @internal
  */

@@ -1,6 +1,6 @@
 <?php
 
-use Tests\Fixtures\ClearableWebmanRoute;
+use Tests\Fixtures\TestWebmanRoute;
 use WebmanTech\Swagger\Helper\ConfigHelper;
 use WebmanTech\Swagger\Swagger;
 
@@ -12,7 +12,7 @@ test('registerGlobalRoute dont regsiter_webman_route', function () {
     Swagger::create()->registerGlobalRoute();
 
     $data = [];
-    foreach (ClearableWebmanRoute::getRoutes() as $route) {
+    foreach (TestWebmanRoute::getRoutes() as $route) {
         $data[] = [
             'path' => $route->getPath(),
             'methods' => $route->getMethods(),
@@ -22,7 +22,7 @@ test('registerGlobalRoute dont regsiter_webman_route', function () {
     expect($data)->toMatchSnapshot();
 
     ConfigHelper::setForTest();
-    ClearableWebmanRoute::clean();
+    TestWebmanRoute::clean();
 });
 
 test('registerGlobalRoute register_webman_route', function () {
@@ -36,7 +36,7 @@ test('registerGlobalRoute register_webman_route', function () {
     Swagger::create()->registerGlobalRoute();
 
     $data = [];
-    foreach (ClearableWebmanRoute::getRoutes() as $route) {
+    foreach (TestWebmanRoute::getRoutes() as $route) {
         $data[] = [
             'path' => $route->getPath(),
             'methods' => $route->getMethods(),
@@ -46,5 +46,5 @@ test('registerGlobalRoute register_webman_route', function () {
     expect($data)->toMatchSnapshot();
 
     ConfigHelper::setForTest();
-    ClearableWebmanRoute::clean();
+    TestWebmanRoute::clean();
 });

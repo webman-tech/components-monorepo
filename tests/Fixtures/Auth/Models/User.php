@@ -2,7 +2,7 @@
 
 namespace Tests\Fixtures\Auth\Models;
 
-use support\Model;
+use Illuminate\Database\Eloquent\Model;
 use WebmanTech\Auth\Interfaces\IdentityInterface;
 use WebmanTech\Auth\Interfaces\IdentityRepositoryInterface;
 

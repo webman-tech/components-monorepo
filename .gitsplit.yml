@@ -5,6 +5,8 @@ splits:
     target: "https://${GH_TOKEN}@github.com/webman-tech/amis-admin.git"
   - prefix: "packages/auth"
     target: "https://${GH_TOKEN}@github.com/webman-tech/auth.git"
+  - prefix: "packages/common-utils"
+    target: "https://${GH_TOKEN}@github.com/webman-tech/common-utils.git"
   - prefix: "packages/crontab-task"
     target: "https://${GH_TOKEN}@github.com/webman-tech/crontab-task.git"
   - prefix: "packages/debugbar"

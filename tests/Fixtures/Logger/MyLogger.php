@@ -15,18 +15,4 @@ class MyLogger extends Logger
             'logger_test',
         ];
     }
-
-    public static function getLogFile(string $channel, bool $clean = false, bool $delete = false): string
-    {
-        $file = runtime_path('logs/' . $channel . '/' . $channel . '-' . date('Y-m-d') . '.log');
-        if (file_exists($file)) {
-            if ($clean) {
-                file_put_contents($file, $clean);
-            }
-            if ($delete) {
-                unlink($file);
-            }
-        }
-        return $file;
-    }
 }

@@ -1,6 +1,6 @@
 # monorepo
 
-webman tech 维护的组件的集合仓库
+webman tech 维护的组件的集合仓库，大部分组件优先适配 webman，但非 webman 下也可以使用。
 
 ## 安装
 
@@ -23,6 +23,7 @@ composer require webman-tech/auth
 
 - [webman-tech/amis-admin](https://github.com/webman-tech/amis-admin)
 - [webman-tech/auth](https://github.com/webman-tech/auth)
+- [webman-tech/common-utils](https://github.com/webman-tech/common-utils)
 - [webman-tech/crontab-task](https://github.com/webman-tech/crontab-task)
 - [webman-tech/debugbar](https://github.com/webman-tech/debugbar)
 - [webman-tech/dto](https://github.com/webman-tech/dto)
