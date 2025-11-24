@@ -1,6 +1,7 @@
 {
   "name": "webman-tech/dto",
   "type": "library",
+  "license": "MIT",
   "autoload": {
     "psr-4": {
       "WebmanTech\\DTO\\": "src/"

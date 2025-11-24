@@ -1,6 +1,7 @@
 {
   "name": "webman-tech/common-utils",
   "type": "library",
+  "license": "MIT",
   "autoload": {
     "psr-4": {
       "WebmanTech\\CommonUtils\\": "src/"
