@@ -24,6 +24,6 @@ final class View
             throw $e;
         }
 
-        return ob_get_clean();
+        return ob_get_clean() ?: '';
     }
 }

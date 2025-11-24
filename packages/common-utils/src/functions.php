@@ -80,7 +80,7 @@ function logger(?string $channel = null): LoggerInterface
  * 从容器中获取组件
  * @template TClass of object
  * @param string|class-string<TClass> $name
- * @return ($name is class-string<TClass> ? TClass : mixed))
+ * @return ($name is class-string<TClass> ? TClass : mixed)
  */
 function container_get(string $name): mixed
 {
@@ -100,7 +100,7 @@ function container_has(string $name): bool
  * @template TClass of object
  * @param string|class-string<TClass> $name
  * @param array $parameters
- * @return ($name is class-string<TClass> ? TClass : mixed))
+ * @return ($name is class-string<TClass> ? TClass : mixed)
  */
 function container_make(string $name, array $parameters = []): mixed
 {

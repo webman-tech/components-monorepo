@@ -13,7 +13,6 @@ parameters:
         - packages/debugbar/src/Laravel/DataFormatter/QueryFormatter.php # 不是自己写的
         - packages/*/src/Helper/ArrayHelper.php # 不是自己写的
         - packages/swagger/src/Controller/RequiredElementsAttributes # 不需要
-        - packages/swagger/src/Overwrite/Processors/AugmentParameters.php # 不是自己写的
     tmpDir: runtime/phpstan
     ignoreErrors:
         - identifier: missingType.iterableValue # Property XXXX type has no value type specified in iterable type array.
@@ -26,4 +25,5 @@ parameters:
         - '#Parameter (.*) of class (.*) constructor expects (.*), mixed given\.#'
         - '#Property (.*) does not accept mixed\.#'
         - '#Cannot access offset (.*) on mixed\.#'
+        - '#Possibly invalid array key type mixed\.#'
     reportUnmatchedIgnoredErrors: false # 关闭 ignore 掉的错误的提示

@@ -174,7 +174,7 @@ class BaseDTO
                 }
             } elseif ($value instanceof self) {
                 $value = $value->toArray();
-                if ($toArrayConfig->ignoreNull) {
+                if ($toArrayConfig->ignoreNull && is_array($value)) {
                     $value = array_filter($value, fn($v) => $v !== null);
                 }
             } elseif ($value instanceof DateTime) {

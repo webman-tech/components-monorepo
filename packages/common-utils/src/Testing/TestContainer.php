@@ -17,7 +17,7 @@ final class TestContainer
         return self::$instance;
     }
 
-    public static function get(string $name)
+    public static function get(string $name): mixed
     {
         return self::instance()->get($name);
     }
@@ -27,7 +27,7 @@ final class TestContainer
         return self::instance()->has($name);
     }
 
-    public static function make(string $name, array $parameters = [])
+    public static function make(string $name, array $parameters = []): mixed
     {
         return self::instance()->make($name, $parameters);
     }

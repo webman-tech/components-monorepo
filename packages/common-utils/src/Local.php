@@ -23,7 +23,7 @@ final class Local
     {
         if (self::$basePath === null) {
             self::$basePath = match (true) {
-                RuntimeCustomRegister::isRegistered(RuntimeCustomRegister::KEY_BASE_PATH) => RuntimeCustomRegister::call(RuntimeCustomRegister::KEY_BASE_PATH),
+                RuntimeCustomRegister::isRegistered(RuntimeCustomRegister::KEY_BASE_PATH) => (string)RuntimeCustomRegister::call(RuntimeCustomRegister::KEY_BASE_PATH),
                 Runtime::isWebman() => \base_path(),
                 Runtime::isLaravel() => \base_path(),
                 default => throw new UnsupportedRuntime(),
@@ -39,7 +39,7 @@ final class Local
     {
         if (self::$runtimePath === null) {
             self::$runtimePath = match (true) {
-                RuntimeCustomRegister::isRegistered(RuntimeCustomRegister::KEY_RUNTIME_PATH) => RuntimeCustomRegister::call(RuntimeCustomRegister::KEY_RUNTIME_PATH),
+                RuntimeCustomRegister::isRegistered(RuntimeCustomRegister::KEY_RUNTIME_PATH) => (string)RuntimeCustomRegister::call(RuntimeCustomRegister::KEY_RUNTIME_PATH),
                 Runtime::isWebman() => \runtime_path(),
                 /** @phpstan-ignore function.notFound */
                 Runtime::isLaravel() => \storage_path(),
@@ -56,7 +56,7 @@ final class Local
     {
         if (self::$configPath === null) {
             self::$configPath = match (true) {
-                RuntimeCustomRegister::isRegistered(RuntimeCustomRegister::KEY_CONFIG_PATH) => RuntimeCustomRegister::call(RuntimeCustomRegister::KEY_CONFIG_PATH),
+                RuntimeCustomRegister::isRegistered(RuntimeCustomRegister::KEY_CONFIG_PATH) => (string)RuntimeCustomRegister::call(RuntimeCustomRegister::KEY_CONFIG_PATH),
                 Runtime::isWebman() => \config_path(),
                 Runtime::isLaravel() => \config_path(),
                 default => throw new UnsupportedRuntime(),
@@ -73,7 +73,7 @@ final class Local
     {
         if (self::$appPath === null) {
             self::$appPath = match (true) {
-                RuntimeCustomRegister::isRegistered(RuntimeCustomRegister::KEY_APP_PATH) => RuntimeCustomRegister::call(RuntimeCustomRegister::KEY_APP_PATH),
+                RuntimeCustomRegister::isRegistered(RuntimeCustomRegister::KEY_APP_PATH) => (string)RuntimeCustomRegister::call(RuntimeCustomRegister::KEY_APP_PATH),
                 Runtime::isWebman() => \app_path(),
                 Runtime::isLaravel() => \app_path(),
                 default => throw new UnsupportedRuntime(),
@@ -89,7 +89,7 @@ final class Local
     {
         if (self::$vendorPath === null) {
             self::$vendorPath = match (true) {
-                RuntimeCustomRegister::isRegistered(RuntimeCustomRegister::KEY_VENDOR_PATH) => RuntimeCustomRegister::call(RuntimeCustomRegister::KEY_VENDOR_PATH),
+                RuntimeCustomRegister::isRegistered(RuntimeCustomRegister::KEY_VENDOR_PATH) => (string)RuntimeCustomRegister::call(RuntimeCustomRegister::KEY_VENDOR_PATH),
                 Runtime::isWebman() => \base_path() . '/vendor',
                 Runtime::isLaravel() => \base_path() . '/vendor',
                 default => throw new UnsupportedRuntime(),

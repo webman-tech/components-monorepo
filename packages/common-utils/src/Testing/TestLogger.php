@@ -41,7 +41,7 @@ final class TestLogger implements LoggerInterface
     public function log($level, \Stringable|string $message, array $context = []): void
     {
         $this->logs[] = [
-            'level' => strtoupper($level),
+            'level' => is_string($level) ? strtoupper($level) : $level,
             'message' => $message,
             'context' => $context,
         ];

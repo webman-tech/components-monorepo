@@ -48,7 +48,7 @@ final class RuntimeCustomRegister
      * 调用
      * @param self::KEY_* $key
      */
-    public static function call(string $key, ...$args): mixed
+    public static function call(string $key, mixed ...$args): mixed
     {
         if (!isset(self::$repository[$key])) {
             throw new \InvalidArgumentException("RuntimeCustomRegister: $key not registered");

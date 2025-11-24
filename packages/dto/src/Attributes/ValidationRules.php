@@ -280,34 +280,31 @@ final class ValidationRules
     {
         $this->normalize();
 
-        $rulesAll = collect();
+        $rulesAll = [];
 
         // 是否必填放最前面
-        $rulesAll
-            ->add($this->required === true ? 'required' : null)
-            ->add($this->nullable === true ? 'nullable' : null);
+        $rulesAll[] = $this->required === true ? 'required' : null;
+        $rulesAll[] = $this->nullable === true ? 'nullable' : null;
 
         // 数据类型校验
-        $rulesAll
-            ->add(($this->string === true || $this->minLength || $this->maxLength) ? 'string' : null)
-            ->add($this->boolean === true ? 'boolean' : null)
-            ->add($this->integer === true ? 'integer' : null)
-            ->add($this->numeric === true ? 'numeric' : null)
-            ->add($this->array === true ? 'array' : null);
+        $rulesAll[] = ($this->string === true || $this->minLength || $this->maxLength) ? 'string' : null;
+        $rulesAll[] = ($this->boolean === true) ? 'boolean' : null;
+        $rulesAll[] = ($this->integer === true) ? 'integer' : null;
+        $rulesAll[] = ($this->numeric === true) ? 'numeric' : null;
+        $rulesAll[] = ($this->array === true) ? 'array' : null;
         if ($this->object && is_string($this->object)) {
             if (is_a($this->object, DateTime::class, true)) {
-                $rulesAll->add('date');
+                $rulesAll[] = 'date';
             } elseif (is_a($this->object, BaseDTO::class, true)) {
-                $rulesAll->add('array');
+                $rulesAll[] = 'array';
             }
         }
 
         // 数据范围检查
-        $rulesAll
-            ->add($this->min !== null ? ('min:' . $this->min) : null)
-            ->add($this->max !== null ? ('max:' . $this->max) : null)
-            ->add($this->minLength !== null ? ('min:' . $this->minLength) : null)
-            ->add($this->maxLength !== null ? ('max:' . $this->maxLength) : null);
+        $rulesAll[] = $this->min !== null ? ('min:' . $this->min) : null;
+        $rulesAll[] = $this->max !== null ? ('max:' . $this->max) : null;
+        $rulesAll[] = $this->minLength !== null ? ('min:' . $this->minLength) : null;
+        $rulesAll[] = $this->maxLength !== null ? ('max:' . $this->maxLength) : null;
         if ($this->enum) {
             $rule = new RuleEnum($this->enum);
             if ($this->enumOnly) {
@@ -316,31 +313,34 @@ final class ValidationRules
             if ($this->enumExcept) {
                 $rule->except($this->enumExcept);
             }
-            $rulesAll->add($rule);
+            $rulesAll[] = $rule;
         }
         if ($this->in) {
-            $rulesAll->add(Rule::in($this->in));
+            $rulesAll[] = Rule::in($this->in);
         }
 
         // 自定义 rule
         $rules = $this->rules ?? [];
         if (is_string($rules)) {
-            $rules = explode('|', $rules);
+            $rules = array_values(array_filter(explode('|', $rules)));
         }
-        $rulesAll = $rulesAll->merge($rules);
+        $rulesAll = array_merge($rulesAll, $rules);
 
-        return $rulesAll
-            ->filter(fn($item) => $item !== null)
-            ->unique(function ($item) {
-                if (is_string($item)) {
-                    return explode(':', $item)[0];
-                }
-                if (is_object($item)) {
-                    return $item::class;
-                }
-                throw new \InvalidArgumentException('ValidationRules::getRules() only support string or classObject');
-            })
-            ->values()
-            ->toArray();
+        $data = [];
+        foreach ($rulesAll as $item) {
+            if ($item === null) {
+                continue;
+            }
+            $uniqueKey = match (true) {
+                is_string($item) => explode(':', $item)[0],
+                is_object($item) => $item::class,
+                default => throw new \InvalidArgumentException('ValidationRules::getRules() only support string or classObject'),
+            };
+            if (isset($rulesAll[$uniqueKey])) {
+                continue;
+            }
+            $data[$uniqueKey] = $item;
+        }
+        return array_values($data);
     }
 }
