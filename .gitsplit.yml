@@ -21,3 +21,4 @@ splits:
     target: "https://${GH_TOKEN}@github.com/webman-tech/swagger.git"
 origins:
   - ^main$
+  - ^v\d+\.\d+\.\d+$
