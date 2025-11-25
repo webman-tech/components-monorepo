@@ -19,6 +19,7 @@ final class RuntimeCustomRegister
     public const KEY_LOG_CHANNEL = 'log_channel';
     public const KEY_LANG_GET_LOCALE = 'lang_get_locale';
     public const KEY_LANG_SET_LOCALE = 'lang_set_locale';
+    public const KEY_REQUEST = 'request';
 
     /**
      * @var array<self::KEY_*, \Closure>

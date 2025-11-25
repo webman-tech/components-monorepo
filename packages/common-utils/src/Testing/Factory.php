@@ -43,6 +43,7 @@ final class Factory
         RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_LOG_CHANNEL, TestLogger::channel(...));
         RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_LANG_GET_LOCALE, TestLang::getLocale(...));
         RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_LANG_SET_LOCALE, TestLang::setLocale(...));
+        RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_REQUEST, TestRequest::instance(...));
 
         // 加载 config 配置
         self::loadAllConfig(['route']);
