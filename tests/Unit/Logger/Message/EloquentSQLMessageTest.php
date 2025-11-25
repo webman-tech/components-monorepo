@@ -7,7 +7,6 @@ use WebmanTech\Logger\Message\EloquentSQLMessage;
 use function WebmanTech\CommonUtils\runtime_path;
 
 beforeEach(function () {
-    $this->log_channel = 'sql';
     $this->connection = new Connection(
         pdo: new PDO('sqlite:' . runtime_path('eloquentSQLMessageSqlite.db')),
         database: 'test',
