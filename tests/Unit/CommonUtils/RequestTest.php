@@ -4,26 +4,13 @@ use Symfony\Component\HttpFoundation\Request as ComponentSymfonyRequest;
 use Webman\Http\Request as ComponentWebmanRequest;
 use Webman\Route\Route as WebmanRoute;
 use WebmanTech\CommonUtils\Request;
-use WebmanTech\CommonUtils\Request\SymfonyRequest;
-use WebmanTech\CommonUtils\Request\WebmanRequest;
 use WebmanTech\CommonUtils\Testing\TestRequest;
 
+test('request current wraps runtime request', function () {
+    $request = Request::getCurrent();
 
-test('request wrapper', function () {
-    $webmanRequest = new ComponentWebmanRequest('');
-    $symfonyRequest = ComponentSymfonyRequest::create('/demo', 'POST');
-
-    expect(Request::wrapper($webmanRequest))->toBeInstanceOf(WebmanRequest::class)
-        ->and(Request::wrapper($symfonyRequest))->toBeInstanceOf(SymfonyRequest::class)
-        ->and(fn() => Request::wrapper(new stdClass()))
-        ->toThrow(InvalidArgumentException::class);
-
-    $request = Request::wrapper($symfonyRequest);
-    expect(Request::wrapper($request))->toBe($request);
-});
-
-test('request current', function () {
-    expect(Request::getCurrent())->toBeInstanceOf(TestRequest::class);
+    expect($request)->toBeInstanceOf(Request::class)
+        ->and($request?->getOriginalRequest())->toBeInstanceOf(TestRequest::class);
 });
 
 test('symfony adapter uses forwarded ip and restores trust config', function () {
@@ -45,7 +32,7 @@ test('symfony adapter uses forwarded ip and restores trust config', function () 
         json_encode(['json_key' => 'symfony_value'])
     );
 
-    $request = new SymfonyRequest($base);
+    $request = Request::from($base);
 
     expect($request->getMethod())->toBe('POST')
         ->and($request->getPath())->toBe('/demo/77')
@@ -84,7 +71,7 @@ test('webman adapter exposes get/post helpers and path params', function () {
     $route->setParams(['id' => '123']);
     $webmanRequest->route = $route;
 
-    $request = new WebmanRequest($webmanRequest);
+    $request = Request::from($webmanRequest);
 
     expect($request->getMethod())->toBe('POST')
         ->and($request->getPath())->toBe('/demo/123')

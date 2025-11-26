@@ -22,6 +22,9 @@ final readonly class Session
     {
     }
 
+    /**
+     * 获取值
+     */
     public function get(string $key, mixed $default = null): mixed
     {
         if ($this->session instanceof \Workerman\Protocols\Http\Session) {
@@ -36,6 +39,9 @@ final readonly class Session
         throw new \InvalidArgumentException('session has no method get');
     }
 
+    /**
+     * 设置值
+     */
     public function set(string $key, mixed $value): void
     {
         if ($this->session instanceof \Workerman\Protocols\Http\Session) {

@@ -2,11 +2,9 @@
 
 namespace WebmanTech\CommonUtils\Testing;
 
-use WebmanTech\CommonUtils\Request\RequestInterface;
-
-final class TestRequest implements RequestInterface
+final class TestRequest
 {
-    private static ?RequestInterface $instance = null;
+    private static ?self $instance = null;
 
     public static function instance(): self
     {

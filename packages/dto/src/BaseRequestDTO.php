@@ -27,7 +27,7 @@ class BaseRequestDTO extends BaseDTO
      */
     protected static function getDataFromRequest(mixed $request = null): array
     {
-        $request = $request ? Request::wrapper($request) : Request::getCurrent();
+        $request = Request::from($request);
 
         // 自动从 request 提取全部值
         $data = [];

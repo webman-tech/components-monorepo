@@ -24,6 +24,9 @@ final readonly class Response
     {
     }
 
+    /**
+     * 发送 body response
+     */
     public function sendBody(string $content, int $statusCode = 200, array $headers = [], ?string $reasonPhrase = null): mixed
     {
         if ($this->response instanceof WebmanResponse) {
@@ -46,6 +49,9 @@ final readonly class Response
         throw new \InvalidArgumentException('Unsupported response type');
     }
 
+    /**
+     * 发送 json response
+     */
     public function sendJson(mixed $data, int $statusCode = 200, array $headers = [], ?string $reasonPhrase = null): mixed
     {
         $data = json_encode($data) ?: '';

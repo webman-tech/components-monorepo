@@ -2,7 +2,7 @@
 
 namespace WebmanTech\DTO\Enums;
 
-use WebmanTech\CommonUtils\Request\RequestInterface;
+use WebmanTech\CommonUtils\Request;
 
 enum RequestPropertyInEnum: string
 {
@@ -14,7 +14,7 @@ enum RequestPropertyInEnum: string
     case Form = 'form';
     case Json = 'json';
 
-    public static function tryFromRequest(RequestInterface $request): ?self
+    public static function tryFromRequest(Request $request): ?self
     {
         $method = $request->getMethod();
         if (in_array($method, ['GET', 'OPTIONS', 'HEAD'])) {
@@ -33,7 +33,7 @@ enum RequestPropertyInEnum: string
         return null;
     }
 
-    public function getFromRequest(RequestInterface $request, string $name): mixed
+    public function getFromRequest(Request $request, string $name): mixed
     {
         return match ($this) {
             self::Query => $request->get($name),
@@ -46,7 +46,7 @@ enum RequestPropertyInEnum: string
         };
     }
 
-    public function getAllFromRequest(RequestInterface $request): array
+    public function getAllFromRequest(Request $request): array
     {
         return match ($this) {
             self::Query => $request->allGet(),
