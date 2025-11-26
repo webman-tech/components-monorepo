@@ -93,6 +93,9 @@ test('ReflectionClassReader newInstanceByData', function () {
         public function __construct(
             public string                                                $string,
             public int                                                   $int,
+            public ?int                                                  $nullableInt,
+            public ?int                                                  $nullableIntUseEmptyString,
+            public ?int                                                  $nullableIntUseZeroString,
             public bool                                                  $bool,
             public array                                                 $array,
             public DateTime                                              $datetime,
@@ -112,6 +115,9 @@ test('ReflectionClassReader newInstanceByData', function () {
     $obj = ReflectionReaderFactory::fromClass(DTOFromReflectionClassReaderNewInstanceByDataTest::class)->newInstanceByData([
         'string' => 'string',
         'int' => 1,
+        'nullableInt' => null,
+        'nullableIntUseEmptyString' => '',
+        'nullableIntUseZeroString' => '0',
         'bool' => true,
         'array' => [1, 2, 3],
         'datetime' => '2020-12-07 11:22:33',
@@ -133,6 +139,9 @@ test('ReflectionClassReader newInstanceByData', function () {
     expect($obj)->toBeInstanceOf(DTOFromReflectionClassReaderNewInstanceByDataTest::class)
         ->and($obj->string)->toBe('string')
         ->and($obj->int)->toBe(1)
+        ->and($obj->nullableInt)->toBeNull()
+        ->and($obj->nullableIntUseEmptyString)->toBeNull()
+        ->and($obj->nullableIntUseZeroString)->toBe(0)
         ->and($obj->bool)->toBeTrue()
         ->and($obj->array)->toBe([1, 2, 3])
         ->and($obj->datetime)->toBeInstanceOf(DateTime::class)
