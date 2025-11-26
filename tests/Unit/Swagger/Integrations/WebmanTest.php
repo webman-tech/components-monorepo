@@ -2,10 +2,22 @@
 
 namespace Tests\Unit\Swagger\Integrations;
 
+use Webman\Http\Request;
 use WebmanTech\Swagger\Integrations\Webman\HostForbiddenMiddleware;
 
 test('HostForbiddenMiddleware check', function () {
-    $request = request_create_one();
+    $body = 'json_key=json_value';
+    $buffer = implode("\r\n", [
+        'POST /demo/123?foo=bar HTTP/1.1',
+        'Host: example.com',
+        'Content-Type: application/x-www-form-urlencoded',
+        'Content-Length: ' . strlen($body),
+        'X-Trace-Id: trace-webman',
+        'Cookie: session=abc; theme=dark',
+        '',
+        $body,
+    ]);
+    $request = new Request($buffer);
 
     // 仅内网允许
     $middleware = new HostForbiddenMiddleware([
