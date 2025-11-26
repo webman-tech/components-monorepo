@@ -24,9 +24,9 @@
 |
 */
 
-use Tests\Fixtures\TestRequest;
 use Webman\Context;
 use Webman\Http\Request;
+use WebmanTech\CommonUtils\Testing\TestRequest;
 use Workerman\Protocols\Http\Session;
 
 expect()->extend('toBeOne', function () {
@@ -66,6 +66,9 @@ function fixture_get_require(string $path)
 
 function request_create_one(): TestRequest
 {
+    TestRequest::clear();
+    return TestRequest::instance();
+
     $buffer = strtr(fixture_get_content('misc/request_sample.txt'), [
         "\n" => "\r\n",
     ]);

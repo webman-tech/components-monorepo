@@ -2,7 +2,7 @@
 
 namespace WebmanTech\CommonUtils\Testing;
 
-use Symfony\Component\HttpFoundation\Response;
+use Webman\Http\Response;
 
 final class TestResponse extends Response
 {

@@ -25,7 +25,6 @@ final class TestRequest implements RequestInterface
     private array $data = [
         'method' => 'GET',
         'path' => '/',
-        'contentType' => '',
         'query' => [],
         'pathParams' => [],
         'headers' => [],
@@ -36,24 +35,49 @@ final class TestRequest implements RequestInterface
         'userIp' => '127.0.0.1',
     ];
 
-    public function setData(array $data): void
+    public function setData(string|array $key, mixed $value = null): void
     {
-        $this->data = array_merge($this->data, $data);
+        if (is_array($key)) {
+            foreach ($key as $k => $v) {
+                $this->setData($k, $v);
+            }
+            return;
+        }
+        $this->data[$key] = $value;
     }
 
-    public function setGet(string $key, mixed $value): void
+    public function setGet(string|array $key, mixed $value = null): void
     {
+        if (is_array($key)) {
+            foreach ($key as $k => $v) {
+                $this->setGet($k, $v);
+            }
+            return;
+        }
         $this->data['query'][$key] = $value;
     }
 
-    public function setPost(string $key, mixed $value): void
+    public function setPost(string|array $key, mixed $value = null): void
     {
+        if (is_array($key)) {
+            foreach ($key as $k => $v) {
+                $this->setPost($k, $v);
+            }
+            return;
+        }
         $this->data['postForm'][$key] = $value;
+        $this->data['postJson'][$key] = $value;
     }
 
-    public function setHeader(string $key, mixed $value): void
+    public function setHeader(string|array $key, mixed $value = null): void
     {
-        $this->data['headers'][$key] = $value;
+        if (is_array($key)) {
+            foreach ($key as $k => $v) {
+                $this->setHeader($k, $v);
+            }
+            return;
+        }
+        $this->data['headers'][strtolower($key)] = $value;
     }
 
     public function getMethod(): string
@@ -68,7 +92,7 @@ final class TestRequest implements RequestInterface
 
     public function getContentType(): string
     {
-        return strtolower($this->data['contentType']);
+        return strtolower($this->data['headers']['content-type'] ?? '');
     }
 
     public function get(string $key): null|string|array

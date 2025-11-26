@@ -1,6 +1,7 @@
 <?php
 
 use Webman\Http\Response;
+use WebmanTech\CommonUtils\Testing\TestResponse;
 use WebmanTech\DTO\Attributes\ToArrayConfig;
 use WebmanTech\DTO\BaseResponseDTO;
 use WebmanTech\DTO\Helper\ConfigHelper;
@@ -17,8 +18,9 @@ test('不同 format', function () {
 
     // 默认 json
     $dto = new DTOToResponseForFormat(name: 'nameValue');
+    /** @var TestResponse $response */
     $response = $dto->toResponse();
-    expect($response)->toBeInstanceOf(Response::class)
+    expect($response)->toBeInstanceOf(TestResponse::class)
         ->and($response->getHeader('Content-Type'))->toBe('application/json');
 
     // 通过 config 配置
@@ -41,9 +43,9 @@ test('json 下返回空对象时', function () {
     }
 
     $dto = new DTOToResponseEmpty();
+    /** @var TestResponse $response */
     $response = $dto->toResponse();
-    expect($response)->toBeInstanceOf(Response::class)
-        ->and($response->rawBody())->toBe('{}');
+    expect($response->rawBody())->toBe('{}');
 });
 
 test('json 下返回的数据中存在空数组时', function () {
@@ -54,9 +56,9 @@ test('json 下返回的数据中存在空数组时', function () {
     }
 
     $dto = new DTOToResponseEmptyData();
+    /** @var TestResponse $response */
     $response = $dto->toResponse();
-    expect($response)->toBeInstanceOf(Response::class)
-        ->and($response->rawBody())->toBe('{"arr":{}}');
+    expect($response->rawBody())->toBe('{"arr":{}}');
 });
 
 test('传递 headers 和 status', function () {
@@ -77,9 +79,9 @@ test('传递 headers 和 status', function () {
     expect($dto->getResponseStatus())->toBe(201)
         ->and($dto->getResponseStatusText())->toBe('Created Abc')
         ->and($dto->getResponseHeaders())->toBe(['X-Test' => 'test']);
+    /** @var TestResponse $response */
     $response = $dto->toResponse();
-    expect($response)->toBeInstanceOf(Response::class)
-        ->and($response->getHeader('Content-Type'))->toBe('application/json')
+    expect($response->getHeader('Content-Type'))->toBe('application/json')
         ->and($response->getHeader('X-Test'))->toBe('test')
         ->and($response->getStatusCode())->toBe(201)
         ->and($response->getReasonPhrase())->toBe('Created Abc');

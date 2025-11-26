@@ -46,9 +46,9 @@ final readonly class Response
         throw new \InvalidArgumentException('Unsupported response type');
     }
 
-    public function sendJson(array $data, int $statusCode = 200, array $headers = [], ?string $reasonPhrase = null): mixed
+    public function sendJson(mixed $data, int $statusCode = 200, array $headers = [], ?string $reasonPhrase = null): mixed
     {
-        $data = json_encode($data);
+        $data = json_encode($data) ?: '';
         $headers = array_merge($headers, [
             'Content-Type' => 'application/json',
         ]);

@@ -2,7 +2,7 @@
 
 namespace WebmanTech\DTO\Enums;
 
-use WebmanTech\DTO\Integrations\RequestInterface;
+use WebmanTech\CommonUtils\Request\RequestInterface;
 
 enum RequestPropertyInEnum: string
 {

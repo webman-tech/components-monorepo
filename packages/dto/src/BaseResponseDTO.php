@@ -2,8 +2,8 @@
 
 namespace WebmanTech\DTO;
 
+use WebmanTech\CommonUtils\Response;
 use WebmanTech\DTO\Helper\ConfigHelper;
-use WebmanTech\DTO\Integrations\Response;
 
 class BaseResponseDTO extends BaseDTO
 {
@@ -59,7 +59,13 @@ class BaseResponseDTO extends BaseDTO
         }
 
         if ($this->toResponseFormat === 'json') {
-            return Response::create()->json($this);
+            $data = $this->toArray();
+            return Response::make()->sendJson(
+                $data === [] ? new \stdClass() : $data,
+                statusCode: $this->getResponseStatus(),
+                headers: $this->getResponseHeaders(),
+                reasonPhrase: $this->getResponseStatusText(),
+            );
         }
 
         if ($this->toResponseFormat instanceof \Closure) {

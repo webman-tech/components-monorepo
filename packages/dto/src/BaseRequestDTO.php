@@ -2,19 +2,16 @@
 
 namespace WebmanTech\DTO;
 
+use WebmanTech\CommonUtils\Request;
 use WebmanTech\DTO\Enums\RequestPropertyInEnum;
 use WebmanTech\DTO\Exceptions\DTONewInstanceException;
 use WebmanTech\DTO\Exceptions\DTOValidateException;
 use WebmanTech\DTO\Reflection\ReflectionReaderFactory;
 
-/**
- * @phpstan-import-type TypeRequest from Integrations\Request
- */
 class BaseRequestDTO extends BaseDTO
 {
     /**
      * 从 request 创建
-     * @param TypeRequest $request
      * @throws DTOValidateException|DTONewInstanceException
      */
     public static function fromRequest(mixed $request = null, bool $validate = true): static
@@ -26,12 +23,11 @@ class BaseRequestDTO extends BaseDTO
 
     /**
      * 从 request 获取数据
-     * @param TypeRequest $request
      * @return array<string, mixed>
      */
     protected static function getDataFromRequest(mixed $request = null): array
     {
-        $request = Integrations\Request::from($request);
+        $request = $request ? Request::wrapper($request) : Request::getCurrent();
 
         // 自动从 request 提取全部值
         $data = [];
