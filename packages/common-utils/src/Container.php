@@ -9,6 +9,21 @@ use WebmanTech\CommonUtils\Exceptions\UnsupportedRuntime;
  */
 final class Container
 {
+    private static mixed $instance = null;
+
+    private static function instance()
+    {
+        if (self::$instance === null) {
+            self::$instance = match (true) {
+                RuntimeCustomRegister::isRegistered(RuntimeCustomRegister::KEY_CONTAINER) => RuntimeCustomRegister::call(RuntimeCustomRegister::KEY_CONTAINER),
+                Runtime::isWebman() => \support\Container::instance(),
+                Runtime::isLaravel() => \Illuminate\Container\Container::getInstance(),
+                default => throw new UnsupportedRuntime(),
+            };
+        }
+        return self::$instance;
+    }
+
     /**
      * 获取组件
      * @template TClass of object
@@ -17,12 +32,7 @@ final class Container
      */
     public static function get(string $name): mixed
     {
-        return match (true) {
-            RuntimeCustomRegister::isRegistered(RuntimeCustomRegister::KEY_CONTAINER_GET) => RuntimeCustomRegister::call(RuntimeCustomRegister::KEY_CONTAINER_GET, $name),
-            Runtime::isWebman() => \support\Container::get($name),
-            Runtime::isLaravel() => \Illuminate\Container\Container::getInstance()->get($name),
-            default => throw new UnsupportedRuntime(),
-        };
+        return self::instance()->get($name);
     }
 
     /**
@@ -32,12 +42,7 @@ final class Container
      */
     public static function has(string $name): bool
     {
-        return match (true) {
-            RuntimeCustomRegister::isRegistered(RuntimeCustomRegister::KEY_CONTAINER_HAS) => RuntimeCustomRegister::call(RuntimeCustomRegister::KEY_CONTAINER_HAS, $name),
-            Runtime::isWebman() => \support\Container::has($name),
-            Runtime::isLaravel() => \Illuminate\Container\Container::getInstance()->has($name),
-            default => throw new UnsupportedRuntime(),
-        };
+        return self::instance()->has($name);
     }
 
     /**
@@ -49,11 +54,6 @@ final class Container
      */
     public static function make(string $name, array $parameters = []): mixed
     {
-        return match (true) {
-            RuntimeCustomRegister::isRegistered(RuntimeCustomRegister::KEY_CONTAINER_MAKE) => RuntimeCustomRegister::call(RuntimeCustomRegister::KEY_CONTAINER_MAKE, $name, $parameters),
-            Runtime::isWebman() => \support\Container::make($name, $parameters),
-            Runtime::isLaravel() => \Illuminate\Container\Container::getInstance()->make($name, $parameters),
-            default => throw new UnsupportedRuntime(),
-        };
+        return self::instance()->make($name, $parameters);
     }
 }

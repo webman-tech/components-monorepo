@@ -37,13 +37,13 @@ final class Factory
             return Local::combinePath($vendorDir, $path ?? '');
         });
         RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_CONFIG_GET, TestConfig::staticGet(...));
-        RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_CONTAINER_GET, TestContainer::get(...));
-        RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_CONTAINER_HAS, TestContainer::has(...));
-        RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_CONTAINER_MAKE, TestContainer::make(...));
+        RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_CONTAINER, fn() => TestContainer::instance());
         RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_LOG_CHANNEL, TestLogger::channel(...));
         RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_LANG_GET_LOCALE, TestLang::getLocale(...));
         RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_LANG_SET_LOCALE, TestLang::setLocale(...));
-        RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_REQUEST, TestRequest::instance(...));
+        RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_REQUEST, fn() => new TestRequest());
+        RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_RESPONSE, fn() => new TestResponse());
+        RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_SESSION, fn() => new TestSession());
 
         // 加载 config 配置
         self::loadAllConfig(['route']);
