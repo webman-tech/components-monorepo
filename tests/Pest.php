@@ -25,9 +25,7 @@
 */
 
 use Webman\Context;
-use Webman\Http\Request;
 use WebmanTech\CommonUtils\Testing\TestRequest;
-use Workerman\Protocols\Http\Session;
 
 expect()->extend('toBeOne', function () {
     return $this->toBe(1);
@@ -66,30 +64,5 @@ function fixture_get_require(string $path)
 
 function request_create_one(): TestRequest
 {
-    TestRequest::clear();
-    return TestRequest::instance();
-
-    $buffer = strtr(fixture_get_content('misc/request_sample.txt'), [
-        "\n" => "\r\n",
-    ]);
-    $request = new TestRequest($buffer);
-
-    // 设置请求对象到上下文，是的 webman 下 request() 可以获取到
-    Context::set(Request::class, $request);
-
-    // 设置 sessionid, 使得 session() 可以用
-    $request->setHeader('cookie', Session::$name . '=sessionid;');
-    // 清空 session 信息，防止数据前后污染
-    $request->session()->flush();
-
-    return $request;
-}
-
-function path_runtime(?string $path = null): string
-{
-    $local = __DIR__ . '/../runtime';
-    if ($path) {
-        $local = $local . '/' . $path;
-    }
-    return $local;
+    return new TestRequest();
 }

@@ -15,6 +15,11 @@ final class TestRoute
      */
     private array $namedRoutes = [];
 
+    public function __construct()
+    {
+        Webman\ClearableRoute::clear();
+    }
+
     public function addRoute(RouteObject $item): void
     {
         $this->routes[] = $item;
