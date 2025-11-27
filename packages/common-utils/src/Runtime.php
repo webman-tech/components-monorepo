@@ -11,9 +11,33 @@ use Workerman\Worker;
  */
 final class Runtime
 {
-    public static ?string $RUNTIME = null; // 用于固定指定 runtime
+    private static ?string $RUNTIME = null; // 用于固定指定 runtime
 
     private static ?bool $isWorkerman = null;
+    private static ?bool $isWebman = null;
+    private static ?bool $isLaravel = null;
+
+    /**
+     * 获取当前运行的环境（仅在手动指定后才会有值）
+     * @return string|null
+     */
+    public static function getCurrent(): ?string
+    {
+        return self::$RUNTIME;
+    }
+
+    /**
+     * 修改环境
+     * @param string|null $runtime
+     */
+    public static function changeRuntime(?string $runtime): void
+    {
+        self::$RUNTIME = $runtime;
+        // 需要重置以下所有运行环境判断，否则无法生效
+        self::$isWorkerman = null;
+        self::$isWebman = null;
+        self::$isLaravel = null;
+    }
 
     /**
      * 是否在 workerman 环境下
@@ -32,8 +56,6 @@ final class Runtime
         return self::$isWorkerman;
     }
 
-    private static ?bool $isWebman = null;
-
     /**
      * 是否在 webman 下
      * @return bool
@@ -49,8 +71,6 @@ final class Runtime
         }
         return self::$isWebman;
     }
-
-    private static ?bool $isLaravel = null;
 
     /**
      * 是否是 laravel

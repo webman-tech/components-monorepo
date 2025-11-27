@@ -20,6 +20,7 @@ final class RuntimeCustomRegister
     public const KEY_REQUEST = 'request';
     public const KEY_RESPONSE = 'response';
     public const KEY_SESSION = 'session';
+    public const KEY_ROUTE = 'route';
 
     /**
      * @var array<self::KEY_*, \Closure>
@@ -30,9 +31,21 @@ final class RuntimeCustomRegister
      * 注册
      * @param self::KEY_* $key
      */
-    public static function register(string $key, \Closure $value): void
+    public static function register(string $key, \Closure|null $value): void
     {
+        if ($value === null) {
+            unset(self::$repository[$key]);
+            return;
+        }
         self::$repository[$key] = $value;
+    }
+
+    /**
+     * 获取注册的闭包
+     */
+    public static function getRegistered(string $key): ?\Closure
+    {
+        return self::$repository[$key] ?? null;
     }
 
     /**

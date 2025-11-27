@@ -19,7 +19,7 @@ final class Factory
         string $vendorDir,
     ): void
     {
-        Runtime::$RUNTIME = Constants::RUNTIME_CUSTOM;
+        Runtime::changeRuntime(Constants::RUNTIME_CUSTOM);
 
         RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_BASE_PATH, function (?string $path = null) use ($baseDir): string {
             return Local::combinePath($baseDir, $path ?? '');
@@ -44,6 +44,7 @@ final class Factory
         RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_REQUEST, fn() => new TestRequest());
         RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_RESPONSE, fn() => new TestResponse());
         RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_SESSION, fn() => new TestSession());
+        RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_ROUTE, fn() => new TestRoute());
 
         // 加载 config 配置
         self::loadAllConfig(['route']);
