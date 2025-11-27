@@ -1,15 +1,15 @@
 <?php
 
-use Webman\Http\Response;
-use WebmanTech\Logger\Middleware\RequestUid;
+use WebmanTech\CommonUtils\Response;
+use WebmanTech\Logger\Middleware\RequestTraceMiddleware;
 
-test('RequestUid', function () {
+test('RequestTraceMiddleware', function () {
     $request = request_create_one();
 
-    expect($request->{RequestUid::REQUEST_UID_KEY})->toBeNull();
+    expect($request->getCustomData(RequestTraceMiddleware::KEY_TRACE_ID))->toBeNull();
 
-    $middleware = new RequestUid();
-    $middleware->process($request, fn() => new Response());
+    $middleware = new RequestTraceMiddleware();
+    $middleware->process($request, fn() => Response::make());
 
-    expect($request->{RequestUid::REQUEST_UID_KEY})->not->toBeNull();
+    expect($request->getCustomData(RequestTraceMiddleware::KEY_TRACE_ID))->not->toBeNull();
 });
