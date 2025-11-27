@@ -26,11 +26,17 @@
 
 use Webman\Context;
 use WebmanTech\CommonUtils\Request;
+use WebmanTech\CommonUtils\Testing\TestContainer;
 use WebmanTech\CommonUtils\Testing\TestRequest;
 use WebmanTech\CommonUtils\Testing\TestSession;
 
 expect()->extend('toBeOne', function () {
     return $this->toBe(1);
+});
+
+pest()->beforeEach(function () {
+    // 清理测试容器
+    TestContainer::clear();
 });
 
 pest()->afterEach(function () {

@@ -2,26 +2,41 @@
 
 namespace WebmanTech\CommonUtils;
 
+use Illuminate\Container\Container as IlluminateContainer;
+use Webman\Container as WebmanContainer;
 use WebmanTech\CommonUtils\Exceptions\UnsupportedRuntime;
 
 /**
  * 容器组件
  */
-final class Container
+final readonly class Container
 {
-    private static mixed $instance = null;
-
-    private static function instance()
+    public static function getCurrent(): self
     {
-        if (self::$instance === null) {
-            self::$instance = match (true) {
-                RuntimeCustomRegister::isRegistered(RuntimeCustomRegister::KEY_CONTAINER) => RuntimeCustomRegister::call(RuntimeCustomRegister::KEY_CONTAINER),
-                Runtime::isWebman() => \support\Container::instance(),
-                Runtime::isLaravel() => \Illuminate\Container\Container::getInstance(),
-                default => throw new UnsupportedRuntime(),
-            };
-        }
-        return self::$instance;
+        $container = match (true) {
+            RuntimeCustomRegister::isRegistered(RuntimeCustomRegister::KEY_CONTAINER) => RuntimeCustomRegister::call(RuntimeCustomRegister::KEY_CONTAINER),
+            Runtime::isWebman() => \support\Container::instance(),
+            Runtime::isLaravel() => IlluminateContainer::getInstance(),
+            default => throw new UnsupportedRuntime(),
+        };
+
+        return new self($container);
+    }
+
+    public static function from(mixed $container): self
+    {
+        return $container === null
+            ? self::getCurrent()
+            : new self($container);
+    }
+
+    public function __construct(private mixed $container)
+    {
+    }
+
+    public function getRaw(): mixed
+    {
+        return $this->container;
     }
 
     /**
@@ -30,9 +45,14 @@ final class Container
      * @param string|class-string<TClass> $name
      * @return ($name is class-string<TClass> ? TClass : mixed)
      */
-    public static function get(string $name): mixed
+    public function get(string $name): mixed
     {
-        return self::instance()->get($name);
+        return match (true) {
+            $this->container instanceof WebmanContainer => $this->container->get($name),
+            $this->container instanceof IlluminateContainer => $this->container->get($name),
+            method_exists($this->container, 'get') => $this->container->get($name),
+            default => throw new \InvalidArgumentException('Unsupported container type'),
+        };
     }
 
     /**
@@ -40,9 +60,14 @@ final class Container
      * @param string $name
      * @return bool
      */
-    public static function has(string $name): bool
+    public function has(string $name): bool
     {
-        return self::instance()->has($name);
+        return match (true) {
+            $this->container instanceof WebmanContainer => $this->container->has($name),
+            $this->container instanceof IlluminateContainer => $this->container->has($name),
+            method_exists($this->container, 'has') => $this->container->has($name),
+            default => throw new \InvalidArgumentException('Unsupported container type'),
+        };
     }
 
     /**
@@ -52,8 +77,13 @@ final class Container
      * @param array $parameters
      * @return ($name is class-string<TClass> ? TClass : mixed)
      */
-    public static function make(string $name, array $parameters = []): mixed
+    public function make(string $name, array $parameters = []): mixed
     {
-        return self::instance()->make($name, $parameters);
+        return match (true) {
+            $this->container instanceof WebmanContainer => $this->container->make($name, $parameters),
+            $this->container instanceof IlluminateContainer => $this->container->make($name, $parameters),
+            method_exists($this->container, 'make') => $this->container->make($name, $parameters),
+            default => throw new \InvalidArgumentException('Unsupported container type'),
+        };
     }
 }

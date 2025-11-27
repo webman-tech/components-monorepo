@@ -77,37 +77,6 @@ function logger(?string $channel = null): LoggerInterface
 }
 
 /**
- * 从容器中获取组件
- * @template TClass of object
- * @param string|class-string<TClass> $name
- * @return ($name is class-string<TClass> ? TClass : mixed)
- */
-function container_get(string $name): mixed
-{
-    return Container::get($name);
-}
-
-/**
- * 容器中是否存在组件
- */
-function container_has(string $name): bool
-{
-    return Container::has($name);
-}
-
-/**
- * 用容器创建组件
- * @template TClass of object
- * @param string|class-string<TClass> $name
- * @param array $parameters
- * @return ($name is class-string<TClass> ? TClass : mixed)
- */
-function container_make(string $name, array $parameters = []): mixed
-{
-    return Container::make($name, $parameters);
-}
-
-/**
  * 获取/设置 语言
  */
 function locale(?string $locale = null): string
