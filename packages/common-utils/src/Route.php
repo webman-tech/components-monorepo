@@ -5,6 +5,8 @@ namespace WebmanTech\CommonUtils;
 use Webman\Route as WebmanRoute;
 use WebmanTech\CommonUtils\Exceptions\UnsupportedRuntime;
 use WebmanTech\CommonUtils\Route\RouteObject;
+use WebmanTech\CommonUtils\Testing\TestRoute;
+use WebmanTech\CommonUtils\Testing\Webman\ClearableRoute;
 
 final readonly class Route
 {
@@ -16,6 +18,25 @@ final readonly class Route
             default => throw new UnsupportedRuntime(),
         };
         return new self($route);
+    }
+
+    public static function clear(): void
+    {
+        if (RuntimeCustomRegister::isRegistered(RuntimeCustomRegister::KEY_ROUTE)) {
+            $route = RuntimeCustomRegister::call(RuntimeCustomRegister::KEY_ROUTE);
+            if ($route instanceof TestRoute) {
+                TestRoute::clear();
+                return;
+            }
+            if (method_exists($route, 'clear')) {
+                $route->clear();
+                return;
+            }
+        } elseif (Runtime::isWebman()) {
+            ClearableRoute::clear();
+            return;
+        }
+        throw new \InvalidArgumentException('Unsupported route type');
     }
 
     public function __construct(private mixed $route = null)
@@ -39,21 +60,6 @@ final readonly class Route
             $this->isRouteHasMethod('addRoute') => $this->route->addRoute($item),
             default => throw new \InvalidArgumentException('Unsupported route type'),
         };
-    }
-
-    /**
-     * 注册多个路由
-     * @param RouteObject[] $routes
-     */
-    public function register(array $routes): void
-    {
-        if ($this->isRouteHasMethod('register')) {
-            $this->route->register($routes);
-            return;
-        }
-        foreach ($routes as $item) {
-            $this->addRoute($item);
-        }
     }
 
     /**

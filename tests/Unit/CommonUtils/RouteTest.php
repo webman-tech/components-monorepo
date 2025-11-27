@@ -1,13 +1,16 @@
 <?php
 
+use Tests\Fixtures\CommonUtils\RouteController;
 use Webman\Route\Route as WebmanRouteObject;
 use WebmanTech\CommonUtils\Constants;
 use WebmanTech\CommonUtils\Route;
 use WebmanTech\CommonUtils\Runtime;
 use WebmanTech\CommonUtils\RuntimeCustomRegister;
 use WebmanTech\CommonUtils\Testing\TestRoute;
+use WebmanTech\CommonUtils\Testing\Webman\ClearableRoute;
 
 test('normalize usage', function () {
+    Route::clear();
     $route = Route::getCurrent();
     expect($route->getRaw())->toBeInstanceOf(TestRoute::class);
 
@@ -23,7 +26,8 @@ test('normalize usage', function () {
         ->and($routeList[0]->getPath())->toBe('/users1')
         ->and($routeList[0]->getCallback())->toBe($callable)
         ->and($routeList[0]->getName())->toBeNull()
-        ->and($routeList[0]->getMiddlewares())->toBeNull();
+        ->and($routeList[0]->getMiddlewares())->toBeNull()
+        ->and($routeList[0]->getUrl())->toBeNull();
 
     // 测试 name
     $route->addRoute(new Route\RouteObject('GET', '/users2', $callable, name: 'users.index'));
@@ -32,6 +36,7 @@ test('normalize usage', function () {
         ->and($routeItem->getMethods())->toBe(['GET'])
         ->and($routeItem->getPath())->toBe('/users2')
         ->and($routeItem->getCallback())->toBe($callable)
+        ->and(($routeItem->getCallback())())->toBe('ok')
         ->and($routeItem->getName())->toBe('users.index');
 
     // 测试 middlewares
@@ -44,12 +49,11 @@ test('normalize usage', function () {
     $routeItem = $route->getRouteByName('product2.index');
     expect($routeItem->getMethods())->toBe(['GET', 'POST']);
 
-    // 测试 register
-    $route->register([
-        new Route\RouteObject('GET', '/product3', $callable, name: 'product3.index'),
-    ]);
+    // 注册 callback
+    $route->addRoute(new Route\RouteObject('GET', '/product3', [RouteController::class, 'index'], name: 'product3.index'));
     $routeItem = $route->getRouteByName('product3.index');
-    expect($routeItem->getPath())->toBe('/product3');
+    expect($routeItem->getCallback())->toBe([RouteController::class, 'index'])
+        ->and(($routeItem->getCallback())())->toBe('abc');
 });
 
 test('webman adapter', function () {
@@ -68,9 +72,13 @@ test('webman adapter', function () {
 
     $route->addRoute(new Route\RouteObject('GET', '/users1', $callable, name: 'users.index', middlewares: ['auth']));
     $routeItem = $route->getRouteByName('users.index');
-    expect($routeItem->getFrom())->toBeInstanceOf(WebmanRouteObject::class);
+    expect($routeItem->getFrom())->toBeInstanceOf(WebmanRouteObject::class)
+        ->and($routeItem->getUrl())->toBe('/users1');
 
     // 恢复原始的
     Runtime::changeRuntime($runtime);
     RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_ROUTE, $registeredRoute);
+
+    // 清理 webman 的 route
+    ClearableRoute::clear();
 });

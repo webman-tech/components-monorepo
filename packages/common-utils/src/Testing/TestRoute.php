@@ -15,9 +15,19 @@ final class TestRoute
      */
     private array $namedRoutes = [];
 
-    public function __construct()
+    private static ?self $instance = null;
+
+    public static function instance(): self
     {
-        Webman\ClearableRoute::clear();
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
+    public static function clear(): void
+    {
+        self::$instance = null;
     }
 
     public function addRoute(RouteObject $item): void

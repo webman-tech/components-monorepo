@@ -29,11 +29,11 @@ final class RouteObject
     private mixed $fromRoute = null;
 
     public function __construct(
-        string|array              $methods,
-        private readonly string   $path,
-        private readonly \Closure $callback,
-        private readonly ?string  $name = null,
-        private readonly mixed    $middlewares = null,
+        string|array             $methods,
+        private readonly string  $path,
+        private readonly mixed   $callback,
+        private readonly ?string $name = null,
+        private readonly mixed   $middlewares = null,
     )
     {
         $this->methods = array_map('strtoupper', (array)$methods);
@@ -59,7 +59,7 @@ final class RouteObject
         return $this->path;
     }
 
-    public function getCallback(): \Closure
+    public function getCallback(): mixed
     {
         return $this->callback;
     }
@@ -72,5 +72,26 @@ final class RouteObject
     public function getMiddlewares(): mixed
     {
         return $this->middlewares;
+    }
+
+    /**
+     * 获取 url
+     */
+    public function getUrl(array $params = []): ?string
+    {
+        return match (true) {
+            $this->fromRoute instanceof WebmanRouteObject => $this->fromRoute->url($params),
+            $this->isRouteHasMethod('getUrl') => $this->fromRoute->getUrl($params),
+            default => null,
+        };
+    }
+
+    private function isRouteHasMethod(string $method): bool
+    {
+        if (!is_object($this->fromRoute)) {
+            return false;
+        }
+
+        return method_exists($this->fromRoute, $method);
     }
 }

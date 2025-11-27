@@ -44,7 +44,7 @@ final class Factory
         RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_REQUEST, fn() => new TestRequest());
         RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_RESPONSE, fn() => new TestResponse());
         RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_SESSION, fn() => new TestSession());
-        RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_ROUTE, fn() => new TestRoute());
+        RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_ROUTE, fn() => TestRoute::instance());
 
         // 加载 config 配置
         self::loadAllConfig(['route']);
