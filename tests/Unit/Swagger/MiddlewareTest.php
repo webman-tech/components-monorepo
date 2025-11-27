@@ -1,12 +1,11 @@
 <?php
 
-use WebmanTech\CommonUtils\Request;
 use WebmanTech\CommonUtils\Response;
 use WebmanTech\Swagger\Middleware\HostForbiddenMiddleware;
 
 test('HostForbiddenMiddleware check', function () {
-    $originalRequest = request_create_one();
-    $request = Request::from($originalRequest);
+    $request = request_create_one();
+    $originalRequest = request_get_original($request);
 
     // 仅内网允许
     $middleware = new HostForbiddenMiddleware([

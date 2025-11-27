@@ -13,23 +13,26 @@ test('fromRequest use different method', function () {
     }
 
     $request = request_create_one();
-    $request->setGet('name', 'newNameValue');
+    $originalRequest = request_get_original($request);
+    $originalRequest->setGet('name', 'newNameValue');
     $dto = DTOFromRequestUseDefaultRequestType::fromRequest($request);
     expect($dto->name)->toBe('newNameValue')
         ->and($dto->name2)->toBe('nameValue2');
 
     $request = request_create_one();
-    $request->setData('method', 'POST');
-    $request->setHeader('content-type', 'application/json');
-    $request->setPost('name', 'newNameValue2');
+    $originalRequest = request_get_original($request);
+    $originalRequest->setData('method', 'POST');
+    $originalRequest->setHeader('content-type', 'application/json');
+    $originalRequest->setPost('name', 'newNameValue2');
     $dto = DTOFromRequestUseDefaultRequestType::fromRequest($request);
     expect($dto->name)->toBe('newNameValue2')
         ->and($dto->name2)->toBe('nameValue2');
 
     $request = request_create_one();
-    $request->setData(['method' => 'POST']);
-    $request->setHeader('content-type', 'multipart/form-data');
-    $request->setPost('name', 'newNameValue2');
+    $originalRequest = request_get_original($request);
+    $originalRequest->setData(['method' => 'POST']);
+    $originalRequest->setHeader('content-type', 'multipart/form-data');
+    $originalRequest->setPost('name', 'newNameValue2');
     $dto = DTOFromRequestUseDefaultRequestType::fromRequest($request);
     expect($dto->name)->toBe('newNameValue2')
         ->and($dto->name2)->toBe('nameValue2');
@@ -51,21 +54,22 @@ test('fromRequest with RequestPropertyIn', function () {
     }
 
     $request = request_create_one();
-    $request->setGet([
+    $originalRequest = request_get_original($request);
+    $originalRequest->setGet([
         'name' => 'nameGetValue',
         'name2' => 'name2GetValue',
         'name3' => 'name3GetValue',
         'new_key1' => 'name4GetValue',
         'new_key2' => 'name5GetValue',
     ]);
-    $request->setPost([
+    $originalRequest->setPost([
         'name' => 'namePostValue',
         'name2' => 'name2PostValue',
         'name3' => 'name3PostValue',
         'new_key1' => 'name4PostValue',
         'new_key2' => 'name5PostValue',
     ]);
-    $request->setHeader([
+    $originalRequest->setHeader([
         'name' => 'nameHeaderValue',
         'name2' => 'name2HeaderValue',
         'name3' => 'name3HeaderValue',

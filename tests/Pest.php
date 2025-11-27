@@ -25,7 +25,9 @@
 */
 
 use Webman\Context;
+use WebmanTech\CommonUtils\Request;
 use WebmanTech\CommonUtils\Testing\TestRequest;
+use WebmanTech\CommonUtils\Testing\TestSession;
 
 expect()->extend('toBeOne', function () {
     return $this->toBe(1);
@@ -62,7 +64,14 @@ function fixture_get_require(string $path)
     return require fixture_get_path($path);
 }
 
-function request_create_one(): TestRequest
+function request_create_one(): Request
 {
-    return new TestRequest();
+    TestRequest::clear();
+    TestSession::clear();
+    return Request::getCurrent();
+}
+
+function request_get_original(Request $request): TestRequest
+{
+    return $request->getOriginalRequest();
 }

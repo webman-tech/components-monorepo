@@ -41,9 +41,9 @@ final class Factory
         RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_LOG_CHANNEL, TestLogger::channel(...));
         RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_LANG_GET_LOCALE, TestLang::getLocale(...));
         RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_LANG_SET_LOCALE, TestLang::setLocale(...));
-        RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_REQUEST, fn() => new TestRequest());
+        RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_REQUEST, fn() => TestRequest::instance());
         RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_RESPONSE, fn() => new TestResponse());
-        RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_SESSION, fn() => new TestSession());
+        RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_SESSION, fn() => TestSession::instance());
         RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_ROUTE, fn() => TestRoute::instance());
 
         // 加载 config 配置

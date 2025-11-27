@@ -2,8 +2,8 @@
 
 namespace Tests\Fixtures\Auth;
 
-use Webman\Http\Request;
 use WebmanTech\Auth\Middleware\Authentication;
+use WebmanTech\CommonUtils\Request;
 
 class OptionalAuthentication extends Authentication
 {

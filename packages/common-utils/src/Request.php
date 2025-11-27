@@ -5,9 +5,12 @@ namespace WebmanTech\CommonUtils;
 use Symfony\Component\HttpFoundation\Request as ComponentSymfonyRequest;
 use Webman\Http\Request as ComponentWebmanRequest;
 use WebmanTech\CommonUtils\Exceptions\UnsupportedRuntime;
+use WebmanTech\CommonUtils\Route\RouteObject;
 
 final class Request
 {
+    private const CUSTOM_DATA_KEY = '__request_custom_data';
+
     private mixed $request;
     private bool $symfonyJsonParsed = false;
     private array $symfonyJsonPayload = [];
@@ -272,6 +275,33 @@ final class Request
     }
 
     /**
+     * 获取当前请求上到 Route 对象
+     */
+    public function getRoute(): ?RouteObject
+    {
+        return match (true) {
+            $this->request instanceof ComponentWebmanRequest => $this->request->route(),
+            $this->request instanceof ComponentSymfonyRequest => null,
+            method_exists($this->request, 'getRoute') => $this->request->getRoute(),
+            default => throw new \InvalidArgumentException('Unsupported request type'),
+        };
+    }
+
+    /**
+     * 获取当前请求的 Session 对象
+     */
+    public function getSession(): ?Session
+    {
+        $session = match (true) {
+            $this->request instanceof ComponentWebmanRequest => $this->request->session(),
+            $this->request instanceof ComponentSymfonyRequest => null,
+            method_exists($this->request, 'getSession') => $this->request->getSession(),
+            default => throw new \InvalidArgumentException('Unsupported request type'),
+        };
+        return Session::from($session);
+    }
+
+    /**
      * 修改请求头
      */
     public function withHeaders(array $data): self
@@ -289,6 +319,41 @@ final class Request
         }
 
         return $this;
+    }
+
+    /**
+     * 设置自定义数据
+     */
+    public function withCustomData(array $data = []): self
+    {
+        if ($this->request instanceof ComponentWebmanRequest) {
+            // webman 使用动态变量的形式
+            $value = $this->request->{self::CUSTOM_DATA_KEY} ?? [];
+            $value = array_merge($value, $data);
+            $this->request->{self::CUSTOM_DATA_KEY} = $value;
+        } elseif ($this->request instanceof ComponentSymfonyRequest) {
+            $value = $this->request->attributes->get(self::CUSTOM_DATA_KEY, []);
+            $value = array_merge($value, $data);
+            $this->request->attributes->set(self::CUSTOM_DATA_KEY, $value);
+        } elseif (method_exists($this->request, 'withCustomData')) {
+            $this->request->withCustomData($data);
+        } else {
+            throw new \InvalidArgumentException('Unsupported request type');
+        }
+        return $this;
+    }
+
+    /**
+     * 获取自定义数据
+     */
+    public function getCustomData(string $key): mixed
+    {
+        return match (true) {
+            $this->request instanceof ComponentWebmanRequest => ($this->request->{self::CUSTOM_DATA_KEY} ?? [])[$key] ?? null,
+            $this->request instanceof ComponentSymfonyRequest => $this->request->attributes->get(self::CUSTOM_DATA_KEY, [])[$key] ?? null,
+            method_exists($this->request, 'getCustomData') => $this->request->getCustomData($key),
+            default => throw new \InvalidArgumentException('Unsupported request type'),
+        };
     }
 
     private function symfonyPostForm(string $key): null|string|array|object

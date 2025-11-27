@@ -2,7 +2,9 @@
 
 namespace WebmanTech\CommonUtils;
 
+use Illuminate\Contracts\Session\Session as IlluminateSession;
 use WebmanTech\CommonUtils\Exceptions\UnsupportedRuntime;
+use Workerman\Protocols\Http\Session as WebmanSession;
 
 final readonly class Session
 {
@@ -18,6 +20,13 @@ final readonly class Session
         return new self($session);
     }
 
+    public static function from(mixed $session): self
+    {
+        return $session === null
+            ? self::getCurrent()
+            : new self($session);
+    }
+
     public function __construct(private mixed $session)
     {
     }
@@ -27,16 +36,12 @@ final readonly class Session
      */
     public function get(string $key, mixed $default = null): mixed
     {
-        if ($this->session instanceof \Workerman\Protocols\Http\Session) {
-            return $this->session->get($key, $default);
-        }
-        if ($this->session instanceof \Illuminate\Contracts\Session\Session) {
-            return $this->session->get($key, $default);
-        }
-        if (method_exists($this->session, 'get')) {
-            return $this->session->get($key, $default);
-        }
-        throw new \InvalidArgumentException('session has no method get');
+        return match (true) {
+            $this->session instanceof WebmanSession => $this->session->get($key, $default),
+            $this->session instanceof IlluminateSession => $this->session->get($key, $default),
+            method_exists($this->session, 'get') => $this->session->get($key, $default),
+            default => throw new \InvalidArgumentException('session has no method get'),
+        };
     }
 
     /**
@@ -44,18 +49,21 @@ final readonly class Session
      */
     public function set(string $key, mixed $value): void
     {
-        if ($this->session instanceof \Workerman\Protocols\Http\Session) {
-            $this->session->set($key, $value);
-            return;
-        }
-        if ($this->session instanceof \Illuminate\Contracts\Session\Session) {
-            $this->session->put($key, $value);
-            return;
-        }
-        if (method_exists($this->session, 'set')) {
-            $this->session->set($key, $value);
-            return;
-        }
-        throw new \InvalidArgumentException('session has no method set');
+        match (true) {
+            $this->session instanceof WebmanSession => $this->session->set($key, $value),
+            $this->session instanceof IlluminateSession => $this->session->put($key, $value),
+            method_exists($this->session, 'set') => $this->session->set($key, $value),
+            default => throw new \InvalidArgumentException('session has no method set'),
+        };
+    }
+
+    public function delete(string $key): void
+    {
+        match (true) {
+            $this->session instanceof WebmanSession => $this->session->delete($key),
+            $this->session instanceof IlluminateSession => $this->session->forget($key),
+            method_exists($this->session, 'delete') => $this->session->delete($key),
+            default => throw new \InvalidArgumentException('session has no method delete'),
+        };
     }
 }

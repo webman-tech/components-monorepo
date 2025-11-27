@@ -23,7 +23,7 @@ test('Guard', function () {
         ->and($guard->getId())->toBeNull();
     // 准备认证
     $request = request_create_one();
-    $request->setPost('access-token', User::MOCK_TOKEN);
+    request_get_original($request)->setPost('access-token', User::MOCK_TOKEN);
     // 认证
     $identity = $guard->getAuthenticationMethod()->authenticate($request);
     expect($identity)->toBeInstanceOf(User::class);
@@ -32,7 +32,7 @@ test('Guard', function () {
     expect($guard->isGuest())->toBeFalse()
         ->and($guard->getUser())->toBeInstanceOf(User::class)
         ->and($guard->getId())->toBe(User::MOCK_ID)
-        ->and($request->session()->get(Guard::SESSION_AUTH_ID))->toBeNull(); // 未启用 session 支持
+        ->and($request->getSession()->get(Guard::SESSION_AUTH_ID))->toBeNull(); // 未启用 session 支持
     // 退出登录
     $guard->logout();
     expect($guard->isGuest())->toBeTrue()
@@ -50,16 +50,16 @@ test('Guard 支持 session', function () {
 
     // 准备认证
     $request = request_create_one();
-    $request->setPost('access-token', User::MOCK_TOKEN);
+    request_get_original($request)->setPost('access-token', User::MOCK_TOKEN);
     // 认证
     $identity = $guard->getAuthenticationMethod()->authenticate($request);
     expect($identity)->toBeInstanceOf(User::class);
     // 认证后登录
     $guard->login($identity);
     expect($guard->isGuest())->toBeFalse()
-        ->and($request->session()->get(Guard::SESSION_AUTH_ID))->toBe(User::MOCK_ID); // 可以从 session 中获取 id
+        ->and($request->getSession()->get(Guard::SESSION_AUTH_ID))->toBe(User::MOCK_ID); // 可以从 session 中获取 id
     // 退出登录
     $guard->logout();
     expect($guard->isGuest())->toBeTrue()
-        ->and($request->session()->get(Guard::SESSION_AUTH_ID))->toBeNull(); // 退出登录后同步清除
+        ->and($request->getSession()->get(Guard::SESSION_AUTH_ID))->toBeNull(); // 退出登录后同步清除
 });

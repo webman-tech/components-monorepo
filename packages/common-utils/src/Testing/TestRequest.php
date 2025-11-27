@@ -2,6 +2,9 @@
 
 namespace WebmanTech\CommonUtils\Testing;
 
+use WebmanTech\CommonUtils\Route\RouteObject;
+use WebmanTech\CommonUtils\Session;
+
 final class TestRequest
 {
     private array $data = [
@@ -15,7 +18,23 @@ final class TestRequest
         'postForm' => [],
         'postJson' => [],
         'userIp' => '127.0.0.1',
+        'customData' => [],
     ];
+
+    private static ?self $instance = null;
+
+    public static function instance(): self
+    {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
+    public static function clear(): void
+    {
+        self::$instance = null;
+    }
 
     public function setData(string|array $key, mixed $value = null): void
     {
@@ -162,6 +181,30 @@ final class TestRequest
         }
 
         return $this;
+    }
+
+    public function getRoute(): ?RouteObject
+    {
+        return null;
+    }
+
+    public function getSession(): Session
+    {
+        return Session::getCurrent();
+    }
+
+    public function withCustomData(array $data = []): self
+    {
+        $this->data['customData'] = array_merge($this->data['customData'], $data);
+        return $this;
+    }
+
+    /**
+     * 获取自定义数据
+     */
+    public function getCustomData(string $key): mixed
+    {
+        return $this->data['customData'][$key] ?? null;
     }
 
     private function normalizeKeyedArray(array $values): array
