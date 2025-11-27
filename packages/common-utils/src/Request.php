@@ -110,9 +110,9 @@ final class Request
     {
         $value = match (true) {
             $this->request instanceof ComponentWebmanRequest => $this->request->post($key),
-            $this->request instanceof ComponentSymfonyRequest => null,
+            $this->request instanceof ComponentSymfonyRequest => $this->symfonyPostForm($key),
             method_exists($this->request, 'post') => $this->request->post($key),
-            default => null,
+            default => throw new \InvalidArgumentException('Unsupported request type'),
         };
 
         if ($value !== null) {
@@ -256,6 +256,39 @@ final class Request
             method_exists($this->request, 'getUserIp') => $this->request->getUserIp(),
             default => null,
         };
+    }
+
+    /**
+     * 获取访问的域名
+     */
+    public function getHost(): string
+    {
+        return match (true) {
+            $this->request instanceof ComponentWebmanRequest => $this->request->host(),
+            $this->request instanceof ComponentSymfonyRequest => $this->request->getHost(),
+            method_exists($this->request, 'getHost') => $this->request->getHost(),
+            default => throw new \InvalidArgumentException('Unsupported request type'),
+        };
+    }
+
+    /**
+     * 修改请求头
+     */
+    public function withHeaders(array $data): self
+    {
+        if ($this->request instanceof ComponentWebmanRequest) {
+            foreach ($data as $k => $v) {
+                $this->request->setHeader(strtolower($k), $v);
+            }
+        } else {
+            match (true) {
+                $this->request instanceof ComponentSymfonyRequest => $this->request->headers->add($data),
+                method_exists($this->request, 'withHeaders') => $this->request->withHeaders($data),
+                default => throw new \InvalidArgumentException('Unsupported request type'),
+            };
+        }
+
+        return $this;
     }
 
     private function symfonyPostForm(string $key): null|string|array|object

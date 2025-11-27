@@ -60,12 +60,16 @@ class BaseResponseDTO extends BaseDTO
 
         if ($this->toResponseFormat === 'json') {
             $data = $this->toArray();
-            return Response::make()->sendJson(
-                $data === [] ? new \stdClass() : $data,
-                statusCode: $this->getResponseStatus(),
-                headers: $this->getResponseHeaders(),
-                reasonPhrase: $this->getResponseStatusText(),
-            );
+            if ($data === []) {
+                $data = new \stdClass();
+            }
+            return Response::make()
+                ->withStatus($this->getResponseStatus(), $this->getResponseStatusText())
+                ->withHeaders(array_merge([
+                    'Content-Type' => 'application/json',
+                ], $this->getResponseHeaders()))
+                ->withBody(json_encode($data) ?: '')
+                ->toRaw();
         }
 
         if ($this->toResponseFormat instanceof \Closure) {

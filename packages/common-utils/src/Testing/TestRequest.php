@@ -70,9 +70,7 @@ final class TestRequest
     public function setHeader(string|array $key, mixed $value = null): void
     {
         if (is_array($key)) {
-            foreach ($key as $k => $v) {
-                $this->setHeader($k, $v);
-            }
+            $this->withHeaders($key);
             return;
         }
         $this->data['headers'][strtolower($key)] = $value;
@@ -166,6 +164,20 @@ final class TestRequest
     public function getUserIp(): ?string
     {
         return $this->data['userIp'];
+    }
+
+    public function getHost(): string
+    {
+        return $this->data['headers']['host'] ?? '';
+    }
+
+    public function withHeaders(array $headers): self
+    {
+        foreach ($headers as $key => $value) {
+            $this->setHeader($key, $value);
+        }
+
+        return $this;
     }
 
     private function normalizeKeyedArray(array $values): array
