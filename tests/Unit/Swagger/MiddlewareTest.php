@@ -1,23 +1,12 @@
 <?php
 
-namespace Tests\Unit\Swagger\Integrations;
-
-use Webman\Http\Request;
-use WebmanTech\Swagger\Integrations\Webman\HostForbiddenMiddleware;
+use WebmanTech\CommonUtils\Request;
+use WebmanTech\CommonUtils\Response;
+use WebmanTech\Swagger\Middleware\HostForbiddenMiddleware;
 
 test('HostForbiddenMiddleware check', function () {
-    $body = 'json_key=json_value';
-    $buffer = implode("\r\n", [
-        'POST /demo/123?foo=bar HTTP/1.1',
-        'Host: example.com',
-        'Content-Type: application/x-www-form-urlencoded',
-        'Content-Length: ' . strlen($body),
-        'X-Trace-Id: trace-webman',
-        'Cookie: session=abc; theme=dark',
-        '',
-        $body,
-    ]);
-    $request = new Request($buffer);
+    $originalRequest = request_create_one();
+    $request = Request::from($originalRequest);
 
     // 仅内网允许
     $middleware = new HostForbiddenMiddleware([
@@ -25,12 +14,12 @@ test('HostForbiddenMiddleware check', function () {
         'ip_white_list_intranet' => true,
     ]);
     // 内网
-    $request->setHeader('x-forwarded-for', '192.168.1.1');
-    $response = $middleware->process($request, fn() => response('ok'));
+    $originalRequest->setData('userIp', '192.168.1.1');
+    $response = $middleware->processRequest($request, fn() => Response::make()->withBody('ok'));
     expect($response->getStatusCode())->toBe(200);
     // 外网
-    $request->setHeader('x-forwarded-for', '8.8.8.8');
-    $response = $middleware->process($request, fn() => response('ok'));
+    $originalRequest->setData('userIp', '8.8.8.8');
+    $response = $middleware->processRequest($request, fn() => Response::make()->withBody('ok'));
     expect($response->getStatusCode())->toBe(403);
 
     // 开关关闭的情况下
@@ -39,8 +28,8 @@ test('HostForbiddenMiddleware check', function () {
         'ip_white_list_intranet' => true,
     ]);
     // 外网
-    $request->setHeader('x-forwarded-for', '8.8.8.8');
-    $response = $middleware->process($request, fn() => response('ok'));
+    $originalRequest->setData('userIp', '8.8.8.8');
+    $response = $middleware->processRequest($request, fn() => Response::make()->withBody('ok'));
     expect($response->getStatusCode())->toBe(200);
 
     // ip 白名单允许
@@ -50,11 +39,11 @@ test('HostForbiddenMiddleware check', function () {
         'ip_white_list' => ['8.8.8.8'],
     ]);
     // 内网
-    $request->setHeader('x-forwarded-for', '192.168.1.1');
+    $originalRequest->setData('userIp', '192.168.1.1');
     $response = $middleware->process($request, fn() => response('ok'));
     expect($response->getStatusCode())->toBe(403);
     // 外网
-    $request->setHeader('x-forwarded-for', '8.8.8.8');
+    $originalRequest->setData('userIp', '8.8.8.8');
     $response = $middleware->process($request, fn() => response('ok'));
     expect($response->getStatusCode())->toBe(200);
 
@@ -64,10 +53,10 @@ test('HostForbiddenMiddleware check', function () {
         'ip_white_list_intranet' => null,
         'host_white_list' => ['example.com'],
     ]);
-    $request->setHeader('host', 'example.com');
+    $originalRequest->setHeader('host', 'example.com');
     $response = $middleware->process($request, fn() => response('ok'));
     expect($response->getStatusCode())->toBe(200);
-    $request->setHeader('host', 'a.com');
+    $originalRequest->setHeader('host', 'a.com');
     $response = $middleware->process($request, fn() => response('ok'));
     expect($response->getStatusCode())->toBe(403);
 });
