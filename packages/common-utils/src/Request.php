@@ -12,7 +12,7 @@ final class Request
 {
     public const CUSTOM_DATA_KEY = '__request_custom_data';
 
-    private mixed $request;
+    private object $request;
     private bool $symfonyJsonParsed = false;
     private array $symfonyJsonPayload = [];
 
@@ -34,23 +34,23 @@ final class Request
         return new self($request);
     }
 
-    public static function from(mixed $request): self
+    public static function from(object|null $request): self
     {
         return match (true) {
             $request instanceof self => $request,
-            $request === null => self::getCurrent(),
+            $request === null => self::getCurrent() ?? throw new \InvalidArgumentException('Request is null'),
             default => new self($request),
         };
     }
 
-    public function __construct(mixed $request)
+    public function __construct(object $request)
     {
         $this->request = $request instanceof self
             ? $request->getRaw()
             : $request;
     }
 
-    public function getRaw(): mixed
+    public function getRaw(): object
     {
         return $this->request;
     }
@@ -60,10 +60,11 @@ final class Request
      */
     public function getMethod(): string
     {
+        $request = $this->request;
         $value = match (true) {
-            $this->request instanceof WebmanRequest => $this->request->method(),
-            $this->request instanceof SymfonyRequest => $this->request->getMethod(),
-            method_exists($this->request, 'getMethod') => $this->request->getMethod(),
+            $request instanceof WebmanRequest => $request->method(),
+            $request instanceof SymfonyRequest => $request->getMethod(),
+            method_exists($request, 'getMethod') => $request->getMethod(),
             default => throw new \InvalidArgumentException('Unsupported request type'),
         };
 
@@ -75,10 +76,11 @@ final class Request
      */
     public function getPath(): string
     {
+        $request = $this->request;
         $path = match (true) {
-            $this->request instanceof WebmanRequest => $this->request->path(),
-            $this->request instanceof SymfonyRequest => $this->request->getPathInfo(),
-            method_exists($this->request, 'getPath') => $this->request->getPath(),
+            $request instanceof WebmanRequest => $request->path(),
+            $request instanceof SymfonyRequest => $request->getPathInfo(),
+            method_exists($request, 'getPath') => $request->getPath(),
             default => throw new \InvalidArgumentException('Unsupported request type'),
         };
 
@@ -94,8 +96,9 @@ final class Request
      */
     public function getPathPrefix(): string
     {
+        $request = $this->request;
         return match (true) {
-            method_exists($this->request, 'getPrefix') => $this->request->getPrefix(),
+            method_exists($request, 'getPrefix') => $request->getPrefix(),
             default => $this->header('x-forwarded-prefix') ?? '',
         };
     }
@@ -114,10 +117,11 @@ final class Request
      */
     public function get(string $key): null|string|array
     {
+        $request = $this->request;
         return match (true) {
-            $this->request instanceof WebmanRequest => $this->request->get($key),
-            $this->request instanceof SymfonyRequest => $this->request->query->get($key),
-            method_exists($this->request, 'get') => $this->request->get($key),
+            $request instanceof WebmanRequest => $request->get($key),
+            $request instanceof SymfonyRequest => $request->query->get($key),
+            method_exists($request, 'get') => $request->get($key),
             default => throw new \InvalidArgumentException('Unsupported request type'),
         };
     }
@@ -125,12 +129,13 @@ final class Request
     /**
      * 获取 post 中的某个参数，包含 form 和 json 中的
      */
-    public function post(string $key): null|string|array|object
+    public function post(string $key): mixed
     {
+        $request = $this->request;
         $value = match (true) {
-            $this->request instanceof WebmanRequest => $this->request->post($key),
-            $this->request instanceof SymfonyRequest => $this->symfonyPostForm($key),
-            method_exists($this->request, 'post') => $this->request->post($key),
+            $request instanceof WebmanRequest => $request->post($key),
+            $request instanceof SymfonyRequest => $this->symfonyPostForm($request, $key),
+            method_exists($request, 'post') => $request->post($key),
             default => throw new \InvalidArgumentException('Unsupported request type'),
         };
 
@@ -146,10 +151,11 @@ final class Request
      */
     public function path(string $key): ?string
     {
+        $request = $this->request;
         $value = match (true) {
-            $this->request instanceof WebmanRequest => $this->request->route?->param($key),
-            $this->request instanceof SymfonyRequest => $this->request->attributes->get('_route_params', [])[$key] ?? null,
-            method_exists($this->request, 'path') => $this->request->path($key),
+            $request instanceof WebmanRequest => $request->route?->param($key),
+            $request instanceof SymfonyRequest => $request->attributes->get('_route_params', [])[$key] ?? null,
+            method_exists($request, 'path') => $request->path($key),
             default => throw new \InvalidArgumentException('Unsupported request type'),
         };
 
@@ -161,10 +167,11 @@ final class Request
      */
     public function header(string $key): ?string
     {
+        $request = $this->request;
         $value = match (true) {
-            $this->request instanceof WebmanRequest => $this->request->header($key),
-            $this->request instanceof SymfonyRequest => $this->request->headers->get($key),
-            method_exists($this->request, 'header') => $this->request->header($key),
+            $request instanceof WebmanRequest => $request->header($key),
+            $request instanceof SymfonyRequest => $request->headers->get($key),
+            method_exists($request, 'header') => $request->header($key),
             default => throw new \InvalidArgumentException('Unsupported request type'),
         };
 
@@ -176,10 +183,11 @@ final class Request
      */
     public function cookie(string $name): ?string
     {
+        $request = $this->request;
         $value = match (true) {
-            $this->request instanceof WebmanRequest => $this->request->cookie($name),
-            $this->request instanceof SymfonyRequest => $this->request->cookies->get($name),
-            method_exists($this->request, 'cookie') => $this->request->cookie($name),
+            $request instanceof WebmanRequest => $request->cookie($name),
+            $request instanceof SymfonyRequest => $request->cookies->get($name),
+            method_exists($request, 'cookie') => $request->cookie($name),
             default => throw new \InvalidArgumentException('Unsupported request type'),
         };
 
@@ -191,10 +199,11 @@ final class Request
      */
     public function rawBody(): string
     {
+        $request = $this->request;
         return match (true) {
-            $this->request instanceof WebmanRequest => $this->request->rawBody(),
-            $this->request instanceof SymfonyRequest => ($this->request->getContent() ?: ''),
-            method_exists($this->request, 'rawBody') => $this->request->rawBody(),
+            $request instanceof WebmanRequest => $request->rawBody(),
+            $request instanceof SymfonyRequest => ($request->getContent() ?: ''),
+            method_exists($request, 'rawBody') => $request->rawBody(),
             default => throw new \InvalidArgumentException('Unsupported request type'),
         };
     }
@@ -202,12 +211,13 @@ final class Request
     /**
      * 获取 post form 上的某个参数
      */
-    public function postForm(string $key): null|string|array|object
+    public function postForm(string $key): mixed
     {
+        $request = $this->request;
         return match (true) {
-            $this->request instanceof WebmanRequest => $this->request->post($key) ?? $this->request->file($key),
-            $this->request instanceof SymfonyRequest => $this->symfonyPostForm($key),
-            method_exists($this->request, 'postForm') => $this->request->postForm($key),
+            $request instanceof WebmanRequest => $request->post($key) ?? $request->file($key),
+            $request instanceof SymfonyRequest => $this->symfonyPostForm($request, $key),
+            method_exists($request, 'postForm') => $request->postForm($key),
             default => throw new \InvalidArgumentException('Unsupported request type'),
         };
     }
@@ -215,7 +225,7 @@ final class Request
     /**
      * 获取 post json 上的某个参数
      */
-    public function postJson(string $key): null|string|int|float|bool|array
+    public function postJson(string $key): mixed
     {
         $payload = $this->allPostJson();
 
@@ -228,10 +238,11 @@ final class Request
      */
     public function allGet(): array
     {
+        $request = $this->request;
         return match (true) {
-            $this->request instanceof WebmanRequest => $this->request->get() ?? [],
-            $this->request instanceof SymfonyRequest => $this->request->query->all(),
-            method_exists($this->request, 'allGet') => $this->request->allGet(),
+            $request instanceof WebmanRequest => $request->get() ?? [],
+            $request instanceof SymfonyRequest => $request->query->all(),
+            method_exists($request, 'allGet') => $request->allGet(),
             default => throw new \InvalidArgumentException('Unsupported request type'),
         };
     }
@@ -242,10 +253,11 @@ final class Request
      */
     public function allPostForm(): array
     {
+        $request = $this->request;
         return match (true) {
-            $this->request instanceof WebmanRequest => $this->mergeWebmanPostForm(),
-            $this->request instanceof SymfonyRequest => $this->mergeSymfonyPostForm(),
-            method_exists($this->request, 'allPostForm') => $this->request->allPostForm(),
+            $request instanceof WebmanRequest => $this->mergeWebmanPostForm($request),
+            $request instanceof SymfonyRequest => $this->mergeSymfonyPostForm($request),
+            method_exists($request, 'allPostForm') => $request->allPostForm(),
             default => throw new \InvalidArgumentException('Unsupported request type'),
         };
     }
@@ -256,10 +268,11 @@ final class Request
      */
     public function allPostJson(): array
     {
+        $request = $this->request;
         return match (true) {
-            $this->request instanceof WebmanRequest => $this->request->post() ?? [],
-            $this->request instanceof SymfonyRequest => $this->symfonyJsonBody(),
-            method_exists($this->request, 'allPostJson') => $this->request->allPostJson(),
+            $request instanceof WebmanRequest => $request->post() ?? [],
+            $request instanceof SymfonyRequest => $this->symfonyJsonBody($request),
+            method_exists($request, 'allPostJson') => $request->allPostJson(),
             default => throw new \InvalidArgumentException('Unsupported request type'),
         };
     }
@@ -269,10 +282,11 @@ final class Request
      */
     public function getUserIp(): ?string
     {
+        $request = $this->request;
         return match (true) {
-            $this->request instanceof WebmanRequest => $this->request->getRealIp(false),
-            $this->request instanceof SymfonyRequest => $this->symfonyUserIp(),
-            method_exists($this->request, 'getUserIp') => $this->request->getUserIp(),
+            $request instanceof WebmanRequest => $request->getRealIp(false),
+            $request instanceof SymfonyRequest => $this->symfonyUserIp($request),
+            method_exists($request, 'getUserIp') => $request->getUserIp(),
             default => null,
         };
     }
@@ -282,10 +296,11 @@ final class Request
      */
     public function getHost(): string
     {
+        $request = $this->request;
         return match (true) {
-            $this->request instanceof WebmanRequest => $this->request->host(),
-            $this->request instanceof SymfonyRequest => $this->request->getHost(),
-            method_exists($this->request, 'getHost') => $this->request->getHost(),
+            $request instanceof WebmanRequest => $request->host(),
+            $request instanceof SymfonyRequest => $request->getHost(),
+            method_exists($request, 'getHost') => $request->getHost(),
             default => throw new \InvalidArgumentException('Unsupported request type'),
         };
     }
@@ -295,9 +310,10 @@ final class Request
      */
     public function getRoute(): ?RouteObject
     {
+        $request = $this->request;
         $route = match (true) {
-            $this->request instanceof WebmanRequest => $this->request->route,
-            method_exists($this->request, 'getRoute') => $this->request->getRoute(),
+            $request instanceof WebmanRequest => $request->route,
+            method_exists($request, 'getRoute') => $request->getRoute(),
             default => throw new \InvalidArgumentException('Unsupported request type'),
         };
         return $route ? RouteObject::from($route) : null;
@@ -308,11 +324,12 @@ final class Request
      */
     public function getSession(): ?Session
     {
+        $request = $this->request;
         $session = match (true) {
-            $this->request instanceof WebmanRequest => $this->request->session(),
-            $this->request instanceof SymfonyRequest => $this->request->getSession(),
-            $this->request instanceof LaravelRequest => $this->request->session(),
-            method_exists($this->request, 'getSession') => $this->request->getSession(),
+            $request instanceof WebmanRequest => $request->session(),
+            $request instanceof LaravelRequest => $request->session(),
+            $request instanceof SymfonyRequest => $request->getSession(),
+            method_exists($request, 'getSession') => $request->getSession(),
             default => throw new \InvalidArgumentException('Unsupported request type'),
         };
         return $session ? Session::from($session) : null;
@@ -323,14 +340,15 @@ final class Request
      */
     public function withHeaders(array $data): self
     {
-        if ($this->request instanceof WebmanRequest) {
+        $request = $this->request;
+        if ($request instanceof WebmanRequest) {
             foreach ($data as $k => $v) {
-                $this->request->setHeader(strtolower($k), $v);
+                $request->setHeader(strtolower($k), $v);
             }
         } else {
             match (true) {
-                $this->request instanceof SymfonyRequest => $this->request->headers->add($data),
-                method_exists($this->request, 'withHeaders') => $this->request->withHeaders($data),
+                $request instanceof SymfonyRequest => $request->headers->add($data),
+                method_exists($request, 'withHeaders') => $request->withHeaders($data),
                 default => throw new \InvalidArgumentException('Unsupported request type'),
             };
         }
@@ -343,17 +361,19 @@ final class Request
      */
     public function withCustomData(array $data = []): self
     {
-        if ($this->request instanceof WebmanRequest) {
+        $request = $this->request;
+        if ($request instanceof WebmanRequest) {
             // webman 使用动态变量的形式
-            $value = $this->request->{self::CUSTOM_DATA_KEY} ?? [];
+            $value = $request->{self::CUSTOM_DATA_KEY} ?? [];
             $value = array_merge($value, $data);
-            $this->request->{self::CUSTOM_DATA_KEY} = $value;
-        } elseif ($this->request instanceof SymfonyRequest) {
-            $value = $this->request->attributes->get(self::CUSTOM_DATA_KEY, []);
+            /** @phpstan-ignore-next-line */
+            $request->{self::CUSTOM_DATA_KEY} = $value;
+        } elseif ($request instanceof SymfonyRequest) {
+            $value = (array)$request->attributes->get(self::CUSTOM_DATA_KEY, []);
             $value = array_merge($value, $data);
-            $this->request->attributes->set(self::CUSTOM_DATA_KEY, $value);
-        } elseif (method_exists($this->request, 'withCustomData')) {
-            $this->request->withCustomData($data);
+            $request->attributes->set(self::CUSTOM_DATA_KEY, $value);
+        } elseif (method_exists($request, 'withCustomData')) {
+            $request->withCustomData($data);
         } else {
             throw new \InvalidArgumentException('Unsupported request type');
         }
@@ -365,49 +385,45 @@ final class Request
      */
     public function getCustomData(string $key): mixed
     {
+        $request = $this->request;
         return match (true) {
-            $this->request instanceof WebmanRequest => ($this->request->{self::CUSTOM_DATA_KEY} ?? [])[$key] ?? null,
-            $this->request instanceof SymfonyRequest => $this->request->attributes->get(self::CUSTOM_DATA_KEY, [])[$key] ?? null,
-            method_exists($this->request, 'getCustomData') => $this->request->getCustomData($key),
+            $request instanceof WebmanRequest => ($request->{self::CUSTOM_DATA_KEY} ?? [])[$key] ?? null,
+            $request instanceof SymfonyRequest => $request->attributes->get(self::CUSTOM_DATA_KEY, [])[$key] ?? null,
+            method_exists($request, 'getCustomData') => $request->getCustomData($key),
             default => throw new \InvalidArgumentException('Unsupported request type'),
         };
     }
 
-    private function symfonyPostForm(string $key): null|string|array|object
+    private function symfonyPostForm(SymfonyRequest $request, string $key): null|string|array|object
     {
-        /** @phpstan-ignore-next-line */
-        $post = $this->request->request->all();
+        $post = $request->request->all();
         if (array_key_exists($key, $post)) {
             return $post[$key];
         }
-        /** @phpstan-ignore-next-line */
-        $files = $this->request->files->all();
+        $files = $request->files->all();
 
         return $files[$key] ?? null;
     }
 
-    private function mergeWebmanPostForm(): array
+    private function mergeWebmanPostForm(WebmanRequest $request): array
     {
-        $post = $this->request->post() ?? [];
-        $files = $this->request->file() ?? [];
+        $post = (array)$request->post();
+        $files = (array)$request->file();
 
         return array_merge($post, $files);
     }
 
-    private function mergeSymfonyPostForm(): array
+    private function mergeSymfonyPostForm(SymfonyRequest $request): array
     {
         /** @phpstan-ignore-next-line */
         return array_merge(
-            $this->request->request->all(),
-            $this->request->files->all(),
+            $request->request->all(),
+            $request->files->all(),
         );
     }
 
-    private function symfonyJsonBody(): array
+    private function symfonyJsonBody(SymfonyRequest $request): array
     {
-        if (!$this->request instanceof SymfonyRequest) {
-            return [];
-        }
         if ($this->symfonyJsonParsed) {
             return $this->symfonyJsonPayload;
         }
@@ -417,8 +433,8 @@ final class Request
         if ($contentType === '' || !str_contains($contentType, 'json')) {
             return $this->symfonyJsonPayload;
         }
-        $content = $this->request->getContent();
-        if ($content === false || $content === '') {
+        $content = $request->getContent();
+        if ($content === '') {
             return $this->symfonyJsonPayload;
         }
         $decoded = json_decode($content, true);
@@ -429,7 +445,7 @@ final class Request
         return $this->symfonyJsonPayload;
     }
 
-    private function symfonyUserIp(): string
+    private function symfonyUserIp(SymfonyRequest $request): string
     {
         $originalProxies = SymfonyRequest::getTrustedProxies();
         $originalHeaderSet = SymfonyRequest::getTrustedHeaderSet();
@@ -440,8 +456,9 @@ final class Request
         );
 
         try {
-            $ip = $this->request->getClientIp();
+            $ip = $request->getClientIp();
         } finally {
+            /** @phpstan-ignore-next-line */
             SymfonyRequest::setTrustedProxies($originalProxies, $originalHeaderSet);
         }
 

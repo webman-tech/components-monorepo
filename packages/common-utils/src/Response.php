@@ -20,7 +20,7 @@ final readonly class Response
         return new self($response);
     }
 
-    public static function from(mixed $response): self
+    public static function from(object|null $response): self
     {
         return match (true) {
             $response instanceof self => $response,
@@ -29,14 +29,14 @@ final readonly class Response
         };
     }
 
-    public function __construct(private mixed $response)
+    public function __construct(private object $response)
     {
     }
 
     /**
      * 获取原始响应对象
      */
-    public function getRaw(): mixed
+    public function getRaw(): object
     {
         return $this->response;
     }
@@ -46,10 +46,11 @@ final readonly class Response
      */
     public function withStatus(int $statusCode, ?string $reasonPhrase = null): self
     {
+        $response = $this->response;
         match (true) {
-            $this->response instanceof WebmanResponse => $this->response->withStatus($statusCode, $reasonPhrase),
-            $this->response instanceof SymfonyResponse => $this->response->setStatusCode($statusCode, $reasonPhrase),
-            method_exists($this->response, 'withStatus') => $this->response->withStatus($statusCode, $reasonPhrase),
+            $response instanceof WebmanResponse => $response->withStatus($statusCode, $reasonPhrase),
+            $response instanceof SymfonyResponse => $response->setStatusCode($statusCode, $reasonPhrase),
+            method_exists($response, 'withStatus') => $response->withStatus($statusCode, $reasonPhrase),
             default => throw new \InvalidArgumentException('Unsupported response type'),
         };
         return $this;
@@ -60,10 +61,11 @@ final readonly class Response
      */
     public function withHeaders(array $headers): self
     {
+        $response = $this->response;
         match (true) {
-            $this->response instanceof WebmanResponse => $this->response->withHeaders($headers),
-            $this->response instanceof SymfonyResponse => $this->response->headers->add($headers),
-            method_exists($this->response, 'withHeaders') => $this->response->withHeaders($headers),
+            $response instanceof WebmanResponse => $response->withHeaders($headers),
+            $response instanceof SymfonyResponse => $response->headers->add($headers),
+            method_exists($response, 'withHeaders') => $response->withHeaders($headers),
             default => throw new \InvalidArgumentException('Unsupported response type'),
         };
         return $this;
@@ -74,10 +76,11 @@ final readonly class Response
      */
     public function withBody(string $content): self
     {
+        $response = $this->response;
         match (true) {
-            $this->response instanceof WebmanResponse => $this->response->withBody($content),
-            $this->response instanceof SymfonyResponse => $this->response->setContent($content),
-            method_exists($this->response, 'withBody') => $this->response->withBody($content),
+            $response instanceof WebmanResponse => $response->withBody($content),
+            $response instanceof SymfonyResponse => $response->setContent($content),
+            method_exists($response, 'withBody') => $response->withBody($content),
             default => throw new \InvalidArgumentException('Unsupported response type'),
         };
         return $this;
@@ -88,10 +91,11 @@ final readonly class Response
      */
     public function getStatusCode(): int
     {
+        $response = $this->response;
         return match (true) {
-            $this->response instanceof WebmanResponse => $this->response->getStatusCode(),
-            $this->response instanceof SymfonyResponse => $this->response->getStatusCode(),
-            method_exists($this->response, 'getStatusCode') => $this->response->getStatusCode(),
+            $response instanceof WebmanResponse => $response->getStatusCode(),
+            $response instanceof SymfonyResponse => $response->getStatusCode(),
+            method_exists($response, 'getStatusCode') => $response->getStatusCode(),
             default => throw new \InvalidArgumentException('Unsupported response type'),
         };
     }
@@ -101,10 +105,11 @@ final readonly class Response
      */
     public function getHeader(string $key, mixed $default = null): ?string
     {
+        $response = $this->response;
         return match (true) {
-            $this->response instanceof WebmanResponse => $this->response->getHeader($key, $default),
-            $this->response instanceof SymfonyResponse => $this->response->headers->get($key, $default),
-            method_exists($this->response, 'getHeader') => $this->response->getHeader($key, $default),
+            $response instanceof WebmanResponse => $response->getHeader($key) ?? $default,
+            $response instanceof SymfonyResponse => $response->headers->get($key, $default),
+            method_exists($response, 'getHeader') => $response->getHeader($key, $default),
             default => throw new \InvalidArgumentException('Unsupported response type'),
         };
     }
@@ -114,10 +119,11 @@ final readonly class Response
      */
     public function getBody(): string
     {
+        $response = $this->response;
         return match (true) {
-            $this->response instanceof WebmanResponse => $this->response->rawBody(),
-            $this->response instanceof SymfonyResponse => $this->response->getContent(),
-            method_exists($this->response, 'getBody') => $this->response->getBody(),
+            $response instanceof WebmanResponse => $response->rawBody(),
+            $response instanceof SymfonyResponse => $response->getContent(),
+            method_exists($response, 'getBody') => $response->getBody(),
             default => throw new \InvalidArgumentException('Unsupported response type'),
         };
     }

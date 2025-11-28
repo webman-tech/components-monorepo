@@ -116,7 +116,7 @@ final class TestRequest
         return $query[$key] ?? null;
     }
 
-    public function post(string $key): null|string|array|object
+    public function post(string $key): mixed
     {
         return $this->postForm($key) ?? $this->postJson($key);
     }
@@ -150,14 +150,14 @@ final class TestRequest
         return $this->data['rawBody'];
     }
 
-    public function postForm(string $key): null|string|array|object
+    public function postForm(string $key): mixed
     {
         $post = $this->data['postForm'];
 
         return $post[$key] ?? null;
     }
 
-    public function postJson(string $key): null|string|int|float|bool|array
+    public function postJson(string $key): mixed
     {
         $json = $this->data['postJson'];
 

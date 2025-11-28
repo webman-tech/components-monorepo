@@ -23,7 +23,7 @@ final readonly class Container
         return new self($container);
     }
 
-    public static function from(mixed $container): self
+    public static function from(object|null $container): self
     {
         return match (true) {
             $container instanceof self => $container,
@@ -32,11 +32,11 @@ final readonly class Container
         };
     }
 
-    public function __construct(private mixed $container)
+    public function __construct(private object $container)
     {
     }
 
-    public function getRaw(): mixed
+    public function getRaw(): object
     {
         return $this->container;
     }
@@ -49,10 +49,11 @@ final readonly class Container
      */
     public function get(string $name): mixed
     {
+        $container = $this->container;
         return match (true) {
-            $this->container instanceof WebmanContainer => $this->container->get($name),
-            $this->container instanceof IlluminateContainer => $this->container->get($name),
-            method_exists($this->container, 'get') => $this->container->get($name),
+            $container instanceof WebmanContainer => $container->get($name),
+            $container instanceof IlluminateContainer => $container->get($name),
+            method_exists($container, 'get') => $container->get($name),
             default => throw new \InvalidArgumentException('Unsupported container type'),
         };
     }
@@ -64,10 +65,11 @@ final readonly class Container
      */
     public function has(string $name): bool
     {
+        $container = $this->container;
         return match (true) {
-            $this->container instanceof WebmanContainer => $this->container->has($name),
-            $this->container instanceof IlluminateContainer => $this->container->has($name),
-            method_exists($this->container, 'has') => $this->container->has($name),
+            $container instanceof WebmanContainer => $container->has($name),
+            $container instanceof IlluminateContainer => $container->has($name),
+            method_exists($container, 'has') => $container->has($name),
             default => throw new \InvalidArgumentException('Unsupported container type'),
         };
     }
@@ -81,10 +83,11 @@ final readonly class Container
      */
     public function make(string $name, array $parameters = []): mixed
     {
+        $container = $this->container;
         return match (true) {
-            $this->container instanceof WebmanContainer => $this->container->make($name, $parameters),
-            $this->container instanceof IlluminateContainer => $this->container->make($name, $parameters),
-            method_exists($this->container, 'make') => $this->container->make($name, $parameters),
+            $container instanceof WebmanContainer => $container->make($name, $parameters),
+            $container instanceof IlluminateContainer => $container->make($name, $parameters),
+            method_exists($container, 'make') => $container->make($name, $parameters),
             default => throw new \InvalidArgumentException('Unsupported container type'),
         };
     }

@@ -5,6 +5,7 @@ parameters:
         - packages
     stubFiles:
         - phpstan/stubs/OpenApi/Annotations.stub
+        - phpstan/stubs/Webman/Http.stub
     excludePaths:
         - tests
         - runtime

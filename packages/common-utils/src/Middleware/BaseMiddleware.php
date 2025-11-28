@@ -16,7 +16,11 @@ abstract class BaseMiddleware
         $request = Request::from($request);
 
         $response = $this->processRequest($request, function (Request $request) use ($handler): Response {
-            $rawResponse = $handler($request->getRaw());
+            if (is_callable($handler)) {
+                $rawResponse = $handler($request->getRaw());
+            } else {
+                throw new \InvalidArgumentException('Middleware handler must be callable');
+            }
             return Response::from($rawResponse);
         });
 

@@ -13,6 +13,7 @@ final class ClearableRoute extends Route
         self::$allRoutes = [];
         self::$nameList = [];
 
+        /** @phpstan-ignore-next-line */
         static::$dispatcher = simpleDispatcher(function (RouteCollector $route) {
             Route::setCollector($route);
         });

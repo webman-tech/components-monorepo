@@ -28,7 +28,7 @@ final readonly class Route
                 TestRoute::clear();
                 return;
             }
-            if (method_exists($route, 'clear')) {
+            if (is_object($route) && method_exists($route, 'clear')) {
                 $route->clear();
                 return;
             }
@@ -39,11 +39,11 @@ final readonly class Route
         throw new \InvalidArgumentException('Unsupported route type');
     }
 
-    public function __construct(private mixed $route = null)
+    public function __construct(private object|null $route = null)
     {
     }
 
-    public function getRaw(): mixed
+    public function getRaw(): object|null
     {
         return $this->route;
     }
@@ -55,7 +55,7 @@ final readonly class Route
     {
         match (true) {
             Runtime::isWebman() => $this->addWebmanRoute($item),
-            $this->isRouteHasMethod('addRoute') => $this->route->addRoute($item),
+            is_object($this->route) && method_exists($this->route, 'addRoute') => $this->route->addRoute($item),
             default => throw new \InvalidArgumentException('Unsupported route type'),
         };
     }
@@ -67,7 +67,7 @@ final readonly class Route
     {
         $route = match (true) {
             Runtime::isWebman() => WebmanRoute::getByName($name),
-            $this->isRouteHasMethod('getRouteByName') => $this->route->getRouteByName($name),
+            is_object($this->route) && method_exists($this->route, 'getRouteByName') => $this->route->getRouteByName($name),
             default => throw new \InvalidArgumentException('Unsupported route type'),
         };
         return RouteObject::from($route);
@@ -81,7 +81,7 @@ final readonly class Route
     {
         $routes = match (true) {
             Runtime::isWebman() => WebmanRoute::getRoutes(),
-            $this->isRouteHasMethod('getRoutes') => $this->route->getRoutes(),
+            is_object($this->route) && method_exists($this->route, 'getRoutes') => $this->route->getRoutes(),
             default => throw new \InvalidArgumentException('Unsupported route type'),
         };
         return array_map(fn($route) => RouteObject::from($route), $routes);
@@ -96,14 +96,5 @@ final readonly class Route
         if ($item->getMiddlewares() !== null) {
             $webmanRoute->middleware($item->getMiddlewares());
         }
-    }
-
-    private function isRouteHasMethod(string $method): bool
-    {
-        if (!is_object($this->route)) {
-            return false;
-        }
-
-        return method_exists($this->route, $method);
     }
 }

@@ -27,7 +27,7 @@ final class RouteObject
     }
 
     private array $methods;
-    private mixed $fromRoute = null;
+    private object|null $fromRoute = null;
 
     public function __construct(
         string|array             $methods,
@@ -51,7 +51,7 @@ final class RouteObject
         return $this->fromRoute;
     }
 
-    public function getMethods()
+    public function getMethods(): array
     {
         return $this->methods;
     }
@@ -81,25 +81,20 @@ final class RouteObject
      */
     public function getUrl(array $params = [], bool $appendPrefix = false): ?string
     {
+        $fromRoute = $this->fromRoute;
         $url = match (true) {
-            $this->fromRoute instanceof WebmanRouteObject => $this->fromRoute->url($params),
-            $this->isRouteHasMethod('getUrl') => $this->fromRoute->getUrl($params),
+            $fromRoute instanceof WebmanRouteObject => $fromRoute->url($params),
+            is_object($fromRoute) && method_exists($fromRoute, 'getUrl') => $fromRoute->getUrl($params),
             default => null,
         };
+        if ($url === null) {
+            return null;
+        }
         if ($appendPrefix && ($request = Request::getCurrent())) {
             if ($prefix = $request->getPathPrefix()) {
                 $url = rtrim($prefix, '/') . '/' . ltrim($url, '/');
             }
         }
         return $url;
-    }
-
-    private function isRouteHasMethod(string $method): bool
-    {
-        if (!is_object($this->fromRoute)) {
-            return false;
-        }
-
-        return method_exists($this->fromRoute, $method);
     }
 }
