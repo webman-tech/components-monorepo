@@ -22,3 +22,17 @@ test('mask sensitive fields in non-structured payload', function () {
 
     expect($masked)->toBe('[Contain Sensitive password]');
 });
+
+test('mask sensitive fields with custom replacement', function () {
+    $content = '{"secret":"abc"}';
+    $masked = StringHelper::maskSensitiveFields($content, ['secret'], '[redacted]');
+
+    expect($masked)->toBe('{"secret":"[redacted]"}');
+});
+
+test('limit helper handles short and long strings', function () {
+    expect(StringHelper::limit('short', 10))->toBe('short');
+
+    $long = 'abcdefghijklmnopqrstuvwxyz';
+    expect(StringHelper::limit($long, 5))->toBe('abcde...');
+});

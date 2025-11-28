@@ -189,6 +189,30 @@ test('request query and body logging options', function () {
         ->and(array_key_exists('body', $lastContext))->toBeFalse();
 });
 
+test('form request body masking', function () {
+    [$message, $clock] = createHttpRequestMessage([
+        'logMinTimeMS' => 0,
+        'logRequestBodyLimitSize' => 100,
+    ]);
+    $message->appendLogRequestBodySensitive('token');
+
+    $formBody = 'password=123456&token=abc&name=neo';
+    $request = (new TestRequest())
+        ->setData('method', 'POST')
+        ->setData('path', '/form')
+        ->setHeader('content-type', 'application/x-www-form-urlencoded')
+        ->setHeader('content-length', (string)strlen($formBody))
+        ->setData('rawBody', $formBody);
+
+    $message->markRequestStart($request);
+    $clock->sleep(0.2);
+    $message->markResponseEnd((new TestResponse())->withStatus(200));
+
+    $logs = TestLogger::channel('httpRequest')->getAll();
+    expect($logs)->toHaveCount(1)
+        ->and($logs[0]['context']['body'])->toBe('password=***&token=***&name=neo');
+});
+
 /**
  * @return array{0: HttpRequestMessage, 1: MockClock}
  */
