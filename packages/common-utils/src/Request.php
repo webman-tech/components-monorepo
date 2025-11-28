@@ -90,6 +90,17 @@ final class Request
     }
 
     /**
+     * 获取请求的前缀
+     */
+    public function getPathPrefix(): string
+    {
+        return match (true) {
+            method_exists($this->request, 'getPrefix') => $this->request->getPrefix(),
+            default => $this->header('x-forwarded-prefix') ?? '',
+        };
+    }
+
+    /**
      * 获取请求类型，全部转为小写
      */
     public function getContentType(): string

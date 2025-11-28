@@ -186,7 +186,9 @@ $route->addRoute(new RouteObject(
     middlewares: ['auth', 'throttle:60,1'],
 ));
 
-$detailUrl = $route->getRouteByName('users.detail')->getUrl(['id' => 1]); // Webman 环境下可生成 /users/1
+$item = $route->getRouteByName('users.detail')
+$detailUrl = $item->getUrl(['id' => 1]); // Webman 环境下可生成 /users/1
+$detailUrl = $item->getUrl(['id' => 1], appendPrefix: true); // 如果项目在二级目录下，可以开启该配置，Webman 环境下可生成 /{YourPrefix}/users/1
 ```
 
 ### 加强版 env 管理

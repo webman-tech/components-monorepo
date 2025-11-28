@@ -3,6 +3,7 @@
 namespace WebmanTech\CommonUtils\Route;
 
 use Webman\Route\Route as WebmanRouteObject;
+use WebmanTech\CommonUtils\Request;
 
 final class RouteObject
 {
@@ -78,13 +79,19 @@ final class RouteObject
     /**
      * 获取 url
      */
-    public function getUrl(array $params = []): ?string
+    public function getUrl(array $params = [], bool $appendPrefix = false): ?string
     {
-        return match (true) {
+        $url = match (true) {
             $this->fromRoute instanceof WebmanRouteObject => $this->fromRoute->url($params),
             $this->isRouteHasMethod('getUrl') => $this->fromRoute->getUrl($params),
             default => null,
         };
+        if ($appendPrefix && ($request = Request::getCurrent())) {
+            if ($prefix = $request->getPathPrefix()) {
+                $url = rtrim($prefix, '/') . '/' . ltrim($url, '/');
+            }
+        }
+        return $url;
     }
 
     private function isRouteHasMethod(string $method): bool

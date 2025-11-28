@@ -26,6 +26,7 @@ describe('different adapter test', function () {
         'Host' => 'api.example.com',
         'Content-Type' => 'application/json',
         'X-Trace-Id' => 'trace-shared',
+        'X-Forwarded-Prefix' => '/demo-prefix',
     ];
     $cookies = ['token' => 'abc'];
     $host = 'api.example.com';
@@ -41,6 +42,7 @@ describe('different adapter test', function () {
         'Content-Length: ' . strlen($rawBody),
         'X-Trace-Id: ' . $headers['X-Trace-Id'],
         'Cookie: token=' . $cookies['token'],
+        'X-Forwarded-Prefix: ' . $headers['X-Forwarded-Prefix'],
         'X-Forwarded-For: ' . $expectedUserIp . ', 10.0.0.1',
         '',
         $rawBody,
@@ -64,6 +66,7 @@ describe('different adapter test', function () {
         'HTTP_HOST' => $host,
         'HTTP_CONTENT_TYPE' => $headers['Content-Type'],
         'HTTP_X_TRACE_ID' => $headers['X-Trace-Id'],
+        'HTTP_X_FORWARDED_PREFIX' => $headers['X-Forwarded-Prefix'],
         'HTTP_COOKIE' => 'token=' . $cookies['token'],
         'HTTP_X_FORWARDED_FOR' => $expectedUserIp . ', 10.0.0.1',
     ];
@@ -186,6 +189,7 @@ describe('different adapter test', function () {
             expect($request->getMethod())->toBe($method)
                 ->and($request->getPath())->toBe($path)
                 ->and($request->getContentType())->toBe($headers['Content-Type'])
+                ->and($request->getPathPrefix())->toBe($headers['X-Forwarded-Prefix'])
                 ->and($request->get('query'))->toBe($query['query'])
                 ->and($request->allGet())->toBe($query)
                 ->and($request->path('id'))->toBe($pathParam)

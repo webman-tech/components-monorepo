@@ -37,8 +37,13 @@ describe('different adapter test', function () {
                 return Route::getCurrent();
             },
             'extra_asserts' => function (Route $route) {
+                $request = request_create_one();
+                $raw = request_get_raw($request);
+                $raw->setHeader('x-forwarded-prefix', '/app');
+
                 $routeObject = $route->getRouteByName('users.detail');
                 expect($routeObject->getUrl(['id' => 1]))->toBe('/users/1')
+                    ->and($routeObject->getUrl(['id' => 1], appendPrefix: true))->toBe('/app/users/1')
                     ->and($routeObject->getFrom())->toBeInstanceOf(\Webman\Route\Route::class);
             },
             'cleanup' => function () use (&$cachedData) {
