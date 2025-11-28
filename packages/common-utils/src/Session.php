@@ -24,9 +24,11 @@ final readonly class Session
 
     public static function from(mixed $session): self
     {
-        return $session === null
-            ? self::getCurrent()
-            : new self($session);
+        return match (true) {
+            $session instanceof self => $session,
+            $session === null => self::getCurrent(),
+            default => new self($session),
+        };
     }
 
     public function __construct(private mixed $session)

@@ -25,9 +25,11 @@ final readonly class Container
 
     public static function from(mixed $container): self
     {
-        return $container === null
-            ? self::getCurrent()
-            : new self($container);
+        return match (true) {
+            $container instanceof self => $container,
+            $container === null => self::getCurrent(),
+            default => new self($container),
+        };
     }
 
     public function __construct(private mixed $container)

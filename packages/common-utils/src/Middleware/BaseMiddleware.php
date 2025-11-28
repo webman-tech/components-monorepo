@@ -11,7 +11,7 @@ abstract class BaseMiddleware
     /**
      * webman 中间件的入口方法
      */
-    final public function process(mixed $request, mixed $handler): mixed
+    public function process(mixed $request, mixed $handler): mixed
     {
         $request = Request::from($request);
 
@@ -26,7 +26,7 @@ abstract class BaseMiddleware
     /**
      * laravel 中间件的入口方法
      */
-    final public function handle(mixed $request, mixed $next): mixed
+    public function handle(mixed $request, mixed $next): mixed
     {
         return $this->process($request, $next);
     }

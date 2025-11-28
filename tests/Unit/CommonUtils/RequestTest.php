@@ -94,7 +94,7 @@ describe('different adapter test', function () {
                     'postForm' => $postJson,
                 ]),
             'instance_class' => TestRequest::class,
-            'session_instance_class' => \WebmanTech\CommonUtils\Session::class,
+            'session_instance_class' => \WebmanTech\CommonUtils\Testing\TestSession::class,
             'route_instance_class' => null,
             'raw_header_reader' => fn(TestRequest $request, string $key) => $request->header($key),
         ],

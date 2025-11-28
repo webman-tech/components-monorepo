@@ -22,9 +22,11 @@ final readonly class Response
 
     public static function from(mixed $response): self
     {
-        return $response === null
-            ? self::make()
-            : new self($response);
+        return match (true) {
+            $response instanceof self => $response,
+            $response === null => self::make(),
+            default => new self($response),
+        };
     }
 
     public function __construct(private mixed $response)

@@ -36,9 +36,11 @@ final class Request
 
     public static function from(mixed $request): self
     {
-        return $request === null
-            ? self::getCurrent()
-            : new self($request);
+        return match (true) {
+            $request instanceof self => $request,
+            $request === null => self::getCurrent(),
+            default => new self($request),
+        };
     }
 
     public function __construct(mixed $request)
