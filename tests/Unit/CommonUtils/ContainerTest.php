@@ -42,7 +42,7 @@ describe('different adapter test', function () {
     ];
 
     foreach ($cases as $case) {
-        test($case['instance_class'] . ' test', function () use ($case) {
+        test($case['instance_class'], function () use ($case) {
             /** @var Container $container */
             $container = $case['get_container']();
 

@@ -34,7 +34,7 @@ final readonly class Response
     /**
      * 获取原始响应对象
      */
-    public function toRaw(): mixed
+    public function getRaw(): mixed
     {
         return $this->response;
     }

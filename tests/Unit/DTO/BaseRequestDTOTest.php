@@ -13,26 +13,26 @@ test('fromRequest use different method', function () {
     }
 
     $request = request_create_one();
-    $originalRequest = request_get_original($request);
-    $originalRequest->setGet('name', 'newNameValue');
+    $rawRequest = request_get_raw($request);
+    $rawRequest->setGet('name', 'newNameValue');
     $dto = DTOFromRequestUseDefaultRequestType::fromRequest($request);
     expect($dto->name)->toBe('newNameValue')
         ->and($dto->name2)->toBe('nameValue2');
 
     $request = request_create_one();
-    $originalRequest = request_get_original($request);
-    $originalRequest->setData('method', 'POST');
-    $originalRequest->setHeader('content-type', 'application/json');
-    $originalRequest->setPost('name', 'newNameValue2');
+    $rawRequest = request_get_raw($request);
+    $rawRequest->setData('method', 'POST');
+    $rawRequest->setHeader('content-type', 'application/json');
+    $rawRequest->setPost('name', 'newNameValue2');
     $dto = DTOFromRequestUseDefaultRequestType::fromRequest($request);
     expect($dto->name)->toBe('newNameValue2')
         ->and($dto->name2)->toBe('nameValue2');
 
     $request = request_create_one();
-    $originalRequest = request_get_original($request);
-    $originalRequest->setData(['method' => 'POST']);
-    $originalRequest->setHeader('content-type', 'multipart/form-data');
-    $originalRequest->setPost('name', 'newNameValue2');
+    $rawRequest = request_get_raw($request);
+    $rawRequest->setData(['method' => 'POST']);
+    $rawRequest->setHeader('content-type', 'multipart/form-data');
+    $rawRequest->setPost('name', 'newNameValue2');
     $dto = DTOFromRequestUseDefaultRequestType::fromRequest($request);
     expect($dto->name)->toBe('newNameValue2')
         ->and($dto->name2)->toBe('nameValue2');
@@ -54,22 +54,22 @@ test('fromRequest with RequestPropertyIn', function () {
     }
 
     $request = request_create_one();
-    $originalRequest = request_get_original($request);
-    $originalRequest->setGet([
+    $rawRequest = request_get_raw($request);
+    $rawRequest->setGet([
         'name' => 'nameGetValue',
         'name2' => 'name2GetValue',
         'name3' => 'name3GetValue',
         'new_key1' => 'name4GetValue',
         'new_key2' => 'name5GetValue',
     ]);
-    $originalRequest->setPost([
+    $rawRequest->setPost([
         'name' => 'namePostValue',
         'name2' => 'name2PostValue',
         'name3' => 'name3PostValue',
         'new_key1' => 'name4PostValue',
         'new_key2' => 'name5PostValue',
     ]);
-    $originalRequest->setHeader([
+    $rawRequest->setHeader([
         'name' => 'nameHeaderValue',
         'name2' => 'name2HeaderValue',
         'name3' => 'name3HeaderValue',

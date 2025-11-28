@@ -17,10 +17,10 @@ test('base middleware adapts webman request/response', function () {
     $middleware = new MultiUsageMiddleware();
     $handledRequest = null;
 
-    $response = $middleware->process($webmanRequest, function ($originalRequest) use (&$handledRequest) {
-        $handledRequest = $originalRequest;
-        expect($originalRequest)->toBeInstanceOf(ComponentWebmanRequest::class)
-            ->and($originalRequest->header('x-request-abc'))->toBe('abc');
+    $response = $middleware->process($webmanRequest, function ($rawRequest) use (&$handledRequest) {
+        $handledRequest = $rawRequest;
+        expect($rawRequest)->toBeInstanceOf(ComponentWebmanRequest::class)
+            ->and($rawRequest->header('x-request-abc'))->toBe('abc');
 
         return new ComponentWebmanResponse(200, [], 'webman-body');
     });
@@ -36,10 +36,10 @@ test('base middleware adapts laravel request/response', function () {
     $middleware = new MultiUsageMiddleware();
     $handledRequest = null;
 
-    $response = $middleware->handle($laravelRequest, function ($originalRequest) use (&$handledRequest) {
-        $handledRequest = $originalRequest;
-        expect($originalRequest)->toBeInstanceOf(IlluminateRequest::class)
-            ->and($originalRequest->headers->get('X-Request-Abc'))->toBe('abc');
+    $response = $middleware->handle($laravelRequest, function ($rawRequest) use (&$handledRequest) {
+        $handledRequest = $rawRequest;
+        expect($rawRequest)->toBeInstanceOf(IlluminateRequest::class)
+            ->and($rawRequest->headers->get('X-Request-Abc'))->toBe('abc');
 
         return new ComponentSymfonyResponse('laravel-body', 202);
     });

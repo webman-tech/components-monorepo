@@ -3,6 +3,7 @@
 namespace WebmanTech\CommonUtils;
 
 use Illuminate\Contracts\Session\Session as IlluminateSession;
+use Symfony\Component\HttpFoundation\Session\SessionInterface as SymfonySession;
 use WebmanTech\CommonUtils\Exceptions\UnsupportedRuntime;
 use Workerman\Protocols\Http\Session as WebmanSession;
 
@@ -14,6 +15,7 @@ final readonly class Session
             RuntimeCustomRegister::isRegistered(RuntimeCustomRegister::KEY_SESSION) => RuntimeCustomRegister::call(RuntimeCustomRegister::KEY_SESSION),
             Runtime::isWebman() => \request()->session(),
             Runtime::isLaravel() => \request()->session(),
+            function_exists('session') => session(),
             default => throw new UnsupportedRuntime(),
         };
 
@@ -31,6 +33,11 @@ final readonly class Session
     {
     }
 
+    public function getRaw(): mixed
+    {
+        return $this->session;
+    }
+
     /**
      * 获取值
      */
@@ -38,6 +45,7 @@ final readonly class Session
     {
         return match (true) {
             $this->session instanceof WebmanSession => $this->session->get($key, $default),
+            $this->session instanceof SymfonySession => $this->session->get($key, $default),
             $this->session instanceof IlluminateSession => $this->session->get($key, $default),
             method_exists($this->session, 'get') => $this->session->get($key, $default),
             default => throw new \InvalidArgumentException('session has no method get'),
@@ -51,6 +59,7 @@ final readonly class Session
     {
         match (true) {
             $this->session instanceof WebmanSession => $this->session->set($key, $value),
+            $this->session instanceof SymfonySession => $this->session->set($key, $value),
             $this->session instanceof IlluminateSession => $this->session->put($key, $value),
             method_exists($this->session, 'set') => $this->session->set($key, $value),
             default => throw new \InvalidArgumentException('session has no method set'),
@@ -61,6 +70,7 @@ final readonly class Session
     {
         match (true) {
             $this->session instanceof WebmanSession => $this->session->delete($key),
+            $this->session instanceof SymfonySession => $this->session->remove($key),
             $this->session instanceof IlluminateSession => $this->session->forget($key),
             method_exists($this->session, 'delete') => $this->session->delete($key),
             default => throw new \InvalidArgumentException('session has no method delete'),

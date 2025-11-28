@@ -19,6 +19,7 @@ final class TestRequest
         'postJson' => [],
         'userIp' => '127.0.0.1',
         'customData' => [],
+        'route' => null,
     ];
 
     private static ?self $instance = null;
@@ -36,47 +37,61 @@ final class TestRequest
         self::$instance = null;
     }
 
-    public function setData(string|array $key, mixed $value = null): void
+    public function setData(string|array $key, mixed $value = null): self
     {
         if (is_array($key)) {
             foreach ($key as $k => $v) {
                 $this->setData($k, $v);
             }
-            return;
+            return $this;
+        }
+        if ($key === 'headers') {
+            $this->setHeader($value);
+            return $this;
         }
         $this->data[$key] = $value;
+        return $this;
     }
 
-    public function setGet(string|array $key, mixed $value = null): void
+    public function setGet(string|array $key, mixed $value = null): self
     {
         if (is_array($key)) {
             foreach ($key as $k => $v) {
                 $this->setGet($k, $v);
             }
-            return;
+            return $this;
         }
         $this->data['query'][$key] = $value;
+        return $this;
     }
 
-    public function setPost(string|array $key, mixed $value = null): void
+    public function setPost(string|array $key, mixed $value = null): self
     {
         if (is_array($key)) {
             foreach ($key as $k => $v) {
                 $this->setPost($k, $v);
             }
-            return;
+            return $this;
         }
         $this->data['postForm'][$key] = $value;
         $this->data['postJson'][$key] = $value;
+        return $this;
     }
 
-    public function setHeader(string|array $key, mixed $value = null): void
+    public function setHeader(string|array $key, mixed $value = null): self
     {
         if (is_array($key)) {
             $this->withHeaders($key);
-            return;
+            return $this;
         }
         $this->data['headers'][strtolower($key)] = $value;
+        return $this;
+    }
+
+    public function setRoute(?RouteObject $route): self
+    {
+        $this->data['route'] = $route;
+        return $this;
     }
 
     public function getMethod(): string
@@ -185,7 +200,7 @@ final class TestRequest
 
     public function getRoute(): ?RouteObject
     {
-        return null;
+        return $this->data['route'];
     }
 
     public function getSession(): Session

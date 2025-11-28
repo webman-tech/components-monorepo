@@ -45,7 +45,7 @@ describe('简单的认证方式', function () {
             $identity = $method->authenticate($request);
             expect($identity)->toBeNull();
             // 模拟能够获取到信息
-            $case['request_mock']($request->getOriginalRequest());
+            $case['request_mock']($request->getRaw());
             // 能够正常认证
             $identity = $method->authenticate($request);
             expect($identity)->toBeInstanceOf(User::class);
@@ -63,14 +63,14 @@ test('组合认证方式', function () {
     $identity = $method->authenticate($request);
     expect($identity)->toBeNull();
     // 模拟能够获取到信息
-    request_get_original($request)->setHeader('x-api-key', User::MOCK_TOKEN);
+    request_get_raw($request)->setHeader('x-api-key', User::MOCK_TOKEN);
     // 能够正常认证
     $identity = $method->authenticate($request);
     expect($identity)->toBeInstanceOf(User::class);
 
     // 重建一个 request 模拟另一种认证
     $request = request_create_one();
-    request_get_original($request)->setPost('access-token', User::MOCK_TOKEN);
+    request_get_raw($request)->setPost('access-token', User::MOCK_TOKEN);
     // 能够正常认证
     $identity = $method->authenticate($request);
     expect($identity)->toBeInstanceOf(User::class);
@@ -83,11 +83,11 @@ test('Basic 认证', function () {
     $identity = $method->authenticate($request);
     expect($identity)->toBeNull();
     // 非标准的 basic 信息，能够正常认证
-    request_get_original($request)->setHeader('authorization', 'Basic ' . User::MOCK_TOKEN);
+    request_get_raw($request)->setHeader('authorization', 'Basic ' . User::MOCK_TOKEN);
     $identity = $method->authenticate($request);
     expect($identity)->toBeNull();
     // 标准的 basic 信息，能够正常认证
-    request_get_original($request)->setHeader('authorization', 'Basic ' . base64_encode(User::MOCK_TOKEN_BASIC));
+    request_get_raw($request)->setHeader('authorization', 'Basic ' . base64_encode(User::MOCK_TOKEN_BASIC));
     $identity = $method->authenticate($request);
     expect($identity)->toBeInstanceOf(User::class);
 });

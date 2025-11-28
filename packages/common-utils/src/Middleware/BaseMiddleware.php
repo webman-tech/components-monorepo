@@ -16,11 +16,11 @@ abstract class BaseMiddleware
         $request = Request::from($request);
 
         $response = $this->processRequest($request, function (Request $request) use ($handler): Response {
-            $originalResponse = $handler($request->getOriginalRequest());
-            return Response::from($originalResponse);
+            $rawResponse = $handler($request->getRaw());
+            return Response::from($rawResponse);
         });
 
-        return $response->toRaw();
+        return $response->getRaw();
     }
 
     /**

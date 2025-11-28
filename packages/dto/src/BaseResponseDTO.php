@@ -69,7 +69,7 @@ class BaseResponseDTO extends BaseDTO
                     'Content-Type' => 'application/json',
                 ], $this->getResponseHeaders()))
                 ->withBody(json_encode($data) ?: '')
-                ->toRaw();
+                ->getRaw();
         }
 
         if ($this->toResponseFormat instanceof \Closure) {

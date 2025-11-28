@@ -77,7 +77,7 @@ function request_create_one(): Request
     return Request::getCurrent();
 }
 
-function request_get_original(Request $request): TestRequest
+function request_get_raw(Request $request): TestRequest
 {
-    return $request->getOriginalRequest();
+    return $request->getRaw();
 }

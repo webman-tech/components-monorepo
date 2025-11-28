@@ -16,8 +16,8 @@ final class RouteObject
                 methods: $route->getMethods(),
                 path: $route->getPath(),
                 callback: $route->getCallback(),
-                name: $route->getName(),
-                middlewares: $route->getMiddleware(),
+                name: $route->getName() ?: null,
+                middlewares: $route->getMiddleware() ?: null,
             );
             $new->setFrom($route);
             return $new;
@@ -39,9 +39,10 @@ final class RouteObject
         $this->methods = array_map('strtoupper', (array)$methods);
     }
 
-    public function setFrom(mixed $fromRoute): void
+    public function setFrom(mixed $fromRoute): self
     {
         $this->fromRoute = $fromRoute;
+        return $this;
     }
 
     public function getFrom(): mixed

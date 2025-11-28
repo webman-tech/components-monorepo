@@ -46,7 +46,7 @@ test('Authentication', function () {
 
 test('Authentication 可选的路由', function () {
     $request = request_create_one();
-    $originalRequest = request_get_original($request);
+    $rawRequest = request_get_raw($request);
     $middleware = new OptionalAuthentication();
 
     // 初始未登录
@@ -57,7 +57,7 @@ test('Authentication 可选的路由', function () {
     expect($response->getStatusCode())->toBe(302);
 
     // 使用可选的路由，认证通过
-    $originalRequest->setGet('optional', 'true');
+    $rawRequest->setGet('optional', 'true');
     $response = $middleware->process($request, fn() => Response::make());
     expect($response->getStatusCode())->toBe(200);
 

@@ -23,7 +23,7 @@ test('Guard', function () {
         ->and($guard->getId())->toBeNull();
     // 准备认证
     $request = request_create_one();
-    request_get_original($request)->setPost('access-token', User::MOCK_TOKEN);
+    request_get_raw($request)->setPost('access-token', User::MOCK_TOKEN);
     // 认证
     $identity = $guard->getAuthenticationMethod()->authenticate($request);
     expect($identity)->toBeInstanceOf(User::class);
@@ -50,7 +50,7 @@ test('Guard 支持 session', function () {
 
     // 准备认证
     $request = request_create_one();
-    request_get_original($request)->setPost('access-token', User::MOCK_TOKEN);
+    request_get_raw($request)->setPost('access-token', User::MOCK_TOKEN);
     // 认证
     $identity = $guard->getAuthenticationMethod()->authenticate($request);
     expect($identity)->toBeInstanceOf(User::class);

@@ -1,7 +1,6 @@
 <?php
 
 use Tests\Fixtures\CommonUtils\RouteController;
-use Webman\Route\Route as WebmanRouteObject;
 use WebmanTech\CommonUtils\Constants;
 use WebmanTech\CommonUtils\Route;
 use WebmanTech\CommonUtils\Runtime;
@@ -9,76 +8,104 @@ use WebmanTech\CommonUtils\RuntimeCustomRegister;
 use WebmanTech\CommonUtils\Testing\TestRoute;
 use WebmanTech\CommonUtils\Testing\Webman\ClearableRoute;
 
-test('normalize usage', function () {
-    Route::clear();
-    $route = Route::getCurrent();
-    expect($route->getRaw())->toBeInstanceOf(TestRoute::class);
+describe('different adapter test', function () {
+    $cachedData = [];
+    $cases = [
+        [
+            'title' => 'custom route',
+            'instance_class' => TestRoute::class,
+            'get_route' => function () {
+                Route::clear();
+                return Route::getCurrent();
+            },
+            'extra_asserts' => function (Route $route) {
+                $routeObject = $route->getRouteByName('users.detail');
+                expect($routeObject->getUrl())->toBeNull()
+                    ->and($routeObject->getFrom())->toBeNull();
+            },
+        ],
+        [
+            'title' => 'webman route',
+            'instance_class' => null,
+            'get_route' => function () use (&$cachedData) {
+                $cachedData['runtime'] = Runtime::getCurrent();
+                $cachedData['route'] = RuntimeCustomRegister::getRegistered(RuntimeCustomRegister::KEY_ROUTE);
+                Runtime::changeRuntime(Constants::RUNTIME_WEBMAN);
+                RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_ROUTE, null);
 
-    $callable = static function () {
-        return 'ok';
-    };
+                Route::clear();
+                return Route::getCurrent();
+            },
+            'extra_asserts' => function (Route $route) {
+                $routeObject = $route->getRouteByName('users.detail');
+                expect($routeObject->getUrl(['id' => 1]))->toBe('/users/1')
+                    ->and($routeObject->getFrom())->toBeInstanceOf(\Webman\Route\Route::class);
+            },
+            'cleanup' => function () use (&$cachedData) {
+                Runtime::changeRuntime($cachedData['runtime']);
+                RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_ROUTE, $cachedData['route']);
+                ClearableRoute::clear();
+                unset($cachedData);
+            },
+        ],
+    ];
 
-    // 测试基本功能
-    $route->addRoute(new Route\RouteObject('GET', '/users1', $callable));
-    $routeList = $route->getRoutes();
-    expect($routeList)->toHaveCount(1)
-        ->and($routeList[0]->getMethods())->toBe(['GET'])
-        ->and($routeList[0]->getPath())->toBe('/users1')
-        ->and($routeList[0]->getCallback())->toBe($callable)
-        ->and($routeList[0]->getName())->toBeNull()
-        ->and($routeList[0]->getMiddlewares())->toBeNull()
-        ->and($routeList[0]->getUrl())->toBeNull();
+    foreach ($cases as $case) {
+        test($case['title'], function () use ($case) {
+            $callable = static fn() => 'ok';
 
-    // 测试 name
-    $route->addRoute(new Route\RouteObject('GET', '/users2', $callable, name: 'users.index'));
-    $routeItem = $route->getRouteByName('users.index');
-    expect($routeItem)->toBeInstanceOf(Route\RouteObject::class)
-        ->and($routeItem->getMethods())->toBe(['GET'])
-        ->and($routeItem->getPath())->toBe('/users2')
-        ->and($routeItem->getCallback())->toBe($callable)
-        ->and(($routeItem->getCallback())())->toBe('ok')
-        ->and($routeItem->getName())->toBe('users.index');
+            /** @var Route $route */
+            $route = $case['get_route']();
 
-    // 测试 middlewares
-    $route->addRoute(new Route\RouteObject('GET', '/product1', $callable, name: 'product.index', middlewares: ['auth']));
-    $routeItem = $route->getRouteByName('product.index');
-    expect($routeItem->getMiddlewares())->toBe(['auth']);
+            // 检查 raw 类型
+            if (class_exists($case['instance_class'])) {
+                expect($route->getRaw())->toBeInstanceOf($case['instance_class']);
+            } else {
+                expect($route->getRaw())->toBeNull();
+            }
 
-    // 测试多 methods 和 methods 大小写
-    $route->addRoute(new Route\RouteObject(['GET', 'post'], '/product2', $callable, name: 'product2.index'));
-    $routeItem = $route->getRouteByName('product2.index');
-    expect($routeItem->getMethods())->toBe(['GET', 'POST']);
+            // 基本测试
+            $route->addRoute(new Route\RouteObject('GET', '/demo/{id}', $callable));
+            $routeList = $route->getRoutes();
+            expect($routeList)->not->toBeEmpty()
+                ->and($routeList[0]->getMethods())->toBe(['GET'])
+                ->and($routeList[0]->getPath())->toBe('/demo/{id}')
+                ->and($routeList[0]->getCallback())->toBe($callable)
+                ->and(($routeList[0]->getCallback())())->toBe('ok')
+                ->and($routeList[0]->getName())->toBeNull()
+                ->and($routeList[0]->getMiddlewares())->toBeNull();
 
-    // 注册 callback
-    $route->addRoute(new Route\RouteObject('GET', '/product3', [RouteController::class, 'index'], name: 'product3.index'));
-    $routeItem = $route->getRouteByName('product3.index');
-    expect($routeItem->getCallback())->toBe([RouteController::class, 'index'])
-        ->and(($routeItem->getCallback())())->toBe('abc');
-});
+            // 命名测试
+            $route->addRoute(new Route\RouteObject('GET', '/users/{id}', $callable, name: 'users.detail'));
+            $routeItem = $route->getRouteByName('users.detail');
+            expect($routeItem)->toBeInstanceOf(Route\RouteObject::class)
+                ->and($routeItem->getPath())->toBe('/users/{id}')
+                ->and($routeItem->getName())->toBe('users.detail');
 
-test('webman adapter', function () {
-    // 保留原始的
-    $runtime = Runtime::getCurrent();
-    Runtime::changeRuntime(Constants::RUNTIME_WEBMAN);
-    $registeredRoute = RuntimeCustomRegister::getRegistered(RuntimeCustomRegister::KEY_ROUTE);
-    RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_ROUTE, null);
+            // middleware 测试
+            $route->addRoute(new Route\RouteObject('GET', '/product1', $callable, name: 'product.index', middlewares: ['auth']));
+            expect($route->getRouteByName('product.index')->getMiddlewares())->toBe(['auth']);
 
-    $route = Route::getCurrent();
-    expect($route->getRaw())->toBeNull(); // webman 没有这个实例
+            // 多 methods 和 大小写测试
+            $route->addRoute(new Route\RouteObject(['GET', 'post'], '/product2', $callable, name: 'product2.index'));
+            expect($route->getRouteByName('product2.index')->getMethods())->toBe(['GET', 'POST']);
 
-    $callable = static function () {
-        return 'ok';
-    };
+            // callable 测试
+            $controllerCallable = [RouteController::class, 'index'];
+            $route->addRoute(new Route\RouteObject('GET', '/product3', $controllerCallable, name: 'product3.index'));
+            $controllerRoute = $route->getRouteByName('product3.index');
+            expect($controllerRoute->getCallback())->toBe($controllerCallable)
+                ->and(($controllerRoute->getCallback())())->toBe('abc');
 
-    $route->addRoute(new Route\RouteObject('GET', '/users1', $callable, name: 'users.index', middlewares: ['auth']));
-    $routeItem = $route->getRouteByName('users.index');
-    expect($routeItem->getFrom())->toBeInstanceOf(WebmanRouteObject::class)
-        ->and($routeItem->getUrl())->toBe('/users1');
+            // 额外测试
+            if (isset($case['extra_asserts'])) {
+                $case['extra_asserts']($route);
+            }
 
-    // 恢复原始的
-    Runtime::changeRuntime($runtime);
-    RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_ROUTE, $registeredRoute);
-
-    // 清理 webman 的 route
-    ClearableRoute::clear();
+            // 清理
+            if (isset($case['cleanup'])) {
+                $case['cleanup']();
+            }
+        });
+    }
 });
