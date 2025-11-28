@@ -2,7 +2,6 @@
 
 namespace WebmanTech\CommonUtils;
 
-use Illuminate\Support\Str;
 use WebmanTech\CommonUtils\Exceptions\UnsupportedRuntime;
 
 /**
@@ -21,7 +20,7 @@ final class Config
         $defaultFn = null;
         if ($default instanceof \Closure) {
             $defaultFn = $default;
-            $default = '__RN__' . Str::random();
+            $default = '__RN__' . random_int(100000, 999999);
         }
 
         $value = match (true) {
@@ -30,7 +29,7 @@ final class Config
             Runtime::isLaravel() => \Illuminate\Support\Facades\Config::get($key, $default),
             default => throw new UnsupportedRuntime(),
         };
-        
+
         if ($defaultFn && $value === $default) {
             return $defaultFn();
         }

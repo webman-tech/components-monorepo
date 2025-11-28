@@ -10,7 +10,8 @@ $splits = get_packages()
     ->map(fn(array $package) => <<<YML
   - prefix: "packages/{$package['dir_name']}"
     target: "https://\${GH_TOKEN}@github.com/{$package['git_name']}.git"
-YML)
+YML
+    )
     ->implode("\n");
 
 $content = <<<YML
@@ -20,6 +21,7 @@ splits:
 {$splits}
 origins:
   - ^main$
+  - ^v\d+\.\d+\.\d+$
 
 YML;
 
