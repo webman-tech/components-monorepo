@@ -9,7 +9,7 @@ test('openapiDoc', function () {
     ]);
 
     expect($response->rawBody())->toMatchSnapshot()
-        ->and($response->getHeader('Content-Type'))->toBe('application/x-yaml');
+        ->and($response->getHeader('Content-Type'))->toBe('application/yaml;charset=utf-8');
 });
 
 test('openapiDoc generate json', function () {
@@ -21,7 +21,7 @@ test('openapiDoc generate json', function () {
     ]);
 
     expect($response->rawBody())->toMatchSnapshot()
-        ->and($response->getHeader('Content-Type'))->toBe('application/json');
+        ->and($response->getHeader('Content-Type'))->toBe('application/json;charset=utf-8');
 });
 
 test('openapiDoc dto example', function () {
@@ -33,5 +33,5 @@ test('openapiDoc dto example', function () {
     ]);
 
     expect($response->rawBody())->toMatchSnapshot()
-        ->and($response->getHeader('Content-Type'))->toBe('application/json');
+        ->and($response->getHeader('Content-Type'))->toBe('application/json;charset=utf-8');
 });
