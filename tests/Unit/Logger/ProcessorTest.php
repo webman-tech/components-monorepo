@@ -57,25 +57,53 @@ test('RequestIpProcessor', function () {
     expect($logRecord->extra['ip'])->toBe('preset');
 });
 
-test('RequestTraceProcessor uses custom data and header fallback', function () {
+test('RequestTraceProcessor use request trace', function () {
     $processor = new RequestTraceProcessor();
 
+    // request 中的 trace_id
     $request = request_create_one();
     request_get_raw($request)->withCustomData([
         RequestTraceMiddleware::KEY_TRACE_ID => 'trace-custom',
     ]);
-
     $logRecord = get_log_record();
     $processor->__invoke($logRecord);
     expect($logRecord->extra['traceId'])->toBe('trace-custom');
 
+    // request 中的 X-Trace-Id
     $request2 = request_create_one();
     request_get_raw($request2)->withCustomData([
         RequestTraceMiddleware::KEY_TRACE_ID => null,
     ]);
     request_get_raw($request2)->setHeader('X-Trace-Id', 'trace-header');
-
     $logRecord2 = get_log_record();
     $processor->__invoke($logRecord2);
     expect($logRecord2->extra['traceId'])->toBe('trace-header');
+});
+
+test('RequestTraceProcessor in console', function () {
+    $processor = new RequestTraceProcessor();
+
+    // 命令行下自动产出 uid
+    $logRecord = get_log_record();
+    $processor->__invoke($logRecord);
+    $traceId = $logRecord->extra['traceId'];
+    expect($traceId)
+        ->toBeString()
+        ->toStartWith('uid');
+    // uid 不变
+    $logRecord2 = get_log_record();
+    $processor->__invoke($logRecord2);
+    expect($logRecord2->extra['traceId'])->toBe($traceId);
+
+    // 重置
+    $processor->reset();
+
+    // 变化
+    $logRecord3 = get_log_record();
+    $processor->__invoke($logRecord3);
+    expect($logRecord3->extra['traceId'])
+        ->toBeString()
+        ->toStartWith('uid')
+        ->not
+        ->toBe($traceId);
 });
