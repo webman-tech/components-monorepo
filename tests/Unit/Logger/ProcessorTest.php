@@ -2,6 +2,7 @@
 
 use Monolog\Level;
 use Monolog\LogRecord;
+use WebmanTech\CommonUtils\Testing\TestRequest;
 use WebmanTech\Logger\Middleware\RequestTraceMiddleware;
 use WebmanTech\Logger\Processors\RequestIpProcessor;
 use WebmanTech\Logger\Processors\RequestRouteProcessor;
@@ -78,6 +79,8 @@ test('RequestTraceProcessor use request trace', function () {
     $logRecord2 = get_log_record();
     $processor->__invoke($logRecord2);
     expect($logRecord2->extra['traceId'])->toBe('trace-header');
+
+    TestRequest::clear();
 });
 
 test('RequestTraceProcessor in console', function () {
