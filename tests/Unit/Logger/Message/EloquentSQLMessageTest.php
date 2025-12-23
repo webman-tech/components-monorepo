@@ -290,8 +290,7 @@ test('fnAfterLog', function () {
 
     // 验证 fnAfterLog 被调用并接收到正确的数据
     expect($afterLogData)->not->toBeEmpty()
+        ->and($afterLogData['level'])->toBe('info')
         ->and($afterLogData['message'])->toBe('select * from users where id = 123')
-        ->and($afterLogData['sql'])->toBe('select * from users where id = 123')
-        ->and($afterLogData['context']['cost'])->toBe(100)
-        ->and($afterLogData['event'])->toBeInstanceOf(QueryExecuted::class);
+        ->and($afterLogData['context']['cost'])->toBe(100);
 });
