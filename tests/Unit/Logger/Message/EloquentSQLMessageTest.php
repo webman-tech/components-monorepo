@@ -261,3 +261,37 @@ test('extraInfo', function () {
             'database' => 'test',
         ]);
 });
+
+test('fnAfterLog', function () {
+    $logger = TestLogger::channel('sql');
+    $logger->flush();
+
+    $afterLogData = [];
+
+    $message = new EloquentSQLMessage([
+        'logMinTimeMS' => 0, // 记录所有 sql
+        'fnAfterLog' => function (array $data) use (&$afterLogData) {
+            $afterLogData = $data;
+        },
+    ]);
+
+    $event = new QueryExecuted(
+        sql: 'select * from users where id = ?',
+        bindings: [123],
+        time: 100,
+        connection: $this->connection,
+    );
+    $message->handle($event);
+
+    // 验证日志正常记录
+    $logs = $logger->getAll();
+    expect(count($logs))->toBe(1)
+        ->and($logs[0]['message'])->toBe('select * from users where id = 123');
+
+    // 验证 fnAfterLog 被调用并接收到正确的数据
+    expect($afterLogData)->not->toBeEmpty()
+        ->and($afterLogData['message'])->toBe('select * from users where id = 123')
+        ->and($afterLogData['sql'])->toBe('select * from users where id = 123')
+        ->and($afterLogData['context']['cost'])->toBe(100)
+        ->and($afterLogData['event'])->toBeInstanceOf(QueryExecuted::class);
+});
