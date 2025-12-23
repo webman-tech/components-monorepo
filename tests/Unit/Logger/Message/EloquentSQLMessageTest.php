@@ -227,3 +227,37 @@ test('check is not select', function () {
     expect(count($logs))->toBe(1)
         ->and($logs[0]['message'])->toContain('users1');
 });
+
+test('extraInfo', function () {
+    $logger = TestLogger::channel('sql');
+    $logger->flush();
+
+    $message = new EloquentSQLMessage([
+        'logMinTimeMS' => 0, // 记录所有 sql
+        'extraInfo' => function (QueryExecuted $event) {
+            return [
+                'tenant' => 'demo',
+                'connection_info' => [
+                    'name' => $event->connectionName,
+                    'database' => $event->connection->getDatabaseName(),
+                ],
+            ];
+        },
+    ]);
+
+    $event = new QueryExecuted(
+        sql: 'select * from users',
+        bindings: [],
+        time: 100,
+        connection: $this->connection,
+    );
+    $message->handle($event);
+
+    $logs = $logger->getAll();
+    expect(count($logs))->toBe(1)
+        ->and($logs[0]['context']['tenant'])->toBe('demo')
+        ->and($logs[0]['context']['connection_info'])->toBe([
+            'name' => 'sqlite',
+            'database' => 'test',
+        ]);
+});
