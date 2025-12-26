@@ -215,7 +215,7 @@ final class ReflectionClassReader
             $validationRules = $this->getAttributionValidationRules($parameterReflection);
             $constructArgs[$key] = $validationRules->makeValueFromRawType($value);
             $shouldResolve = false;
-            if ($validationRules->array && !$validationRules->arrayItem && is_array($value) && array_is_list($value)) {
+            if ($validationRules->array && !$validationRules->arrayItem && is_array($value) && array_is_list($value) && $value) {
                 // 对于列表数组的值，在 construct 上无法解析注释进行正确的类型赋值，此时需要在 property 中重新处理，所以不能移除掉
                 $shouldResolve = true;
             }
@@ -224,8 +224,8 @@ final class ReflectionClassReader
                 unset($data[$key]);
             }
         }
-        $obj = $this->reflectionClass->newInstanceArgs($constructArgs);
 
+        $objData = [];
         if ($data) {
             // 如果还有其他参数，给 public 属性赋值，以支持不在 construct 中的属性赋值
             foreach ($this->getPropertyReflections() as $key => $propertyReflection) {
@@ -237,8 +237,20 @@ final class ReflectionClassReader
                 $value = $data[$key];
                 // 根据 ValidationRule 中定义出来的类型进行赋值
                 $validationRules = $this->getAttributionValidationRules($propertyReflection);
-                $obj->{$key} = $validationRules->makeValueFromRawType($value);
+                $value = $validationRules->makeValueFromRawType($value);
+                if (array_key_exists($key, $constructArgs)) {
+                    // 有些参数是构造参数（比如列表数组），放到构造参数中
+                    // 能放构造参数的尽量放构造里，因为可能该参数被设为 readonly
+                    $constructArgs[$key] = $value;
+                } else {
+                    $objData[$key] = $value;
+                }
             }
+        }
+
+        $obj = $this->reflectionClass->newInstanceArgs($constructArgs);
+        foreach ($objData as $key => $value) {
+            $obj->{$key} = $value;
         }
 
         return $obj;
