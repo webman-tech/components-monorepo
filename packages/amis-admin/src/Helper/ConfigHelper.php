@@ -24,7 +24,13 @@ final class ConfigHelper
      */
     public static function get(string $key, mixed $default = null, bool $solveClosure = false)
     {
-        $module = request()->{self::AMIS_MODULE} ?? 'amis';
+        $module = 'amis';
+        if (function_exists('request')) {
+            $request = request();
+            if ($request && isset($request->{self::AMIS_MODULE})) {
+                $module = (string)$request->{self::AMIS_MODULE};
+            }
+        }
         $cacheKey = "{$module}.{$key}";
         if (isset(self::$closureCache[$cacheKey])) {
             return self::$closureCache[$cacheKey];

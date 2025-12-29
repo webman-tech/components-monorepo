@@ -1,0 +1,14 @@
+{
+  "title": "{{config:custom.amis_admin_test}}",
+  "body": {
+    "type": "tpl",
+    "tpl": "Hello {{name}}, env={{env:AMIS_ADMIN_TEST_ENV}}, route={{route:admin.login}}, id={{from_request}}"
+  },
+  "data": "{{data}}",
+  "num": "{{num}}",
+  "nested": {
+    "x": "{{vars.nested}}",
+    "missing": "{{missing}}"
+  }
+}
+

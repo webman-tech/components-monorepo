@@ -98,6 +98,10 @@ class UserController extends AmisSourceController
 
 支持在同一个项目中创建多个独立的后台应用，例如 admin、agent、user 等。详细信息请参考 [多应用支持](./docs/multi_app.md)。
 
+### 从 amis editor 导出的 JSON 快速渲染页面
+
+将 amis 官方 editor 导出的 json 文件放进项目目录，即可快速渲染出一个页面，并支持占位符变量替换。详细信息请参考 [从 JSON 文件快速渲染页面](./docs/json_page.md)。
+
 ### 常用配置
 
 提供了一些常见的配置示例，如修改 dialog 大小、全局配置组件等。详细信息请参考 [配置技巧](./docs/tips.md)。

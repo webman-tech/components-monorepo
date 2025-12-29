@@ -112,4 +112,48 @@ JS,
      * 用于获取当前请求的路径，当部署到二级目录时有用
      */
     'request_path_getter' => null,
+
+    /**
+     * 从 amis 官方 editor 导出的 json 文件，快速渲染出一个页面。
+     *
+     * 约定：将 json 文件放到 `resource/amis-json/{name}.json`，然后访问 `{group}/{name}` 即可预览。
+     *
+     * 支持变量占位符（递归替换所有字符串）：
+     * - `{{xxx}}`：读取 `json_page.vars` 返回的变量
+     * - `{{route:admin.login}}`：调用 `route('admin.login')`
+     * - `{{config:app.name}}`：读取 `config('app.name')`
+     * - `{{env:APP_ENV}}`：读取 env
+     */
+    'json_page' => [
+        /**
+         * json 文件目录
+         */
+        'path' => base_path('resource/amis-json'),
+        /**
+         * json 文件扩展名（支持自定义）
+         */
+        'ext' => '.json',
+        /**
+         * 自定义变量（可返回数组，或返回 callable）
+         *
+         * - 支持在 schema 中使用 `{{login_api}}` / `{{logout_api}}` 这类占位符
+         * - 如需跨框架统一 request，可将参数类型标注为 `WebmanTech\CommonUtils\Request`
+         */
+        'vars' => function ($request) {
+            return [
+                // 'login_api' => route('admin.login'),
+            ];
+        },
+        /**
+         * 可选路由注册（默认关闭，避免未加鉴权时暴露页面）
+         * - enable: 是否注册路由
+         * - group:  路由前缀
+         * - middleware: 中间件（建议加上登录/权限）
+         */
+        'route' => [
+            'enable' => false,
+            'group' => '/amis-json',
+            'middleware' => [],
+        ],
+    ],
 ];
