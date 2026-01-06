@@ -39,7 +39,7 @@
     "components": {
         "schemas": {
             "UserCreateForm": {
-                "description": "```php\n// Validation Rules\n[\n    'name' => ['required', 'string'],\n    'age' => ['required', 'integer'],\n    'is_admin' => ['required', 'boolean'],\n    'address' => ['nullable', 'array'],\n    'address.*.city' => ['required', 'string'],\n    'address.*.address' => ['required', 'string'],\n    'id_card' => ['nullable', 'array'],\n    'id_card.type' => ['required_with:id_card', 'integer'],\n    'id_card.number' => ['required_with:id_card', 'string'],\n]\n```",
+                "description": "```php\n// Validation Rules\n[\n    'name' => ['required', 'string'],\n    'age' => ['required', 'integer'],\n    'is_admin' => ['required', 'boolean'],\n    'address' => ['nullable', 'array'],\n    'address.*.city' => ['required', 'string'],\n    'address.*.address' => ['required', 'string'],\n    'id_card' => ['nullable', 'array'],\n    'id_card.type' => ['required_with:id_card', 'integer'],\n    'id_card.number' => ['required_with:id_card', 'string'],\n    'namedAddressList' => ['array'],\n    'namedAddressList.*' => ['array'],\n]\n```",
                 "required": [
                     "name",
                     "age",
@@ -75,6 +75,15 @@
                         "nullable": true,
                         "description": "身份证",
                         "type": "object"
+                    },
+                    "namedAddressList": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/UserCreateFormAddressItem"
+                            }
+                        }
                     }
                 },
                 "type": "object"

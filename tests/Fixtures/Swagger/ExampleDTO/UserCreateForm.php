@@ -34,6 +34,11 @@ final class UserCreateForm extends BaseRequestDTO
      */
     public UserCreateFormIdCard|null $id_card = null;
 
+    /**
+     * @var array<string, UserCreateFormAddressItem[]>
+     */
+    public array $namedAddressList = [];
+
     public function handle(): UserCreateFormResult
     {
         return new UserCreateFormResult(
