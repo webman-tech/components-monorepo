@@ -4,6 +4,7 @@ use Tests\Fixtures\DTO\Dir\DocBlockArrayItemExtractorDirItem;
 use Tests\Fixtures\DTO\Dir\DocBlockArrayItemExtractorDirItem2;
 use Tests\Fixtures\DTO\DocBlockArrayItemExtractor;
 use Tests\Fixtures\DTO\DocBlockArrayItemExtractorItem;
+use WebmanTech\DTO\Attributes\ValidationRules;
 use WebmanTech\DTO\Helper\DocBlockHelper;
 
 test('extractVarTypes', function () {
@@ -63,4 +64,10 @@ test('extractVarTypes', function () {
     expect($result->object)->toBeTrue()
         ->and($result->arrayItem)->toBe(DocBlockArrayItemExtractorItem::class)
         ->and($result->nullable)->toBeTrue();
+
+    $result = DocBlockHelper::extractClassPropertyArrayItemType($reflectionClass->getProperty('object_object_array'));
+    expect($result->object)->toBeTrue()
+        ->and($result->arrayItem)->toBeInstanceOf(ValidationRules::class)
+        ->and($result->arrayItem->object)->toBeNull()
+        ->and($result->arrayItem->arrayItem)->toBe(DocBlockArrayItemExtractorItem::class);
 });

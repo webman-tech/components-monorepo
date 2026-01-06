@@ -75,6 +75,20 @@ final class DocBlockHelper
                         // array<int|string, ClassName|xxx> 不支持多类型的情况
                         return null;
                     }
+                    // 检测 array<string, ClassName[]> 的情况（value 本身是数组）
+                    $isValueArray = str_ends_with($valueType, '[]');
+                    if ($isValueArray) {
+                        $itemType = substr($valueType, 0, -2);
+                        if ($type = self::parseSingleType($itemType, $reflection->getDeclaringClass())) {
+                            return new ValidationRules(
+                                nullable: $nullable === true ? true : null,
+                                arrayItem: new ValidationRules(
+                                    arrayItem: $type,
+                                ),
+                                object: true,
+                            );
+                        }
+                    }
                     if ($type = self::parseSingleType($valueType, $reflection->getDeclaringClass())) {
                         // array<int, ClassName>
                         return new ValidationRules(
