@@ -31,6 +31,20 @@ class ControllerForXSchemaResponse
     }
 
     #[OA\Get(
+        path: '/get/schema-multi-oneOf',
+        x: [
+            SchemaConstants::X_SCHEMA_RESPONSE => [
+                ControllerForXSchemaResponseSchemaA::class,
+                ControllerForXSchemaResponseSchemaB::class,
+            ],
+            SchemaConstants::X_SCHEMA_COMBINE_TYPE => 'oneOf',
+        ],
+    )]
+    public function get22()
+    {
+    }
+
+    #[OA\Get(
         path: '/get/schema-status-code',
         x: [
             SchemaConstants::X_SCHEMA_RESPONSE => [

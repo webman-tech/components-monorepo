@@ -63,6 +63,17 @@ class ControllerForXSchemaRequest
 
     }
 
+    #[OA\Get(
+        path: '/get/schema-with-at-union-type',
+        x: [
+            SchemaConstants::X_SCHEMA_REQUEST => ControllerForXSchemaRequestSchemaD::class . '@get',
+        ]
+    )]
+    public function get5()
+    {
+
+    }
+
     #[OA\Post(
         path: '/post/schema-x-in',
         x: [
@@ -102,3 +113,14 @@ class ControllerForXSchemaRequestSchemaC
     public string $header;
 }
 
+
+#[OA\Schema]
+class ControllerForXSchemaRequestSchemaD
+{
+    #[OA\Property]
+    public string $name;
+
+    public function get(): ControllerForXSchemaRequestSchemaB|ControllerForXSchemaRequestSchemaC
+    {
+    }
+}

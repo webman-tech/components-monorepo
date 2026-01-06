@@ -4,6 +4,7 @@ use Illuminate\Support\Arr;
 use OpenApi\Annotations as OA;
 use Tests\Fixtures\Swagger\ControllerForXSchemaRequestSchemaA;
 use Tests\Fixtures\Swagger\ControllerForXSchemaRequestSchemaB;
+use Tests\Fixtures\Swagger\ControllerForXSchemaRequestSchemaC;
 use Tests\Fixtures\Swagger\EnumColor;
 use Tests\Fixtures\Swagger\SchemaDTO;
 use Tests\Fixtures\Swagger\SchemaDTOChild;
@@ -100,6 +101,13 @@ test('XSchemaRequestProcessor', function () {
     // @ 自动识别 response 时，如果之前已经配置了，则不覆盖
     $operation = $fnFindPathItemByPath('/get/schema-with-at-already-has-response', 'get');
     expect($operation->x[SchemaConstants::X_SCHEMA_RESPONSE])->toBe(ControllerForXSchemaRequestSchemaA::class);
+
+    // @ 自动识别 response 时，支持联合类型
+    $operation = $fnFindPathItemByPath('/get/schema-with-at-union-type', 'get');
+    expect($operation->x[SchemaConstants::X_SCHEMA_RESPONSE])->toBe([
+        ControllerForXSchemaRequestSchemaB::class,
+        ControllerForXSchemaRequestSchemaC::class,
+    ])->and($operation->x[SchemaConstants::X_SCHEMA_COMBINE_TYPE])->toBe('oneOf');
 });
 
 test('XSchemaResponseProcessor', function () {
@@ -126,6 +134,15 @@ test('XSchemaResponseProcessor', function () {
     $operation = $fnFindPathItemByPath('/get/schema-multi', 'get');
     expect($operation->responses[200]->content['application/json']->schema->allOf)->toHaveCount(2);
     $allOfRefs = array_map(fn(OA\Schema $schema) => $schema->ref, $operation->responses[200]->content['application/json']->schema->allOf);
+    expect($allOfRefs)->toBe([
+        '#/components/schemas/ControllerForXSchemaResponseSchemaA',
+        '#/components/schemas/ControllerForXSchemaResponseSchemaB',
+    ]);
+
+    // 多维 index 数组，转到 200 上 -- 使用 oneOf
+    $operation = $fnFindPathItemByPath('/get/schema-multi-oneOf', 'get');
+    expect($operation->responses[200]->content['application/json']->schema->oneOf)->toHaveCount(2);
+    $allOfRefs = array_map(fn(OA\Schema $schema) => $schema->ref, $operation->responses[200]->content['application/json']->schema->oneOf);
     expect($allOfRefs)->toBe([
         '#/components/schemas/ControllerForXSchemaResponseSchemaA',
         '#/components/schemas/ControllerForXSchemaResponseSchemaB',
