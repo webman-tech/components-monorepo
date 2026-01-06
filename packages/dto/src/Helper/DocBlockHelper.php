@@ -39,10 +39,24 @@ final class DocBlockHelper
                 continue;
             }
             if (str_ends_with($type, '[]')) {
-                // 处理 string[] 或 ClassName[] 类型的解析
+                // 处理 string[] 或 ClassName[] 或 ClassName[][] 等多维数组的解析
                 $itemType = substr($type, 0, -2);
-                if ($type = self::parseSingleType($itemType, $reflection->getDeclaringClass())) {
-                    return $type;
+                // 递归处理多层 [] 的情况
+                $nestedLevel = 1;
+                while (str_ends_with($itemType, '[]')) {
+                    $itemType = substr($itemType, 0, -2);
+                    $nestedLevel++;
+                }
+                $parsedType = self::parseSingleType($itemType, $reflection->getDeclaringClass());
+                if ($parsedType) {
+                    // 根据嵌套层级构建 ValidationRules
+                    while ($nestedLevel > 1) {
+                        $parsedType = new ValidationRules(
+                            arrayItem: $parsedType,
+                        );
+                        $nestedLevel--;
+                    }
+                    return $parsedType;
                 }
             } elseif (str_starts_with($type, 'array<')) {
                 // 处理 array<string, ClassName|xxx> 类型的解析
@@ -75,16 +89,29 @@ final class DocBlockHelper
                         // array<int|string, ClassName|xxx> 不支持多类型的情况
                         return null;
                     }
-                    // 检测 array<string, ClassName[]> 的情况（value 本身是数组）
-                    $isValueArray = str_ends_with($valueType, '[]');
-                    if ($isValueArray) {
-                        $itemType = substr($valueType, 0, -2);
+                    // 检测 array<string, ClassName[]> 或 array<string, ClassName[][]> 的情况（value 本身是数组）
+                    $nestedLevel = 0;
+                    $itemType = $valueType;
+                    while (str_ends_with($itemType, '[]')) {
+                        $itemType = substr($itemType, 0, -2);
+                        $nestedLevel++;
+                    }
+                    if ($nestedLevel > 0) {
                         if ($type = self::parseSingleType($itemType, $reflection->getDeclaringClass())) {
+                            // 构建嵌套的 ValidationRules
+                            // 第一层：表示关联数组的值是数组类型
+                            $arrayItem = new ValidationRules(
+                                arrayItem: $type,
+                            );
+                            // 后续层：多维数组的额外层级
+                            for ($i = 2; $i <= $nestedLevel; $i++) {
+                                $arrayItem = new ValidationRules(
+                                    arrayItem: $arrayItem,
+                                );
+                            }
                             return new ValidationRules(
                                 nullable: $nullable === true ? true : null,
-                                arrayItem: new ValidationRules(
-                                    arrayItem: $type,
-                                ),
+                                arrayItem: $arrayItem,
                                 object: true,
                             );
                         }

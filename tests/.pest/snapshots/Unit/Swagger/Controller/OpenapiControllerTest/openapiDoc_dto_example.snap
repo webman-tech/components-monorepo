@@ -39,7 +39,7 @@
     "components": {
         "schemas": {
             "UserCreateForm": {
-                "description": "```php\n// Validation Rules\n[\n    'name' => ['required', 'string'],\n    'age' => ['required', 'integer'],\n    'is_admin' => ['required', 'boolean'],\n    'address' => ['nullable', 'array'],\n    'address.*.city' => ['required', 'string'],\n    'address.*.address' => ['required', 'string'],\n    'id_card' => ['nullable', 'array'],\n    'id_card.type' => ['required_with:id_card', 'integer'],\n    'id_card.number' => ['required_with:id_card', 'string'],\n    'namedAddressList' => ['array'],\n    'namedAddressList.*' => ['array'],\n]\n```",
+                "description": "```php\n// Validation Rules\n[\n    'name' => ['required', 'string'],\n    'age' => ['required', 'integer'],\n    'is_admin' => ['required', 'boolean'],\n    'address' => ['nullable', 'array'],\n    'address.*.city' => ['required', 'string'],\n    'address.*.address' => ['required', 'string'],\n    'id_card' => ['nullable', 'array'],\n    'id_card.type' => ['required_with:id_card', 'integer'],\n    'id_card.number' => ['required_with:id_card', 'string'],\n    'namedAddressList' => ['array'],\n    'namedAddressList.*' => ['array'],\n    'tags' => ['array'],\n    'tags.*' => ['string'],\n    'scores' => ['array'],\n    'scores.*' => ['integer'],\n    'prices' => ['array'],\n    'prices.*' => ['numeric'],\n    'metadata' => ['array'],\n    'metadata.*' => ['string'],\n    'counts' => ['array'],\n    'counts.*' => ['integer'],\n    'settings' => ['array'],\n    'settings.*.key' => ['required', 'string'],\n    'settings.*.value' => ['required', 'string'],\n    'settings.*.enabled' => ['boolean'],\n    'matrixAddress' => ['array'],\n    'matrixAddress.*' => ['array'],\n    'namedMatrixAddress' => ['array'],\n    'namedMatrixAddress.*' => ['array'],\n    'extra' => ['array'],\n    'nickname' => ['nullable', 'string'],\n    'height' => ['nullable', 'numeric'],\n    'status' => ['integer'],\n    'role' => ['string'],\n]\n```",
                 "required": [
                     "name",
                     "age",
@@ -84,6 +84,95 @@
                                 "$ref": "#/components/schemas/UserCreateFormAddressItem"
                             }
                         }
+                    },
+                    "tags": {
+                        "description": "简单字符串数组",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "scores": {
+                        "description": "整数数组",
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    "prices": {
+                        "description": "浮点数数组",
+                        "type": "array",
+                        "format": "float",
+                        "items": {
+                            "type": "number"
+                        }
+                    },
+                    "metadata": {
+                        "description": "关联数组，值为字符串",
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    },
+                    "counts": {
+                        "description": "关联数组，值为整数",
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "integer"
+                        }
+                    },
+                    "settings": {
+                        "description": "关联数组，值为对象",
+                        "type": "object",
+                        "additionalProperties": {
+                            "$ref": "#/components/schemas/UserCreateFormSettings"
+                        }
+                    },
+                    "matrixAddress": {
+                        "description": "多维数组（数组的数组）",
+                        "type": "array",
+                        "items": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/UserCreateFormAddressItem"
+                            }
+                        }
+                    },
+                    "namedMatrixAddress": {
+                        "description": "关联数组，值为多维数组",
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/components/schemas/UserCreateFormAddressItem"
+                            }
+                        }
+                    },
+                    "extra": {
+                        "description": "混合类型的关联数组",
+                        "type": "array",
+                        "items": {}
+                    },
+                    "nickname": {
+                        "description": "可空的简单类型",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "height": {
+                        "description": "可空的浮点数",
+                        "type": "number",
+                        "format": "float",
+                        "nullable": true
+                    },
+                    "status": {
+                        "description": "带默认值的整数",
+                        "type": "integer",
+                        "default": 1
+                    },
+                    "role": {
+                        "description": "带默认值的字符串",
+                        "type": "string",
+                        "default": "user"
                     }
                 },
                 "type": "object"
@@ -130,6 +219,31 @@
                 "properties": {
                     "success": {
                         "type": "boolean",
+                        "example": "true"
+                    }
+                },
+                "type": "object"
+            },
+            "UserCreateFormSettings": {
+                "required": [
+                    "key",
+                    "value"
+                ],
+                "properties": {
+                    "key": {
+                        "description": "设置键",
+                        "type": "string",
+                        "example": "dark_mode"
+                    },
+                    "value": {
+                        "description": "设置值",
+                        "type": "string",
+                        "example": "true"
+                    },
+                    "enabled": {
+                        "description": "是否启用",
+                        "type": "boolean",
+                        "default": true,
                         "example": "true"
                     }
                 },
