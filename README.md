@@ -1,21 +1,18 @@
-# monorepo
+# Components Monorepo
 
-webman tech 维护的组件的集合仓库，大部分组件优先适配 webman，但非 webman 下也可以使用。
+webman tech 组件集合仓库，包含多个可独立使用的 PHP 组件。
 
 ## 安装
 
 ```bash
-# 全部安装
+# 安装所有组件
 composer require webman-tech/components-monorepo
-# 按需安装举例
+
+# 按需安装单个组件
 composer require webman-tech/amis-admin
 composer require webman-tech/auth
 # ...
 ```
-
-## 使用
-
-参考各个组件的文档
 
 ## 组件列表
 
@@ -33,19 +30,12 @@ composer require webman-tech/auth
 
 <!-- packages:end -->
 
-## 目录结构
+## 使用说明
 
-- packages: 各个组件目录
-- scripts: 辅助 monorepo 的一些常用脚本
-- phpstan: phpstan 一些扩展和配置的文件
-- src: 预留目录，暂时为空
-- tests: 测试目录
-    - Fixtures: 测试数据，按照各个组件的目录
-    - Unit: 单元测试，按照各个组件的目录
-    - webman: 用于单元测试的一个 webman 极小项目结构
+各组件的详细使用方法，请参考对应包的文档。
 
-# 新加包的流程
+## 贡献指南
 
-1. 在 src 下建立新的目录，可以复制 `packages/_template` 然后改下内容
-2. 在 [.gitsplit.yml](.gitsplit.yml) 种添加新的拆包规则
-3. 在 github 上新建空白项目
+欢迎提交 Issue 和 Pull Request。
+
+项目使用 Monorepo 结构管理多个组件，开发前请阅读 [CLAUDE.md](CLAUDE.md) 了解项目架构和开发规范。

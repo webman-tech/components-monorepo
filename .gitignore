@@ -9,5 +9,8 @@ phpstan.neon
 /app
 /plugin
 /resource
+/TODO
 
 node_modules
+
+.claude/*.local*
