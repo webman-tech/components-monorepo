@@ -7,8 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
+## [5.0.10] - 2026-01-16
 
+### Added
 - DTO: 嵌套 DTO 验证规则继承和避免重复验证
 - amis-admin: 支持带类型的 filter 用于 MongoDB
 - amis-admin: 支持时间区间单边查询
@@ -138,7 +139,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 >
 > 如需查看完整的历史变更，请访问 [GitHub Commit 历史](https://github.com/webman-tech/components-monorepo/commits/main/)
 
-[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.0.9...HEAD
+[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.0.10...HEAD
+
+[5.0.10]: https://github.com/webman-tech/components-monorepo/compare/v5.0.9...v5.0.10
 
 [5.0.9]: https://github.com/webman-tech/components-monorepo/compare/v5.0.8...v5.0.9
 
