@@ -193,19 +193,44 @@ final class ValidationRules
         $rules = $this->parsedRules ? [$key => $this->parsedRules] : [];
 
         if ($this->object && $this->object !== true && class_exists($this->object)) {
-            foreach (ReflectionReaderFactory::fromClass($this->object)->getPropertiesValidationRules() as $itemKey => $itemRules) {
-                $rules[$key . '.' . $itemKey] = array_map(function ($rule) use ($key) {
-                    if ($rule === 'required') {
-                        return 'required_with:' . $key;
-                    }
-                    return $rule;
-                }, $itemRules);
+            // 检查是否是 BaseDTO，如果是，获取完整的验证规则（包括额外规则）
+            if (is_a($this->object, BaseDTO::class, true)) {
+                // 调用子 DTO 的 getValidationRules() 方法，获取所有规则（包括额外规则）
+                /** @var BaseDTO $object */
+                $childRules = $this->object::getValidationRules();
+                foreach ($childRules as $itemKey => $itemRules) {
+                    $rules[$key . '.' . $itemKey] = array_map(function ($rule) use ($key) {
+                        if ($rule === 'required') {
+                            return 'required_with:' . $key;
+                        }
+                        return $rule;
+                    }, $itemRules);
+                }
+            } else {
+                // 非 BaseDTO，只获取属性验证规则
+                foreach (ReflectionReaderFactory::fromClass($this->object)->getPropertiesValidationRules() as $itemKey => $itemRules) {
+                    $rules[$key . '.' . $itemKey] = array_map(function ($rule) use ($key) {
+                        if ($rule === 'required') {
+                            return 'required_with:' . $key;
+                        }
+                        return $rule;
+                    }, $itemRules);
+                }
             }
         }
         if ($this->arrayItem) {
             if (is_string($this->arrayItem) && class_exists($this->arrayItem)) {
-                foreach (ReflectionReaderFactory::fromClass($this->arrayItem)->getPropertiesValidationRules() as $itemKey => $itemRules) {
-                    $rules[$key . '.*.' . $itemKey] = $itemRules;
+                // 检查是否是 BaseDTO，如果是，获取完整的验证规则（包括额外规则）
+                if (is_a($this->arrayItem, BaseDTO::class, true)) {
+                    /** @var BaseDTO $arrayItem */
+                    $childRules = $this->arrayItem::getValidationRules();
+                    foreach ($childRules as $itemKey => $itemRules) {
+                        $rules[$key . '.*.' . $itemKey] = $itemRules;
+                    }
+                } else {
+                    foreach (ReflectionReaderFactory::fromClass($this->arrayItem)->getPropertiesValidationRules() as $itemKey => $itemRules) {
+                        $rules[$key . '.*.' . $itemKey] = $itemRules;
+                    }
                 }
             } elseif ($this->arrayItem instanceof ValidationRules) {
                 $rules[$key . '.*'] = $this->arrayItem->getRules('_PLACE_')['_PLACE_'];
@@ -239,7 +264,7 @@ final class ValidationRules
                 if (!is_array($value)) {
                     throw new \InvalidArgumentException('cant make object because value not array: ' . $this->object);
                 }
-                return $this->object::fromData($value);
+                return $this->object::fromData($value, validate: false);
             }
             if (is_a($this->object, DateTime::class, true)) {
                 return ReflectionReaderFactory::fromClass($this->object)->newInstanceByData([

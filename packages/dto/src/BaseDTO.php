@@ -38,7 +38,7 @@ class BaseDTO
     }
 
     /**
-     * 获取全部的验证规则
+     * 获取全部的验证规则（包括嵌套 DTO 的所有规则）
      * @return array<string, array>
      */
     public static function getValidationRules(): array

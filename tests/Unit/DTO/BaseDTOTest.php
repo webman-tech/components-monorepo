@@ -465,3 +465,81 @@ test('toArray use singleKey', function () {
     $dto->list = [['id' => 1], ['id' => 2]];
     expect($dto->toArray())->toBe($dto->list);
 });
+
+test('fromData with nested DTO validate', function () {
+    // 子 DTO，有额外的验证规则
+    class DTONestedChildValidateTrueTest extends BaseDTO
+    {
+        public static int $gotValidationRulesCount = 0;
+
+        public string $name;
+        public int $age;
+
+        protected static function getExtraValidationRules(): array
+        {
+            return [
+                'age' => 'min:18', // 额外的验证规则：age 必须 >= 18
+            ];
+        }
+
+        public static function getValidationRules(): array
+        {
+            self::$gotValidationRulesCount++;
+
+            return parent::getValidationRules();
+        }
+    }
+
+    // 父 DTO，包含子 DTO 属性
+    class DTONestedParentValidateTrueTest extends BaseDTO
+    {
+        public string $title;
+
+        public DTONestedChildValidateTrueTest $child;
+
+        /**
+         * @var array|DTONestedChildValidateTrueTest[]
+         */
+        public array $children;
+    }
+
+    // 当 validate=true 时，父 DTO 的验证规则现在应该包含子 DTO 的额外规则（min:18）
+    $parentRules = DTONestedParentValidateTrueTest::getValidationRules();
+    expect($parentRules)->toBe([
+        'title' => ['required', 'string'],
+        'child' => ['required', 'array'],
+        'child.name' => ['required_with:child', 'string'],
+        'child.age' => ['required_with:child', 'integer', 'min:18'],
+        'children' => ['required', 'array'],
+        'children.*.name' => ['required', 'string'],
+        'children.*.age' => ['required', 'integer', 'min:18'],
+    ]);
+    // 验证会在父层级完成，子 DTO 不会重复验证
+    // 获取验证规则应该只被调用了2次: child 和 children 各 1 次
+    expect(DTONestedChildValidateTrueTest::$gotValidationRulesCount)->toBe(2);
+
+    try {
+        DTONestedParentValidateTrueTest::fromData([
+            'title' => 'parent',
+            'child' => [
+                'name' => 'child',
+                'age' => 10, // 不满足 min:18 规则
+            ],
+        ]);
+        throw new InvalidArgumentException('not reachable');
+    } catch (DTOValidateException $e) {
+        // 父层级的验证异常（现在父 DTO 会验证子 DTO 的额外规则）
+        expect($e)->toBeInstanceOf(DTOValidateException::class)
+            ->and($e->getErrors())->toHaveKey('child.age');
+    }
+
+    $data = DTONestedParentValidateTrueTest::fromData([
+        'title' => 'parent',
+        'child' => [
+            'name' => 'child',
+            'age' => 10, // 不满足 min:18 规则
+        ],
+    ], validate: false);
+    // 能走到这证明没有验证，包括嵌套 DTO 的验证也没执行
+    expect($data->child->age)->toBe(10);
+});
