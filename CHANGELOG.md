@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.0.11] - 2026-01-19
+
+### Added
+
+- DTO: 新增 shallowValidation 浅层验证参数，用于优化嵌套 DTO 和大数组的验证性能
+
+### Fixed
+
+- 修复 PHPStan Level 9 静态分析错误
+
 ## [5.0.10] - 2026-01-16
 
 ### Added
@@ -139,7 +149,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 >
 > 如需查看完整的历史变更，请访问 [GitHub Commit 历史](https://github.com/webman-tech/components-monorepo/commits/main/)
 
-[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.0.10...HEAD
+[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.0.11...HEAD
+
+[5.0.11]: https://github.com/webman-tech/components-monorepo/compare/v5.0.10...v5.0.11
 
 [5.0.10]: https://github.com/webman-tech/components-monorepo/compare/v5.0.9...v5.0.10
 
