@@ -48,6 +48,12 @@ final class ValidationRules
         public null|int                    $minLength = null,
         public null|int                    $maxLength = null,
         public null|array                  $in = null,
+        /**
+         * 是否使用浅层验证（不展开嵌套 DTO 的验证规则）
+         * - true: 对于嵌套对象/数组，只验证基础类型，不递归获取子 DTO 的验证规则
+         * - false: 完整验证，会展开所有嵌套规则（默认）
+         */
+        public bool                         $shallowValidation = false,
     )
     {
     }
@@ -195,16 +201,19 @@ final class ValidationRules
         if ($this->object && $this->object !== true && class_exists($this->object)) {
             // 检查是否是 BaseDTO，如果是，获取完整的验证规则（包括额外规则）
             if (is_a($this->object, BaseDTO::class, true)) {
-                // 调用子 DTO 的 getValidationRules() 方法，获取所有规则（包括额外规则）
-                /** @var BaseDTO $object */
-                $childRules = $this->object::getValidationRules();
-                foreach ($childRules as $itemKey => $itemRules) {
-                    $rules[$key . '.' . $itemKey] = array_map(function ($rule) use ($key) {
-                        if ($rule === 'required') {
-                            return 'required_with:' . $key;
-                        }
-                        return $rule;
-                    }, $itemRules);
+                // 浅层验证时，不展开嵌套 DTO 的验证规则
+                if (!$this->shallowValidation) {
+                    // 调用子 DTO 的 getValidationRules() 方法，获取所有规则（包括额外规则）
+                    /** @var array $childRules */
+                    $childRules = $this->object::getValidationRules();
+                    foreach ($childRules as $itemKey => $itemRules) {
+                        $rules[$key . '.' . $itemKey] = array_map(function ($rule) use ($key) {
+                            if ($rule === 'required') {
+                                return 'required_with:' . $key;
+                            }
+                            return $rule;
+                        }, $itemRules);
+                    }
                 }
             } else {
                 // 非 BaseDTO，只获取属性验证规则
@@ -222,10 +231,13 @@ final class ValidationRules
             if (is_string($this->arrayItem) && class_exists($this->arrayItem)) {
                 // 检查是否是 BaseDTO，如果是，获取完整的验证规则（包括额外规则）
                 if (is_a($this->arrayItem, BaseDTO::class, true)) {
-                    /** @var BaseDTO $arrayItem */
-                    $childRules = $this->arrayItem::getValidationRules();
-                    foreach ($childRules as $itemKey => $itemRules) {
-                        $rules[$key . '.*.' . $itemKey] = $itemRules;
+                    // 浅层验证时，不展开数组项 DTO 的验证规则
+                    if (!$this->shallowValidation) {
+                        /** @var array $childRules */
+                        $childRules = $this->arrayItem::getValidationRules();
+                        foreach ($childRules as $itemKey => $itemRules) {
+                            $rules[$key . '.*.' . $itemKey] = $itemRules;
+                        }
                     }
                 } else {
                     foreach (ReflectionReaderFactory::fromClass($this->arrayItem)->getPropertiesValidationRules() as $itemKey => $itemRules) {
@@ -263,6 +275,10 @@ final class ValidationRules
             if (is_a($this->object, BaseDTO::class, true)) {
                 if (!is_array($value)) {
                     throw new \InvalidArgumentException('cant make object because value not array: ' . $this->object);
+                }
+                // 空数组且字段可空时，返回 null（避免创建空 DTO 对象）
+                if ($value === [] && $this->nullable) {
+                    return null;
                 }
                 return $this->object::fromData($value, validate: false);
             }

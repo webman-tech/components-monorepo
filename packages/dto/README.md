@@ -113,23 +113,27 @@ class ExampleDTO extends BaseDTO
     // 基本类型验证
     #[ValidationRules(required: true, string: true)]
     public string $name;
-    
+
     // 数值验证
     #[ValidationRules(integer: true, min: 1, max: 100)]
     public int $age;
-    
+
     // 枚举验证
     #[ValidationRules(enum: StatusEnum::class)]
     public StatusEnum $status;
-    
+
     // 数组验证
     #[ValidationRules(array: true, arrayItem: ItemDTO::class)]
     public array $items;
-    
+
     // 嵌套对象验证
     #[ValidationRules(object: AddressDTO::class)]
     public AddressDTO $address;
-    
+
+    // 浅层验证（适用于大数据量字段，如大数组）
+    #[ValidationRules(shallowValidation: true)]
+    public array $largeData = [];
+
     // 自定义规则
     #[ValidationRules(rules: 'email|unique:users')]
     public string $email;
