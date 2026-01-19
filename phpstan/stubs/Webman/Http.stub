@@ -1,14 +1,29 @@
 <?php
 
-namespace Webman\Http;
-
-use Webman\Route\Route;
-
-#[\AllowDynamicProperties]
-class Request extends \Workerman\Protocols\Http\Request
+namespace Workerman\Protocols\Http
 {
-    /**
-     * @var Route|null
-     */
-    public $route = null;
+    class Request
+    {
+    }
+}
+
+namespace Webman\Route
+{
+    class Route
+    {
+    }
+}
+
+namespace Webman\Http
+{
+    use Webman\Route\Route;
+
+    #[\AllowDynamicProperties]
+    class Request extends \Workerman\Protocols\Http\Request
+    {
+        /**
+         * @var Route|null
+         */
+        public $route = null;
+    }
 }

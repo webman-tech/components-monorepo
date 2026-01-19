@@ -18,7 +18,8 @@ abstract class BaseMiddleware
         $response = $this->processRequest($request, function (Request $request) use ($handler): Response {
             if (is_callable($handler)) {
                 $rawResponse = $handler($request->getRaw());
-            } elseif (method_exists($handler, 'handle')) {
+            } elseif (is_object($handler) && method_exists($handler, 'handle')) {
+                /** @phpstan-ignore method.nonObject */
                 $rawResponse = $handler->handle($request->getRaw());
             } else {
                 throw new \InvalidArgumentException('Middleware handler must be callable');

@@ -78,8 +78,8 @@
   "scripts": {
     "composer-du": "composer du",
     "composer-update": "composer update",
-    "phpatan-raw": "phpstan --error-format=raw",
-    "phpstan": "phpstan",
+    "phpatan-raw": "phpstan --memory-limit=4G --error-format=raw",
+    "phpstan": "phpstan --memory-limit=4G",
     "rector": "rector",
     "script:update-packages": "php scripts/update_packages.php",
     "test": "pest"
