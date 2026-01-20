@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- DTO: 新增 `FromDataConfig` 属性支持数据过滤
+  - `ignoreNull`: 过滤掉值为 null 的数据，使用属性默认值
+  - `ignoreEmpty`: 过滤掉值为空字符串的数据，使用属性默认值
+  - 支持类级别注解、RequestDTO 全局配置、BaseDTO 默认配置三种方式
+  - 过滤逻辑在验证之前执行
+
+## [5.0.12] - 2026-01-20
+
+### Added
+
+- DTO: 新增 `FromDataConfig` 属性支持数据过滤
+  - `ignoreNull`: 过滤掉值为 null 的数据，使用属性默认值
+  - `ignoreEmpty`: 过滤掉值为空字符串的数据，使用属性默认值
+  - 支持类级别注解、RequestDTO 全局配置、BaseDTO 默认配置三种方式
+  - 过滤逻辑在验证之前执行
+
 ## [5.0.11] - 2026-01-19
 
 ### Added
@@ -149,7 +167,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 >
 > 如需查看完整的历史变更，请访问 [GitHub Commit 历史](https://github.com/webman-tech/components-monorepo/commits/main/)
 
-[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.0.11...HEAD
+[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.0.12...HEAD
+
+[5.0.12]: https://github.com/webman-tech/components-monorepo/compare/v5.0.11...v5.0.12
 
 [5.0.11]: https://github.com/webman-tech/components-monorepo/compare/v5.0.10...v5.0.11
 
