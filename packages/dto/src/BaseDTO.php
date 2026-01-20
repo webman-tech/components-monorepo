@@ -6,6 +6,7 @@ use BackedEnum;
 use DateTime;
 use DateTimeInterface;
 use stdClass;
+use WebmanTech\DTO\Attributes\FromDataConfig;
 use WebmanTech\DTO\Attributes\ToArrayConfig;
 use WebmanTech\DTO\Exceptions\DTONewInstanceException;
 use WebmanTech\DTO\Exceptions\DTOValidateException;
@@ -23,6 +24,23 @@ class BaseDTO
     public static function fromData(array $data, bool $validate = true): static
     {
         $factory = ReflectionReaderFactory::fromClass(static::class);
+
+        $fromDataConfig = $factory->getPropertiesFromDataConfig() ?? match (true) {
+            is_subclass_of(static::class, BaseRequestDTO::class) => FromDataConfig::createForRequestDTO(),
+            static::class === BaseDTO::class || is_subclass_of(static::class, BaseDTO::class) => FromDataConfig::createForBaseDTO(),
+            default => null,
+        };
+        if ($fromDataConfig && ($fromDataConfig->ignoreNull || $fromDataConfig->ignoreEmpty)) {
+            $data = array_filter($data, function ($value) use ($fromDataConfig) {
+                if ($fromDataConfig->ignoreNull && $value === null) {
+                    return false;
+                }
+                if ($fromDataConfig->ignoreEmpty && $value === '') {
+                    return false;
+                }
+                return true;
+            });
+        }
 
         if ($validate) {
             // 必须的规则

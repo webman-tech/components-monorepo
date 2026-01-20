@@ -8,6 +8,7 @@ use ReflectionClass;
 use ReflectionParameter;
 use ReflectionProperty;
 use WeakMap;
+use WebmanTech\DTO\Attributes\FromDataConfig;
 use WebmanTech\DTO\Attributes\RequestPropertyIn;
 use WebmanTech\DTO\Attributes\ToArrayConfig;
 use WebmanTech\DTO\Attributes\ValidationRules;
@@ -171,6 +172,17 @@ final class ReflectionClassReader
         return $this->getFirstNamedAttributionInstance(
             $this->reflectionClass,
             ToArrayConfig::class,
+        );
+    }
+
+    /**
+     * 获取 FromDataConfig 注解实例
+     */
+    public function getPropertiesFromDataConfig(): ?FromDataConfig
+    {
+        return $this->getFirstNamedAttributionInstance(
+            $this->reflectionClass,
+            FromDataConfig::class,
         );
     }
 

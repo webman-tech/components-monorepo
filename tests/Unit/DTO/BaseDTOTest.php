@@ -1,6 +1,7 @@
 <?php
 
 use Webman\Http\UploadFile;
+use WebmanTech\DTO\Attributes\FromDataConfig;
 use WebmanTech\DTO\Attributes\ToArrayConfig;
 use WebmanTech\DTO\BaseDTO;
 use WebmanTech\DTO\Enums\RequestPropertyInEnum;
@@ -542,4 +543,196 @@ test('fromData with nested DTO validate', function () {
     ], validate: false);
     // 能走到这证明没有验证，包括嵌套 DTO 的验证也没执行
     expect($data->child->age)->toBe(10);
+});
+
+test('fromData with FromDataConfig ignoreNull', function () {
+    #[FromDataConfig(ignoreNull: true)]
+    class DTOFromDataWithIgnoreNull extends BaseDTO
+    {
+        public function __construct(
+            public string $name = 'kitty',
+            public string $email = 'default@example.com',
+        )
+        {
+        }
+    }
+
+    // 不开启验证时，忽略 null 值，使用默认值
+    $dto = DTOFromDataWithIgnoreNull::fromData([
+        'name' => null,
+    ], validate: false);
+    expect($dto->name)->toBe('kitty')
+        ->and($dto->email)->toBe('default@example.com');
+
+    // 开启验证时，null 被过滤掉，使用默认值
+    $dto = DTOFromDataWithIgnoreNull::fromData([
+        'name' => null,
+    ], validate: true);
+    expect($dto->name)->toBe('kitty')
+        ->and($dto->email)->toBe('default@example.com');
+
+    // 正常赋值（开启验证）
+    $dto = DTOFromDataWithIgnoreNull::fromData([
+        'name' => 'test',
+    ], validate: true);
+    expect($dto->name)->toBe('test')
+        ->and($dto->email)->toBe('default@example.com');
+
+    // 不带注解时，null 不会被忽略（开启验证）
+    class DTOFromDataWithoutIgnoreNull extends BaseDTO
+    {
+        public function __construct(
+            public ?string $name = 'kitty',
+        )
+        {
+        }
+    }
+
+    $dto = DTOFromDataWithoutIgnoreNull::fromData([
+        'name' => null,
+    ], validate: true);
+    expect($dto->name)->toBe(null);
+
+    // 带注解时，没有配默认值时
+    #[FromDataConfig(ignoreNull: true)]
+    class DTOFromDataWithIgnoreNullNoDefault extends BaseDTO
+    {
+        public function __construct(
+            public ?string $name,
+        )
+        {
+        }
+    }
+
+    // 验证时，提示验证失败
+    try {
+        DTOFromDataWithIgnoreNullNoDefault::fromData([
+            'name' => null,
+        ], validate: true);
+        throw new InvalidArgumentException('Not reachable');
+    } catch (DTOValidateException $e) {
+        expect($e->getMessage())->toContain('name');
+    }
+
+    // 不验证时，提示 new 失败
+    try {
+        DTOFromDataWithIgnoreNullNoDefault::fromData([
+            'name' => null,
+        ], validate: false);
+        throw new InvalidArgumentException('Not reachable');
+    } catch (DTONewInstanceException $e) {
+        expect($e->getMessage())->toContain('new DTOFromDataWithIgnoreNullNoDefault failed');
+    }
+});
+
+test('fromData with FromDataConfig ignoreEmpty', function () {
+    #[FromDataConfig(ignoreEmpty: true)]
+    class DTOFromDataWithIgnoreEmpty extends BaseDTO
+    {
+        public function __construct(
+            public string $name = 'default',
+            public string $email = 'default@example.com',
+        )
+        {
+        }
+    }
+
+    // 不开启验证时，忽略空字符串，使用默认值
+    $dto = DTOFromDataWithIgnoreEmpty::fromData([
+        'name' => '',
+    ], validate: false);
+    expect($dto->name)->toBe('default')
+        ->and($dto->email)->toBe('default@example.com');
+
+    // 开启验证时，空字符串被过滤掉，使用默认值
+    $dto = DTOFromDataWithIgnoreEmpty::fromData([
+        'name' => '',
+    ], validate: true);
+    expect($dto->name)->toBe('default')
+        ->and($dto->email)->toBe('default@example.com');
+
+    // 正常赋值（开启验证）
+    $dto = DTOFromDataWithIgnoreEmpty::fromData([
+        'name' => 'test',
+    ], validate: true);
+    expect($dto->name)->toBe('test');
+
+    // 不带注解时，空字符串不会被忽略（开启验证）
+    class DTOFromDataWithoutIgnoreEmpty extends BaseDTO
+    {
+        public function __construct(
+            public string $name = 'default',
+        )
+        {
+        }
+    }
+
+    $dto = DTOFromDataWithoutIgnoreEmpty::fromData([
+        'name' => '',
+    ], validate: true);
+    expect($dto->name)->toBe('');
+
+    // 带注解时，没有配默认值时
+    #[FromDataConfig(ignoreEmpty: true)]
+    class DTOFromDataWithIgnoreEmptyNoDefault extends BaseDTO
+    {
+        public function __construct(
+            public string $name,
+        )
+        {
+        }
+    }
+
+    // 验证时，提示验证失败
+    try {
+        DTOFromDataWithIgnoreEmptyNoDefault::fromData([
+            'name' => '',
+        ], validate: true);
+        throw new InvalidArgumentException('Not reachable');
+    } catch (DTOValidateException $e) {
+        expect($e->getMessage())->toContain('name');
+    }
+
+    // 不验证时，提示 new 失败
+    try {
+        DTOFromDataWithIgnoreEmptyNoDefault::fromData([
+            'name' => '',
+        ], validate: false);
+    } catch (DTONewInstanceException $e) {
+        expect($e->getMessage())->toContain('new DTOFromDataWithIgnoreEmptyNoDefault failed');
+    }
+});
+
+test('fromData with FromDataConfig ignoreNull and ignoreEmpty', function () {
+    #[FromDataConfig(ignoreNull: true, ignoreEmpty: true)]
+    class DTOFromDataWithIgnoreBoth extends BaseDTO
+    {
+        public function __construct(
+            public ?string $name = 'default-name',
+            public string  $email = 'default@example.com',
+            public string  $phone = 'default-phone',
+        )
+        {
+        }
+    }
+
+    // 不开启验证时，同时忽略 null 和空字符串
+    $dto = DTOFromDataWithIgnoreBoth::fromData([
+        'name' => null,
+        'email' => '',
+        'phone' => '123456',
+    ], validate: false);
+    expect($dto->name)->toBe('default-name')
+        ->and($dto->email)->toBe('default@example.com')
+        ->and($dto->phone)->toBe('123456');
+
+    // 开启验证时，同时忽略 null 和空字符串
+    $dto = DTOFromDataWithIgnoreBoth::fromData([
+        'name' => null,
+        'email' => '',
+        'phone' => '123456',
+    ], validate: true);
+    expect($dto->name)->toBe('default-name')
+        ->and($dto->email)->toBe('default@example.com')
+        ->and($dto->phone)->toBe('123456');
 });
