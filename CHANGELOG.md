@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.0.12] - 2026-01-20
+
+### Added
+
+- DTO: 新增 `FromDataConfig` 属性支持 ignoreNull 和 ignoreEmpty 数据过滤
+
 ## [5.0.11] - 2026-01-19
 
 ### Added
@@ -149,7 +155,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 >
 > 如需查看完整的历史变更，请访问 [GitHub Commit 历史](https://github.com/webman-tech/components-monorepo/commits/main/)
 
-[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.0.11...HEAD
+[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.0.12...HEAD
+
+[5.0.12]: https://github.com/webman-tech/components-monorepo/compare/v5.0.11...v5.0.12
 
 [5.0.11]: https://github.com/webman-tech/components-monorepo/compare/v5.0.10...v5.0.11
 
