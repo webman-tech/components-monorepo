@@ -13,4 +13,4 @@ phpstan.neon
 
 node_modules
 
-.claude/*.local*
+*.local.*
