@@ -187,6 +187,32 @@ final class ValidationRules
     private ?array $parsedRules = null;
 
     /**
+     * 修复嵌套对象中的 required_with 前缀
+     * @param array $rules 规则数组
+     * @param string $parentKey 父级 key（当前对象相对于其父级的路径）
+     * @return array 修复后的规则数组
+     */
+    private function fixRequiredWithPrefix(array $rules, string $parentKey): array
+    {
+        return array_map(function ($rule) use ($parentKey) {
+            if ($rule === 'required') {
+                // 'required' 表示该字段依赖于其父对象的存在
+                // 例如：level2.title 依赖于 level2
+                return 'required_with:' . $parentKey;
+            }
+
+            if (is_string($rule) && str_starts_with($rule, 'required_with:')) {
+                // 已有的 required_with 规则需要拼接父级路径
+                // 例如：required_with:level3 -> required_with:level2.level3
+                $originalValue = substr($rule, strlen('required_with:'));
+                return 'required_with:' . $parentKey . '.' . $originalValue;
+            }
+
+            return $rule;
+        }, $rules);
+    }
+
+    /**
      * 获取最终构造出来的 rules
      * @return array<string, array>
      */
@@ -207,23 +233,13 @@ final class ValidationRules
                     /** @var array $childRules */
                     $childRules = $this->object::getValidationRules();
                     foreach ($childRules as $itemKey => $itemRules) {
-                        $rules[$key . '.' . $itemKey] = array_map(function ($rule) use ($key) {
-                            if ($rule === 'required') {
-                                return 'required_with:' . $key;
-                            }
-                            return $rule;
-                        }, $itemRules);
+                        $rules[$key . '.' . $itemKey] = $this->fixRequiredWithPrefix($itemRules, $key);
                     }
                 }
             } else {
                 // 非 BaseDTO，只获取属性验证规则
                 foreach (ReflectionReaderFactory::fromClass($this->object)->getPropertiesValidationRules() as $itemKey => $itemRules) {
-                    $rules[$key . '.' . $itemKey] = array_map(function ($rule) use ($key) {
-                        if ($rule === 'required') {
-                            return 'required_with:' . $key;
-                        }
-                        return $rule;
-                    }, $itemRules);
+                    $rules[$key . '.' . $itemKey] = $this->fixRequiredWithPrefix($itemRules, $key);
                 }
             }
         }

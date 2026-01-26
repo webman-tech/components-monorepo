@@ -359,3 +359,41 @@ test('shallowValidation 字段仍然正常进行数据赋值', function () {
     expect($dto->items[0]->title)->toBe('item1');
     expect($dto->items[1]->count)->toBe(2);
 });
+
+test('三层嵌套对象的 required_with 应该包含完整路径', function () {
+    // 定义三层嵌套 DTO
+    class DTOTestLevel3 extends BaseDTO
+    {
+        public string $name;
+        public int $value;
+    }
+
+    class DTOTestLevel2 extends BaseDTO
+    {
+        public string $title;
+        public DTOTestLevel3 $level3;
+    }
+
+    class DTOTestLevel1 extends BaseDTO
+    {
+        public string $id;
+        public DTOTestLevel2 $level2;
+    }
+
+    $rules = DTOTestLevel1::getValidationRules();
+
+    // 第一层
+    expect($rules)->toHaveKey('id');
+    expect($rules['id'])->toContain('required', 'string');
+
+    // 第二层
+    expect($rules)->toHaveKey('level2');
+    expect($rules)->toHaveKey('level2.title');
+    expect($rules['level2.title'])->toContain('required_with:level2', 'string');
+
+    // 第三层 - 这里应该是 'required_with:level2.level3' 而不是 'required_with:level3'
+    expect($rules)->toHaveKey('level2.level3');
+    expect($rules)->toHaveKey('level2.level3.name');
+    expect($rules['level2.level3.name'])->toContain('required_with:level2.level3', 'string');
+    expect($rules['level2.level3.value'])->toContain('required_with:level2.level3', 'integer');
+});
