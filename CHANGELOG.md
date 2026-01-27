@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.0.13] - 2026-01-27
+
+### Fixed
+
+- DTO: 修复三层嵌套对象的 required_with 验证规则路径问题
+
 ## [5.0.12] - 2026-01-20
 
 ### Added
@@ -155,7 +161,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 >
 > 如需查看完整的历史变更，请访问 [GitHub Commit 历史](https://github.com/webman-tech/components-monorepo/commits/main/)
 
-[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.0.12...HEAD
+[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.0.13...HEAD
+
+[5.0.13]: https://github.com/webman-tech/components-monorepo/compare/v5.0.12...v5.0.13
 
 [5.0.12]: https://github.com/webman-tech/components-monorepo/compare/v5.0.11...v5.0.12
 
