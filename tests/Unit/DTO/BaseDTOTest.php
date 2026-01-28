@@ -3,6 +3,7 @@
 use Webman\Http\UploadFile;
 use WebmanTech\DTO\Attributes\FromDataConfig;
 use WebmanTech\DTO\Attributes\ToArrayConfig;
+use WebmanTech\DTO\Attributes\ValidationRules;
 use WebmanTech\DTO\BaseDTO;
 use WebmanTech\DTO\Enums\RequestPropertyInEnum;
 use WebmanTech\DTO\Exceptions\DTONewInstanceException;
@@ -744,7 +745,7 @@ test('fromData with FromDataConfig trim', function () {
         public function __construct(
             public string $name,
             public string $email,
-            public int $age,
+            public int    $age,
         )
         {
         }
@@ -803,4 +804,71 @@ test('fromData with FromDataConfig trim', function () {
         'name' => '  hello  ',
     ], validate: false);
     expect($dto->name)->toBe('  hello  ');
+});
+
+test('fromData with FromDataConfig validatePropertiesAllWithBail', function () {
+    // 启用 validatePropertiesAllWithBail，给每个属性都添加 bail 验证（验证失败时停止该字段的后续验证）
+    #[FromDataConfig(validatePropertiesAllWithBail: true)]
+    class DTOFromDataWithValidatePropertiesAllWithBail extends BaseDTO
+    {
+        public function __construct(
+            #[ValidationRules(min: 100)]
+            public string $name,
+        )
+        {
+        }
+    }
+
+    // 检查验证规则是否包含 bail
+    $rules = DTOFromDataWithValidatePropertiesAllWithBail::getValidationRules();
+    foreach ($rules as $fieldRules) {
+        expect($fieldRules[0])->toBe('bail');
+    }
+
+    // 验证失败时测试
+    try {
+        DTOFromDataWithValidatePropertiesAllWithBail::fromData([
+            'name' => 123, // 类型错误
+        ]);
+        throw new InvalidArgumentException('Not reachable');
+    } catch (DTOValidateException $e) {
+        // bail 规则在第一个验证失败时停止，所以 name 字段只有第一个错误
+        expect($e->getErrors()['name'])->toHaveCount(1); // 验证只有一个错误信息
+    }
+
+    // 对比不使用 bail 的情况
+    class DTOFromDataWithoutBailForCompare extends BaseDTO
+    {
+        public function __construct(
+            #[ValidationRules(minLength: 100)]
+            public string $name,
+        )
+        {
+        }
+    }
+
+    try {
+        DTOFromDataWithoutBailForCompare::fromData([
+            'name' => 123, // 类型错误，会验证 string 规则和后续规则
+        ]);
+        throw new InvalidArgumentException('Not reachable');
+    } catch (DTOValidateException $e) {
+        // 没有 bail 时，name 字段可能有多个错误（取决于验证器行为）
+        expect($e->getErrors()['name'])->toHaveCount(2); // 验证不止一个错误信息
+    }
+
+    // 不带注解时，不添加 bail 规则
+    class DTOFromDataWithoutValidatePropertiesAllWithBail extends BaseDTO
+    {
+        public function __construct(
+            public string $name,
+        )
+        {
+        }
+    }
+
+    $rules = DTOFromDataWithoutValidatePropertiesAllWithBail::getValidationRules();
+    foreach ($rules as $fieldRules) {
+        expect($fieldRules[0])->not->toBe('bail');
+    }
 });

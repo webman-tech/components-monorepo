@@ -13,6 +13,7 @@ use WebmanTech\DTO\Exceptions\DTOValidateException;
 use WebmanTech\DTO\Helper\ArrayHelper;
 use WebmanTech\DTO\Helper\ConfigHelper;
 use WebmanTech\DTO\Integrations\Validation;
+use WebmanTech\DTO\Reflection\ReflectionClassReader;
 use WebmanTech\DTO\Reflection\ReflectionReaderFactory;
 
 class BaseDTO
@@ -25,11 +26,7 @@ class BaseDTO
     {
         $factory = ReflectionReaderFactory::fromClass(static::class);
 
-        $fromDataConfig = $factory->getPropertiesFromDataConfig() ?? match (true) {
-            is_subclass_of(static::class, BaseRequestDTO::class) => FromDataConfig::createForRequestDTO(),
-            static::class === BaseDTO::class || is_subclass_of(static::class, BaseDTO::class) => FromDataConfig::createForBaseDTO(),
-            default => null,
-        };
+        $fromDataConfig = self::getFromDataConfig(__FUNCTION__, $factory);
 
         if ($fromDataConfig) {
             if ($fromDataConfig->trim) {
@@ -52,15 +49,20 @@ class BaseDTO
         }
 
         if ($validate) {
-            // 必须的规则
             $rules = static::getValidationRules();
-            $data = static::validateData($data, $rules);
+            try {
+                $data = static::validateData($data, $rules);
+            } finally {
+                self::resetFromDataConfig(__FUNCTION__);
+            }
         }
 
         try {
             return $factory->newInstanceByData($data);
         } catch (\Throwable $e) {
             throw new DTONewInstanceException(static::class, $e);
+        } finally {
+            self::resetFromDataConfig(__FUNCTION__);
         }
     }
 
@@ -94,6 +96,17 @@ class BaseDTO
                 }
             }
         }
+
+        $fromDataConfig = self::getFromDataConfig(__FUNCTION__);
+
+        // 应用 bail 规则
+        if ($fromDataConfig && $fromDataConfig->validatePropertiesAllWithBail) {
+            foreach ($rules as $key => $keyRules) {
+                array_unshift($rules[$key], 'bail');
+            }
+        }
+
+        self::resetFromDataConfig(__FUNCTION__);
 
         return $rules;
     }
@@ -216,5 +229,33 @@ class BaseDTO
         }
 
         return $data;
+    }
+
+    private static string|null $tmpFromDataConfigCallFrom = null;
+    private static false|null|FromDataConfig $tmpFromDataConfig = false;
+
+    private static function getFromDataConfig(string $callFrom, ?ReflectionClassReader $factory = null): FromDataConfig|null
+    {
+        if (self::$tmpFromDataConfig === false) {
+            self::$tmpFromDataConfigCallFrom = $callFrom;
+            $factory ??= ReflectionReaderFactory::fromClass(static::class);
+
+            self::$tmpFromDataConfig = $factory->getPropertiesFromDataConfig() ?? match (true) {
+                is_subclass_of(static::class, BaseRequestDTO::class) => FromDataConfig::createForRequestDTO(),
+                static::class === BaseDTO::class || is_subclass_of(static::class, BaseDTO::class) => FromDataConfig::createForBaseDTO(),
+                default => null,
+            };
+        }
+
+        return self::$tmpFromDataConfig;
+    }
+
+    private static function resetFromDataConfig(string $callFrom): void
+    {
+        if ($callFrom === self::$tmpFromDataConfigCallFrom) {
+            // 哪边注入的，哪边重置
+            self::$tmpFromDataConfigCallFrom = null;
+            self::$tmpFromDataConfig = false;
+        }
     }
 }
