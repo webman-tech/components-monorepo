@@ -13,6 +13,7 @@ use WebmanTech\DTO\Exceptions\DTOValidateException;
 use WebmanTech\DTO\Helper\ArrayHelper;
 use WebmanTech\DTO\Helper\ConfigHelper;
 use WebmanTech\DTO\Integrations\Validation;
+use WebmanTech\DTO\Integrations\ValidatorStopOnFirstFailureInterface;
 use WebmanTech\DTO\Reflection\ReflectionClassReader;
 use WebmanTech\DTO\Reflection\ReflectionReaderFactory;
 
@@ -154,7 +155,15 @@ class BaseDTO
         if (!$rules) {
             return $data;
         }
-        return Validation::create()->validate($data, $rules, static::getValidationRuleMessages(), static::getValidationRuleCustomAttributes());
+
+        $validator = Validation::create();
+
+        $fromDataConfig = self::getFromDataConfig(__FUNCTION__);
+        if ($fromDataConfig && $fromDataConfig->validateStopOnFirstFailure && $validator instanceof ValidatorStopOnFirstFailureInterface) {
+            $validator = $validator->stopOnFirstFailure();
+        }
+
+        return $validator->validate($data, $rules, static::getValidationRuleMessages(), static::getValidationRuleCustomAttributes());
     }
 
     /**

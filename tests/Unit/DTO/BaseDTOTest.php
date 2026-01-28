@@ -898,3 +898,83 @@ test('fromData with bail validation rule', function () {
     }
     expect($bailCount)->toBe(1); // 不会重复添加
 });
+
+test('fromData with FromDataConfig stopOnFirstFailure', function () {
+    // 启用 validateStopOnFirstFailure，验证器在第一次失败时停止所有验证
+    #[FromDataConfig(validateStopOnFirstFailure: true)]
+    class DTOWithStopOnFirstFailure extends BaseDTO
+    {
+        public function __construct(
+            #[ValidationRules(min: 5)]
+            public string $name,
+            public string $email,
+            public int $age,
+        ) {}
+    }
+
+    // 验证失败时测试 - 第一个字段失败后立即停止
+    try {
+        DTOWithStopOnFirstFailure::fromData([
+            'name' => 'ab',  // 不满足 min:5（第一个字段）
+            'email' => 'invalid-email',  // 不会验证这个
+            'age' => 'not-a-number',  // 不会验证这个
+        ]);
+        throw new InvalidArgumentException('Not reachable');
+    } catch (DTOValidateException $e) {
+        // 只有 name 字段的错误
+        expect($e->getErrors())->toHaveKey('name');
+        expect($e->getErrors())->not->toHaveKey('email');
+        expect($e->getErrors())->not->toHaveKey('age');
+    }
+
+    // 对比：不使用 stopOnFirstFailure 的情况
+    class DTOWithoutStopOnFirstFailure extends BaseDTO
+    {
+        public function __construct(
+            #[ValidationRules(min: 5)]
+            public string $name,
+            public string $email,
+            #[ValidationRules(min: 18)]
+            public int $age,
+        ) {}
+    }
+
+    try {
+        DTOWithoutStopOnFirstFailure::fromData([
+            'name' => 'ab',  // 不满足 min:5
+            'email' => 123,  // 类型错误
+            'age' => 10,  // 不满足 min:18
+        ]);
+        throw new InvalidArgumentException('Not reachable');
+    } catch (DTOValidateException $e) {
+        // 会验证所有字段，返回所有错误
+        expect($e->getErrors())->toHaveKey('name');
+        expect($e->getErrors())->toHaveKey('email');
+        expect($e->getErrors())->toHaveKey('age');
+    }
+
+    // validateStopOnFirstFailure 与 bail 配合使用
+    #[FromDataConfig(validateStopOnFirstFailure: true, validatePropertiesAllWithBail: true)]
+    class DTOWithStopAndBail extends BaseDTO
+    {
+        public function __construct(
+            #[ValidationRules(min: 100)]
+            public string $name,
+            #[ValidationRules(min: 5)]
+            public string $email,
+        ) {}
+    }
+
+    try {
+        DTOWithStopAndBail::fromData([
+            'name' => 123,  // 类型错误
+            'email' => 'ab',  // 不满足 min:5，但不会验证
+        ]);
+        throw new InvalidArgumentException('Not reachable');
+    } catch (DTOValidateException $e) {
+        // bail 让 name 只有一个错误，stopOnFirstFailure 让后续字段不验证
+        expect($e->getErrors())->toHaveKey('name');
+        expect($e->getErrors())->not->toHaveKey('email');
+        expect($e->getErrors()['name'])->toHaveCount(1); // bail 只返回第一个错误
+    }
+});

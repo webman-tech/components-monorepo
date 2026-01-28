@@ -2,8 +2,9 @@
 
 namespace WebmanTech\DTO\Integrations;
 
-use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Contracts\Validation\Validator as ValidatorContract;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\Validator;
 use InvalidArgumentException;
 use WebmanTech\DTO\Exceptions\DTOValidateException;
 use WebmanTech\DTO\Helper\ConfigHelper;
@@ -44,12 +45,18 @@ final class Validation
 /**
  * @internal
  */
-final class LaravelFunctionValidatior implements ValidatorInterface
+final class LaravelFunctionValidatior implements ValidatorInterface, ValidatorStopOnFirstFailureInterface
 {
+    use ValidatorStopOnFirstFailureAware;
+
     public function validate(array $data = [], array $rules = [], array $messages = [], array $customAttributes = []): array
     {
-        /** @var Validator $validator */
+        /** @var ValidatorContract $validator */
         $validator = validator($data, $rules, $messages, $customAttributes);
+
+        if ($this->stopOnFirstFailure === true && $validator instanceof Validator) {
+            $validator->stopOnFirstFailure();
+        }
 
         try {
             return $validator->validate();
