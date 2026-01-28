@@ -736,3 +736,71 @@ test('fromData with FromDataConfig ignoreNull and ignoreEmpty', function () {
         ->and($dto->email)->toBe('default@example.com')
         ->and($dto->phone)->toBe('123456');
 });
+
+test('fromData with FromDataConfig trim', function () {
+    #[FromDataConfig(trim: true)]
+    class DTOFromDataWithTrim extends BaseDTO
+    {
+        public function __construct(
+            public string $name,
+            public string $email,
+            public int $age,
+        )
+        {
+        }
+    }
+
+    // trim 会去除字符串首尾空格
+    $dto = DTOFromDataWithTrim::fromData([
+        'name' => '  hello  ',
+        'email' => '  test@example.com  ',
+        'age' => 18,
+    ], validate: false);
+    expect($dto->name)->toBe('hello')
+        ->and($dto->email)->toBe('test@example.com')
+        ->and($dto->age)->toBe(18);
+
+    // 非字符串类型不受影响
+    $dto = DTOFromDataWithTrim::fromData([
+        'name' => '  world  ',
+        'email' => 'world@example.com',
+        'age' => 25,
+    ], validate: true);
+    expect($dto->name)->toBe('world')
+        ->and($dto->email)->toBe('world@example.com')
+        ->and($dto->age)->toBe(25);
+
+    // trim 和 ignoreEmpty 结合使用
+    #[FromDataConfig(trim: true, ignoreEmpty: true)]
+    class DTOFromDataWithTrimAndIgnoreEmpty extends BaseDTO
+    {
+        public function __construct(
+            public string $name = 'default',
+            public string $email = 'default@example.com',
+        )
+        {
+        }
+    }
+
+    $dto = DTOFromDataWithTrimAndIgnoreEmpty::fromData([
+        'name' => '   ', // trim 后为空字符串，被忽略
+        'email' => '  test@example.com  ',
+    ], validate: false);
+    expect($dto->name)->toBe('default')
+        ->and($dto->email)->toBe('test@example.com');
+
+    // 不带注解时，字符串不会被 trim
+    class DTOFromDataWithoutTrim extends BaseDTO
+    {
+        public function __construct(
+            public string $name,
+        )
+        {
+        }
+    }
+
+    $dto = DTOFromDataWithoutTrim::fromData([
+        'name' => '  hello  ',
+    ], validate: false);
+    expect($dto->name)->toBe('  hello  ');
+});

@@ -30,16 +30,25 @@ class BaseDTO
             static::class === BaseDTO::class || is_subclass_of(static::class, BaseDTO::class) => FromDataConfig::createForBaseDTO(),
             default => null,
         };
-        if ($fromDataConfig && ($fromDataConfig->ignoreNull || $fromDataConfig->ignoreEmpty)) {
-            $data = array_filter($data, function ($value) use ($fromDataConfig) {
-                if ($fromDataConfig->ignoreNull && $value === null) {
-                    return false;
-                }
-                if ($fromDataConfig->ignoreEmpty && $value === '') {
-                    return false;
-                }
-                return true;
-            });
+
+        if ($fromDataConfig) {
+            if ($fromDataConfig->trim) {
+                $data = array_map(function ($value) {
+                    return is_string($value) ? trim($value) : $value;
+                }, $data);
+            }
+
+            if ($fromDataConfig->ignoreNull || $fromDataConfig->ignoreEmpty) {
+                $data = array_filter($data, function ($value) use ($fromDataConfig) {
+                    if ($fromDataConfig->ignoreNull && $value === null) {
+                        return false;
+                    }
+                    if ($fromDataConfig->ignoreEmpty && $value === '') {
+                        return false;
+                    }
+                    return true;
+                });
+            }
         }
 
         if ($validate) {
