@@ -872,3 +872,29 @@ test('fromData with FromDataConfig validatePropertiesAllWithBail', function () {
         expect($fieldRules[0])->not->toBe('bail');
     }
 });
+
+test('fromData with bail validation rule', function () {
+    // 测试 bail 规则会被提取到最前面
+    class DTOWithBailInRules extends BaseDTO
+    {
+        public function __construct(
+            #[ValidationRules(['bail', 'min:100'])]
+            public string $name,
+        )
+        {
+        }
+    }
+
+    $rules = DTOWithBailInRules::getValidationRules();
+    expect($rules['name'][0])->toBe('bail'); // bail 在第一位
+    expect($rules['name'])->toContain('required', 'string', 'min:100');
+
+    // 统计 bail 数量，应该只有 1 个
+    $bailCount = 0;
+    foreach ($rules['name'] as $rule) {
+        if (is_string($rule) && $rule === 'bail') {
+            $bailCount++;
+        }
+    }
+    expect($bailCount)->toBe(1); // 不会重复添加
+});

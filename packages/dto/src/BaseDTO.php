@@ -102,6 +102,11 @@ class BaseDTO
         // 应用 bail 规则
         if ($fromDataConfig && $fromDataConfig->validatePropertiesAllWithBail) {
             foreach ($rules as $key => $keyRules) {
+                // 如果第一位已经是 bail，跳过（ValidationRules 中已处理过）
+                if (isset($keyRules[0]) && $keyRules[0] === 'bail') {
+                    continue;
+                }
+                // 如果没有 bail，添加到开头
                 array_unshift($rules[$key], 'bail');
             }
         }

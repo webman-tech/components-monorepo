@@ -393,11 +393,24 @@ final class ValidationRules
                 is_object($item) => $item::class,
                 default => throw new \InvalidArgumentException('ValidationRules::getRules() only support string or classObject'),
             };
-            if (isset($rulesAll[$uniqueKey])) {
+            if (isset($data[$uniqueKey])) {
                 continue;
             }
             $data[$uniqueKey] = $item;
         }
-        return array_values($data);
+
+        $result = array_values($data);
+
+        // 检查是否有 bail 规则，如果有则提取到最前面
+        if (in_array('bail', $result, true)) {
+            $bailIndex = array_search('bail', $result, true);
+            if ($bailIndex > 0) {
+                // 将 bail 移到最前面
+                array_splice($result, $bailIndex, 1);
+                array_unshift($result, 'bail');
+            }
+        }
+
+        return $result;
     }
 }
