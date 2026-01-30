@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.14] - 2026-01-30
+
+### Added
+
+- DTO: 新增 `FromDataConfig` trim 配置支持自动去除字符串首尾空格
+- DTO: 新增 `FromDataConfig` validatePropertiesAllWithBail 配置
+- DTO: 优化 bail 验证规则处理逻辑
+- DTO: 新增 `FromDataConfig` validateStopOnFirstFailure 配置
+- Logger: 新增命名参数支持,允许使用 level/type/context 参数
+
+### Fixed
+
+- DTO: 修复子项 null 不应在记录日志时被转为 '[NULL]'
+
+### Changed
+
+- CI: 跳过仅修改 markdown 文档的测试运行
+
 ## [Unreleased]
 
 ## [5.0.13] - 2026-01-27
@@ -161,7 +179,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 >
 > 如需查看完整的历史变更，请访问 [GitHub Commit 历史](https://github.com/webman-tech/components-monorepo/commits/main/)
 
-[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.0.13...HEAD
+[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.0.14...HEAD
+
+[5.0.14]: https://github.com/webman-tech/components-monorepo/compare/v5.0.13...v5.0.14
 
 [5.0.13]: https://github.com/webman-tech/components-monorepo/compare/v5.0.12...v5.0.13
 
