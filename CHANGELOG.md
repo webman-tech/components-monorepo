@@ -25,6 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.0.15] - 2026-02-10
+
+### Added
+
+- DTO: 支持联合类型验证规则（如 int|string），自动添加 sometimes 验证规则
+
 ## [5.0.13] - 2026-01-27
 
 ### Fixed
