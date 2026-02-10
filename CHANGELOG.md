@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [5.0.15] - 2026-02-10
+
+### Added
+
+- DTO: 支持联合类型验证规则（如 int|string），自动添加 sometimes 验证规则
+
 ## [5.0.14] - 2026-01-30
 
 ### Added
@@ -22,8 +30,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - CI: 跳过仅修改 markdown 文档的测试运行
-
-## [Unreleased]
 
 ## [5.0.13] - 2026-01-27
 
