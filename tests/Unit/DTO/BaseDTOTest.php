@@ -908,8 +908,10 @@ test('fromData with FromDataConfig stopOnFirstFailure', function () {
             #[ValidationRules(min: 5)]
             public string $name,
             public string $email,
-            public int $age,
-        ) {}
+            public int    $age,
+        )
+        {
+        }
     }
 
     // 验证失败时测试 - 第一个字段失败后立即停止
@@ -935,8 +937,10 @@ test('fromData with FromDataConfig stopOnFirstFailure', function () {
             public string $name,
             public string $email,
             #[ValidationRules(min: 18)]
-            public int $age,
-        ) {}
+            public int    $age,
+        )
+        {
+        }
     }
 
     try {
@@ -962,7 +966,9 @@ test('fromData with FromDataConfig stopOnFirstFailure', function () {
             public string $name,
             #[ValidationRules(min: 5)]
             public string $email,
-        ) {}
+        )
+        {
+        }
     }
 
     try {
@@ -977,4 +983,115 @@ test('fromData with FromDataConfig stopOnFirstFailure', function () {
         expect($e->getErrors())->not->toHaveKey('email');
         expect($e->getErrors()['name'])->toHaveCount(1); // bail 只返回第一个错误
     }
+});
+
+test('union type int|string basic behavior', function () {
+    // 测试多字段 DTO
+    class DTOUnionType extends BaseDTO
+    {
+        public function __construct(
+            public string|int $count = 1,
+            public int $age = 18,
+        ) {}
+    }
+
+    // 测试单字段 DTO
+    class DTOSingleField extends BaseDTO
+    {
+        public function __construct(
+            public string|int $count = 1,
+        ) {}
+    }
+
+    // 1. 验证规则检查
+    $rules = DTOUnionType::getValidationRules();
+    expect($rules)->toHaveKeys(['count', 'age']);
+    expect($rules['count'])->toContain('sometimes');
+    expect($rules['age'])->toContain('integer');
+
+    expect(DTOSingleField::getValidationRules())->toHaveKey('count');
+
+    // 2. 单字段 DTO 测试
+    $dtoSingle = DTOSingleField::fromData(['count' => 0], validate: true);
+    expect($dtoSingle->count)->toBe(0);
+
+    $dtoSingle2 = DTOSingleField::fromData(['count' => '0'], validate: true);
+    expect($dtoSingle2->count)->toBe('0');
+
+    // 3. 多字段 DTO 测试
+    $dto1 = DTOUnionType::fromData(['count' => 0, 'age' => 20], validate: true);
+    expect($dto1->count)->toBe(0)->and($dto1->age)->toBe(20);
+
+    $dto2 = DTOUnionType::fromData(['count' => '0', 'age' => 20], validate: true);
+    expect($dto2->count)->toBe('0')->and($dto2->age)->toBe(20);
+
+    // 4. 不传值时使用默认值
+    $dto3 = DTOUnionType::fromData(['age' => 20], validate: true);
+    expect($dto3->count)->toBe(1)->and($dto3->age)->toBe(20);
+
+    // 5. validate: false 的行为保持一致
+    $dto4 = DTOUnionType::fromData(['count' => 0, 'age' => 20], validate: false);
+    expect($dto4->count)->toBe(0)->and($dto4->age)->toBe(20);
+});
+
+test('union type with ignoreEmpty config', function () {
+    #[FromDataConfig(ignoreEmpty: true)]
+    class DTOUnionTypeWithIgnoreEmpty extends BaseDTO
+    {
+        public function __construct(
+            public string|int $count = 1,
+        ) {}
+    }
+
+    // ignoreEmpty 只过滤空字符串，不过滤 0
+    $dto1 = DTOUnionTypeWithIgnoreEmpty::fromData(['count' => 0], validate: false);
+    expect($dto1->count)->toBe(0);
+
+    $dto2 = DTOUnionTypeWithIgnoreEmpty::fromData(['count' => '0'], validate: false);
+    expect($dto2->count)->toBe('0');
+
+    // 空字符串被过滤，使用默认值
+    $dto3 = DTOUnionTypeWithIgnoreEmpty::fromData(['count' => ''], validate: false);
+    expect($dto3->count)->toBe(1);
+});
+
+test('union type with nullable and empty string handling', function () {
+    // 1. string|int 类型使用 sometimes 规则，保留空字符串
+    class DTOUnionStringInt extends BaseDTO
+    {
+        public function __construct(
+            public string|int $count = 1,
+        ) {}
+    }
+
+    $rules1 = DTOUnionStringInt::getValidationRules();
+    expect($rules1['count'])->toContain('sometimes');
+
+    $dto1 = DTOUnionStringInt::fromData(['count' => ''], validate: true);
+    expect($dto1->count)->toBe('');
+
+    // 2. string|int|null 类型使用 nullable 规则，空字符串转为 null
+    class DTOUnionWithNull extends BaseDTO
+    {
+        public function __construct(
+            public string|int|null $count = 1,
+        ) {}
+    }
+
+    $rules2 = DTOUnionWithNull::getValidationRules();
+    expect($rules2['count'])->toContain('nullable');
+
+    $dto2 = DTOUnionWithNull::fromData(['count' => ''], validate: true);
+    expect($dto2->count)->toBeNull();
+
+    // 3. 对比：普通 string 类型保留空字符串
+    class DTONormalString extends BaseDTO
+    {
+        public function __construct(
+            public string $name = 'default',
+        ) {}
+    }
+
+    $dto3 = DTONormalString::fromData(['name' => ''], validate: true);
+    expect($dto3->name)->toBe('');
 });

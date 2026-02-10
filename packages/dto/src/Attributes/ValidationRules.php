@@ -94,7 +94,7 @@ final class ValidationRules
         // 获取类型
         if ($reflectionType = $reflection->getType()) {
             if ($reflectionType instanceof ReflectionNamedType) {
-                // 仅支持 ReflectionNamedType，不支持复合类型（因为 laravel 中目前没有复合类型的校验器，需要自己写 callback）
+                // 处理单一类型
                 $typeName = $reflectionType->getName();
                 if ($reflectionType->isBuiltin()) {
                     match ($typeName) {
@@ -113,6 +113,8 @@ final class ValidationRules
                     }
                 }
             }
+            // 联合类型（ReflectionUnionType）不做特殊处理
+            // 会在 getRules 中自动添加 sometimes 规则
         }
         // 对 array 的 arrayItem 进行提取
         if ($this->array && !$this->arrayItem) {
@@ -222,6 +224,13 @@ final class ValidationRules
         if ($this->parsedRules === null) {
             $this->parsedRules = $this->parseRules();
         }
+
+        // 如果没有任何验证规则（联合类型等不支持的类型），
+        // 添加 sometimes 规则以确保字段在验证结果中被保留
+        if (!$this->parsedRules || $this->parsedRules === []) {
+            $this->parsedRules = ['sometimes'];
+        }
+
         $rules = $this->parsedRules ? [$key => $this->parsedRules] : [];
 
         if ($this->object && $this->object !== true && class_exists($this->object)) {
