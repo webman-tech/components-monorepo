@@ -73,6 +73,13 @@
       "ergebnis/composer-normalize": true,
       "pestphp/pest-plugin": true
     },
+    "audit": {
+      "ignore": {
+        "PKSA-y2cr-5h3j-g3ys": "等待 tinywan/jwt 支持 firebase/php-jwt v7",
+        "PKSA-z3gr-8qht-p93v": "phpunit 安全警告，等待上游修复",
+        "PKSA-rkkf-636k-qjb3": "symfony/process 安全警告，等待上游修复"
+      }
+    },
     "sort-packages": true
   },
   "scripts": {
