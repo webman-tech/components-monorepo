@@ -137,6 +137,9 @@ return $response->getRaw(); // 始终返回原生 Webman/Symfony 响应
     - 支持手动 GC 清理过期缓存。
     - 支持 PSR-20 时钟接口注入，便于单元测试。
     - 提供 `gc()`、`count()`、`keys()` 等辅助方法用于缓存管理。
+- **NullCache**
+    - 空缓存实现（Null Object 模式），所有操作都是空操作。
+    - 用于禁用缓存或作为默认值，避免 null 检查。
 
 ## 测试工具箱
 
@@ -240,6 +243,29 @@ $clearedCount = $cache->gc();
 // 获取缓存统计
 $count = $cache->count();
 $keys = $cache->keys();
+```
+
+### 空缓存（禁用缓存）
+
+```php
+use WebmanTech\CommonUtils\Cache\NullCache;
+use Psr\SimpleCache\CacheInterface;
+
+// 作为依赖注入的默认值，避免 null 检查
+class MyService
+{
+    public function __construct(
+        private CacheInterface $cache = new NullCache()
+    ) {}
+
+    public function getData(string $key): mixed
+    {
+        return $this->cache->get($key) ?? $this->expensiveOperation($key);
+    }
+}
+
+// 在测试中禁用缓存
+$service = new MyService(new NullCache());
 ```
 
 ## 最佳实践
