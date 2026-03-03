@@ -128,6 +128,16 @@ return $response->getRaw(); // 始终返回原生 Webman/Symfony 响应
 - **View**
     - `View::renderPHP($file, $data)` 以最小成本渲染 PHP 模板，捕获异常时会清理缓冲区，避免脏输出。
 
+### 缓存
+
+- **ArrayCache**
+    - 符合 PSR-16 标准的内存数组缓存，适用于单次请求内的数据缓存。
+    - 支持 TTL（过期时间）、默认 TTL 和最大 TTL 限制。
+    - 支持 LRU 淘汰策略，当缓存数量达到上限时自动淘汰最久未使用的项。
+    - 支持手动 GC 清理过期缓存。
+    - 支持 PSR-20 时钟接口注入，便于单元测试。
+    - 提供 `gc()`、`count()`、`keys()` 等辅助方法用于缓存管理。
+
 ## 测试工具箱
 
 位于 `WebmanTech\CommonUtils\Testing` 命名空间，配合 `Testing\Factory` 构建完全可控的运行时：
@@ -205,6 +215,31 @@ $gateway = EnvAttr::get('PAYMENT_GATEWAY', fn () => 'fallback');
 
 EnvAttr::changeSupportDefine(true);
 EnvAttr::transToDefine(['exclude' => ['SENSITIVE_KEY']]);
+```
+
+### 内存缓存（单次请求内）
+
+```php
+use WebmanTech\CommonUtils\Cache\ArrayCache;
+
+// 基本使用：无限制缓存
+$cache = new ArrayCache();
+$cache->set('user:123', ['id' => 123, 'name' => 'John']);
+$user = $cache->get('user:123');
+
+// 带过期时间：默认 TTL 1 小时，最大 TTL 24 小时
+$cache = new ArrayCache(defaultTtl: 3600, maxTtl: 86400);
+$cache->set('config:settings', $settings, 600); // 10 分钟过期
+
+// LRU 淘汰：最多缓存 1000 项，超过时自动清理最久未使用的
+$cache = new ArrayCache(maxItems: 1000);
+
+// 手动清理过期缓存
+$clearedCount = $cache->gc();
+
+// 获取缓存统计
+$count = $cache->count();
+$keys = $cache->keys();
 ```
 
 ## 最佳实践
