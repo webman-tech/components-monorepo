@@ -7,11 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [5.0.15] - 2026-02-10
+## [5.0.15] - 2026-03-03
 
 ### Added
 
 - DTO: 支持联合类型验证规则（如 int|string），自动添加 sometimes 验证规则
+- common-utils: 添加 ArrayCache 内存缓存实现
+- common-utils: 添加 NullCache 空缓存实现
+
+### Fixed
+
+- CI: 忽略依赖安全警告以修复 CI 构建
+- CI: 移除已修复的 phpunit 和 symfony/process 安全警告忽略
+
+### Changed
+
+- debugbar: 使用 WeakMap 重构事件绑定机制，防止内存泄漏
+- swagger: 使用 common-utils 的缓存实现替换本地实现
 
 ## [5.0.14] - 2026-01-30
 
@@ -185,7 +197,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 >
 > 如需查看完整的历史变更，请访问 [GitHub Commit 历史](https://github.com/webman-tech/components-monorepo/commits/main/)
 
-[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.0.14...HEAD
+[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.0.15...HEAD
+
+[5.0.15]: https://github.com/webman-tech/components-monorepo/compare/v5.0.14...v5.0.15
 
 [5.0.14]: https://github.com/webman-tech/components-monorepo/compare/v5.0.13...v5.0.14
 
