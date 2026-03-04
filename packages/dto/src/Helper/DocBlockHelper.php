@@ -141,6 +141,7 @@ final class DocBlockHelper
             'string' => new ValidationRules(string: true),
             'float' => new ValidationRules(numeric: true),
             'bool' => new ValidationRules(boolean: true),
+            'mixed' => new ValidationRules(),
             default => $singleType,
         };
         if ($singleType instanceof ValidationRules) {
