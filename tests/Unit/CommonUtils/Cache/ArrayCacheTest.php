@@ -146,6 +146,28 @@ describe('ArrayCache - TTL', function () {
         $this->clock->sleep(1);
         expect($cache->has('key1'))->toBeFalse();
     });
+
+    it('does not store value when TTL is already expired', function () {
+        // 设置 TTL 为 0 秒，立即过期
+        $this->cache->set('key1', 'value1', 0);
+        expect($this->cache->has('key1'))->toBeFalse()
+            ->and($this->cache->count())->toBe(0);
+
+        // 负数 TTL 也不应存入
+        $this->cache->set('key2', 'value2', -5);
+        expect($this->cache->has('key2'))->toBeFalse()
+            ->and($this->cache->count())->toBe(0);
+    });
+
+    it('removes existing key when set with already expired TTL', function () {
+        $this->cache->set('key1', 'value1', 60);
+        expect($this->cache->has('key1'))->toBeTrue();
+
+        // 用已过期的 TTL 重新 set，应该删除已有的 key
+        $this->cache->set('key1', 'value2', 0);
+        expect($this->cache->has('key1'))->toBeFalse()
+            ->and($this->cache->count())->toBe(0);
+    });
 });
 
 describe('ArrayCache - LRU Eviction', function () {
@@ -170,6 +192,44 @@ describe('ArrayCache - LRU Eviction', function () {
             ->and($cache->has('key3'))->toBeTrue()
             ->and($cache->has('key4'))->toBeTrue();
     });
+
+    it('has() also updates LRU order', function () {
+        $cache = new ArrayCache(maxItems: 3, clock: $this->clock);
+
+        $cache->set('key1', 'value1');
+        $cache->set('key2', 'value2');
+        $cache->set('key3', 'value3');
+
+        // 用 has() 访问 key1，应该更新 LRU 顺序
+        $cache->has('key1');
+
+        // 添加新 key，触发淘汰，key2 应该被淘汰（最久未使用）
+        $cache->set('key4', 'value4');
+
+        expect($cache->has('key1'))->toBeTrue()
+            ->and($cache->has('key2'))->toBeFalse()
+            ->and($cache->has('key3'))->toBeTrue()
+            ->and($cache->has('key4'))->toBeTrue();
+    });
+
+    it('evicts expired items first during LRU eviction', function () {
+        $cache = new ArrayCache(maxItems: 3, gcProbability: 0.0, clock: $this->clock);
+
+        $cache->set('key1', 'value1', 5);
+        $cache->set('key2', 'value2');
+        $cache->set('key3', 'value3');
+
+        // key1 过期
+        $this->clock->sleep(6);
+
+        // 添加新 key，淘汰遍历时 key1 已过期会被优先清理
+        $cache->set('key4', 'value4');
+
+        expect($cache->has('key1'))->toBeFalse()
+            ->and($cache->has('key2'))->toBeTrue()
+            ->and($cache->has('key3'))->toBeTrue()
+            ->and($cache->has('key4'))->toBeTrue();
+    });
 });
 
 describe('ArrayCache - GC', function () {
@@ -190,6 +250,59 @@ describe('ArrayCache - GC', function () {
             ->and($this->cache->has('key1'))->toBeFalse()
             ->and($this->cache->has('key2'))->toBeFalse()
             ->and($this->cache->has('key3'))->toBeTrue();
+    });
+
+    it('auto gc triggers on set with 100% probability', function () {
+        $cache = new ArrayCache(gcProbability: 1.0, clock: $this->clock);
+
+        $cache->set('key1', 'value1', 10);
+        $cache->set('key2', 'value2', 10);
+
+        // 前进 11 秒，全部过期
+        $this->clock->sleep(11);
+
+        // 过期的 key 还在（未被访问，未触发 GC）
+        expect($cache->count())->toBe(2);
+
+        // 写入新 key，100% 触发 GC，过期 key 被清理
+        $cache->set('key3', 'value3', 10);
+        expect($cache->count())->toBe(1)
+            ->and($cache->has('key3'))->toBeTrue();
+    });
+
+    it('does not auto gc when gcProbability is 0', function () {
+        $cache = new ArrayCache(gcProbability: 0.0, clock: $this->clock);
+
+        $cache->set('key1', 'value1', 10);
+        $this->clock->sleep(11);
+
+        // 写入多次也不会自动 GC
+        for ($i = 0; $i < 200; $i++) {
+            $cache->set("new{$i}", "v{$i}", 10);
+        }
+
+        // key1 过期但仍在 cache 中（count 包含过期 key）
+        expect($cache->count())->toBe(201);
+    });
+
+    it('auto gc respects probability distribution', function () {
+        $gcCount = 0;
+        $trials = 1000;
+
+        for ($i = 0; $i < $trials; $i++) {
+            $cache = new ArrayCache(gcProbability: 0.5, clock: $this->clock);
+            $cache->set('expired', 'value', 1);
+            $this->clock->sleep(2);
+            // set 触发 autoGc，概率 50% 清理过期 key
+            $cache->set('trigger', 'value');
+            if ($cache->count() === 1) {
+                $gcCount++;
+            }
+        }
+
+        // p=0.5, n=1000, 期望 ~500 次，允许较宽的统计波动范围
+        expect($gcCount)->toBeGreaterThan(350)
+            ->and($gcCount)->toBeLessThan(650);
     });
 });
 
