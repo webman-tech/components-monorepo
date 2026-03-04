@@ -53,7 +53,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - `Functions/`：全局函数
 - `src/Install.php`：Webman 安装脚本
 
-测试文件位于项目根目录的 `tests/Unit/CommonUtils/`。
+测试文件位于项目根目录的 `tests/Unit/CommonUtils/`。测试环境配置和 Helper 函数详见根目录 [CLAUDE.md](../../CLAUDE.md) 的测试相关章节。
 
 ## 代码风格
 
@@ -65,4 +65,3 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 2. **适配器模式**：通过适配器实现不同框架的兼容
 3. **全局函数**：提供开箱即用的全局函数
 4. **测试隔离**：每次测试后自动清理，避免污染
-5. **测试位置**：单元测试在项目根目录的 `tests/Unit/CommonUtils/` 下，而非包内

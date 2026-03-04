@@ -147,10 +147,10 @@ composer normalize --no-check-lock --no-update-lock --indent-size=2 --indent-sty
 
 ## 代码风格
 
-- PHP 8.2+ 语法
+- PHP 8.2+ 语法（CI 矩阵覆盖 PHP 8.2/8.3/8.4）
 - 4 空格缩进
 - 使用 declare(strict_types=1) 严格类型
-- PHPStan Level 9 静态分析
+- PHPStan Level 9 静态分析（配置文件：`phpstan.dist.neon`）
 - 使用 Pest 进行测试（而非 PHPUnit）
 
 前端工具：
@@ -187,9 +187,15 @@ vendor/bin/pest tests/Unit/Swagger/Controller/OpenapiControllerTest.php --update
 - `tests/Fixtures/`: 测试数据和示例类
 - `tests/.pest/snapshots/`: snapshot 文件存储目录
 
-### 测试清理
-- 测试使用自定义的 TestContainer，每次测试前会自动清理
+### 测试环境
+- `tests/bootstrap.php` 通过 `Factory::registerTestRuntime()` 注册测试运行时，基础目录为 `tests/test-demo`
+- 测试使用自定义的 TestContainer，每次测试前会自动清理（`Pest.php` 中的 `beforeEach`）
 - Context 会在每次测试后自动 reset，避免污染
+
+### 测试 Helper 函数（定义在 `tests/Pest.php`）
+- `fixture_get_path($path)` / `fixture_get_content($path)` / `fixture_get_require($path)`：访问 `tests/Fixtures/` 下的测试数据
+- `request_create_one()`：创建一个干净的测试 Request 实例
+- `request_get_raw($request)`：获取 Request 的底层 TestRequest 对象
 
 ## 注意事项
 
