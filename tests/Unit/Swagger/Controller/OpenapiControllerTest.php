@@ -35,3 +35,16 @@ test('openapiDoc dto example', function () {
     expect($response->rawBody())->toMatchSnapshot()
         ->and($response->getHeader('Content-Type'))->toBe('application/json;charset=utf-8');
 });
+
+
+test('openapiDoc validation rules multi schema', function () {
+    $controller = new OpenapiController();
+    $response = $controller->openapiDoc([
+        'scan_path' => fixture_get_path('Swagger/ControllerForValidationRulesOperationDescription.php'),
+        'format' => 'json',
+        'cache_key' => 'json_validation_rules_multi_schema',
+    ]);
+
+    expect($response->rawBody())->toMatchSnapshot()
+        ->and($response->getHeader('Content-Type'))->toBe('application/json;charset=utf-8');
+});
