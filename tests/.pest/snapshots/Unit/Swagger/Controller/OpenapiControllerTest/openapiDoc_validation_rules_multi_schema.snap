@@ -1,0 +1,62 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "App OpenAPI",
+        "version": "0.1"
+    },
+    "paths": {
+        "/post/validation-rules-multi-schema": {
+            "post": {
+                "description": "```php\n// Validation Rules\n[\n    'name' => ['required', 'string'],\n    'age' => ['required', 'integer'],\n]\n```",
+                "operationId": "462ef670b64cd0d11263395ec926173d",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/ValidationRulesRequestA"
+                                    },
+                                    {
+                                        "$ref": "#/components/schemas/ValidationRulesRequestB"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "ValidationRulesRequestA": {
+                "required": [
+                    "name"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "ValidationRulesRequestB": {
+                "required": [
+                    "age"
+                ],
+                "properties": {
+                    "age": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            }
+        }
+    }
+}
