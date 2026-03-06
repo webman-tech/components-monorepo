@@ -25,6 +25,9 @@ jobs:
 
     name: PHP ${{ matrix.php }} - ${{ matrix.stability }}
 
+    env:
+      COMPOSER_ROOT_VERSION: dev-main
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
