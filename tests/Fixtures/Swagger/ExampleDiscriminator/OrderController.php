@@ -21,4 +21,23 @@ final class OrderController
             ->handle()
             ->toResponse();
     }
+
+    #[OA\Get(
+        path: '/orders/{id}',
+        summary: 'Get order details',
+        x: [
+            SchemaConstants::X_SCHEMA_RESPONSE => GetOrderResponse::class,
+        ]
+    )]
+    #[OA\Parameter(
+        name: 'id',
+        description: 'Order ID',
+        in: 'path',
+        required: true,
+        schema: new OA\Schema(type: 'string')
+    )]
+    public function show(string $id)
+    {
+        // 实际业务逻辑...
+    }
 }

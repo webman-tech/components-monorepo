@@ -11,6 +11,7 @@
                     "orders"
                 ],
                 "summary": "Create a new order",
+                "description": "```php\n// Validation Rules\n[\n    'type' => ['required', 'string', __object],\n    'userId' => ['required', 'string'],\n    'orderData' => ['required'],\n    'remark' => ['nullable', 'string'],\n]\n```",
                 "operationId": "62c35f7506515aaf5c6020222fc12198",
                 "requestBody": {
                     "content": {
@@ -34,12 +35,43 @@
                     }
                 }
             }
+        },
+        "/orders/{id}": {
+            "get": {
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Get order details",
+                "operationId": "10bf68fb0cacead0b15357d700d51df4",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Order ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GetOrderResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
         "schemas": {
             "CreateOrderForm": {
-                "description": "```php\n// Validation Rules\n[\n    'type' => ['required', 'string', __object],\n    'userId' => ['required', 'string'],\n    'orderData' => ['required'],\n    'remark' => ['nullable', 'string'],\n]\n```",
                 "type": "object",
                 "discriminator": {
                     "propertyName": "type",
@@ -183,6 +215,77 @@
                         "example": "true"
                     },
                     "orderId": {
+                        "type": "string",
+                        "example": "ORD1234567890"
+                    }
+                },
+                "type": "object"
+            },
+            "GetOrderResponse": {
+                "description": "订单详情响应（包含 discriminator）",
+                "type": "object",
+                "discriminator": {
+                    "propertyName": "type",
+                    "mapping": {
+                        "normal": "#/components/schemas/GetOrderResponse_type_normal",
+                        "express": "#/components/schemas/GetOrderResponse_type_express"
+                    }
+                },
+                "oneOf": [
+                    {
+                        "$ref": "#/components/schemas/GetOrderResponse_type_normal"
+                    },
+                    {
+                        "$ref": "#/components/schemas/GetOrderResponse_type_express"
+                    }
+                ]
+            },
+            "GetOrderResponse_type_express": {
+                "required": [
+                    "orderData",
+                    "type",
+                    "orderId"
+                ],
+                "properties": {
+                    "orderData": {
+                        "$ref": "#/components/schemas/CreateOrderFormOrderDataExpress"
+                    },
+                    "type": {
+                        "description": "订单类型",
+                        "type": "string",
+                        "enum": [
+                            "express"
+                        ],
+                        "example": "normal"
+                    },
+                    "orderId": {
+                        "description": "订单ID",
+                        "type": "string",
+                        "example": "ORD1234567890"
+                    }
+                },
+                "type": "object"
+            },
+            "GetOrderResponse_type_normal": {
+                "required": [
+                    "orderData",
+                    "type",
+                    "orderId"
+                ],
+                "properties": {
+                    "orderData": {
+                        "$ref": "#/components/schemas/CreateOrderFormOrderDataNormal"
+                    },
+                    "type": {
+                        "description": "订单类型",
+                        "type": "string",
+                        "enum": [
+                            "normal"
+                        ],
+                        "example": "normal"
+                    },
+                    "orderId": {
+                        "description": "订单ID",
                         "type": "string",
                         "example": "ORD1234567890"
                     }

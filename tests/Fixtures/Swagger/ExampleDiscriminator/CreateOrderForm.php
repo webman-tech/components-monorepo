@@ -127,3 +127,44 @@ final class CreateOrderFormOrderDataExpress extends BaseDTO
      */
     public ?float $shippingFee = null;
 }
+
+/**
+ * 订单详情响应（包含 discriminator）
+ */
+#[Schema(schema: 'GetOrderResponse')]
+final class GetOrderResponse extends BaseResponseDTO
+{
+    public function __construct(
+        /**
+         * 订单类型
+         * @example normal
+         */
+        #[ValidationRules(required: true, in: ['normal', 'express'])]
+        public string $type,
+
+        /**
+         * 订单ID
+         * @example ORD1234567890
+         */
+        #[ValidationRules(required: true)]
+        public string $orderId,
+
+        /**
+         * 订单数据（根据 type 决定具体类型）
+         */
+        #[Property]
+        #[ValidationRules(
+            required: true,
+            discriminator: new ValidationRulesDiscriminator(
+                property: 'type',
+                mapping: [
+                    'normal' => CreateOrderFormOrderDataNormal::class,
+                    'express' => CreateOrderFormOrderDataExpress::class,
+                ]
+            )
+        )]
+        public CreateOrderFormOrderDataNormal|CreateOrderFormOrderDataExpress $orderData,
+    )
+    {
+    }
+}

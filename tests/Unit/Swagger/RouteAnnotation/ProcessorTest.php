@@ -386,3 +386,26 @@ test('XDiscriminatorProcessor', function () {
     expect($analysis->getSchemaForSource(\Tests\Fixtures\Swagger\ExampleDiscriminator\CreateOrderFormOrderDataNormal::class))->not->toBeNull()
         ->and($analysis->getSchemaForSource(\Tests\Fixtures\Swagger\ExampleDiscriminator\CreateOrderFormOrderDataExpress::class))->not->toBeNull();
 });
+
+test('XDiscriminatorProcessor for Response', function () {
+    $analysis = TestFactory::analysisFromFiles(['ExampleDiscriminator/CreateOrderForm.php']);
+    
+    $analysis->process([
+        new ExpandDTOAttributionsProcessor(),
+        new XSchemaResponseProcessor(),
+        new XDiscriminatorProcessor(),
+    ]);
+    
+    // 验证 Response discriminator
+    $responseSchema = $analysis->getSchemaForSource(\Tests\Fixtures\Swagger\ExampleDiscriminator\GetOrderResponse::class);
+    expect($responseSchema)->not->toBeNull()
+        ->and($responseSchema->oneOf)->not->toBe(\OpenApi\Generator::UNDEFINED)
+        ->toBeArray()
+        ->toHaveCount(2)
+        ->and($responseSchema->discriminator)->not->toBe(\OpenApi\Generator::UNDEFINED)
+        ->and($responseSchema->discriminator->propertyName)->toBe('type')
+        ->and($responseSchema->discriminator->mapping)->toBe([
+            'normal' => '#/components/schemas/GetOrderResponse_type_normal',
+            'express' => '#/components/schemas/GetOrderResponse_type_express',
+        ]);
+});
