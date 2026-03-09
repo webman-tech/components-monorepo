@@ -257,11 +257,11 @@ test('ExpandDTOAttributionsProcessor', function () {
         'int',
     ]);
 
-    // 会将 validation rules 放到 description（仅 BaseRequestDTO）
-    expect($schema->description)->toContain('Validation Rules', 'string');
+    // 会将 validation rules 暂存到 schema 的 x 中，而不是 schema description
+    expect($schema->description)->toBe(\OpenApi\Generator::UNDEFINED)
+        ->and($schema->x[SchemaConstants::X_SCHEMA_VALIDATION_RULES])->toBeArray();
     expect($schemaChild->description)->not->toContain('Validation Rules');
 });
-
 test('ExpandEnumDescriptionProcessor', function () {
     // 未附加 ExpandEnumDescriptionProcessor 时
     $analysis = TestFactory::analysisFromFiles(['EnumColor.php']);
