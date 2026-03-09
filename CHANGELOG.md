@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.0.16] - 2026-03-09
+
+### Added
+
+- amis-admin: 记住 CRUD 分页大小
+- swagger: 将 DTO 校验规则移到 Operation 描述
+- dto+swagger: 支持 discriminator 多态类型识别 (#8)
+
+### Fixed
+
+- dto: 修复 array<string, mixed> 在 OpenAPI 中被错误解析为 array 类型
+- swagger: 合并多 request schema 的校验规则
+
+### Changed
+
+- common-utils: 重构 ArrayCache 存储结构并新增自动 GC
+
 ## [5.0.15] - 2026-03-03
 
 ### Added
@@ -197,7 +214,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 >
 > 如需查看完整的历史变更，请访问 [GitHub Commit 历史](https://github.com/webman-tech/components-monorepo/commits/main/)
 
-[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.0.15...HEAD
+[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.0.16...HEAD
+
+[5.0.16]: https://github.com/webman-tech/components-monorepo/compare/v5.0.15...v5.0.16
 
 [5.0.15]: https://github.com/webman-tech/components-monorepo/compare/v5.0.14...v5.0.15
 
