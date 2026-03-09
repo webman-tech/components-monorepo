@@ -20,42 +20,52 @@ use WebmanTech\DTO\Reflection\ReflectionReaderFactory;
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 final class ValidationRules
 {
+    public null|ValidationRulesDiscriminator $discriminator = null;
+
     public function __construct(
-        public null|string|array           $rules = null,
-        public null|true                   $required = null,
-        public null|true                   $nullable = null,
-        public null|true                   $string = null,
-        public null|true                   $boolean = null,
-        public null|true                   $integer = null,
-        public null|true                   $numeric = null,
+        public null|string|array                $rules = null,
+        public null|true                        $required = null,
+        public null|true                        $nullable = null,
+        public null|true                        $string = null,
+        public null|true                        $boolean = null,
+        public null|true                        $integer = null,
+        public null|true                        $numeric = null,
         /**
          * @var null|class-string<UnitEnum>
          */
-        public null|string                 $enum = null,
-        public null|array                  $enumOnly = null,
-        public null|array                  $enumExcept = null,
-        public null|true                   $array = null,
+        public null|string                      $enum = null,
+        public null|array                       $enumOnly = null,
+        public null|array                       $enumExcept = null,
+        public null|true                        $array = null,
         /**
          * @var null|class-string|ValidationRules
          */
-        public null|string|ValidationRules $arrayItem = null,
+        public null|string|ValidationRules      $arrayItem = null,
         /**
          * @var null|class-string|true
          */
-        public null|string|true            $object = null,
-        public null|int|float              $min = null,
-        public null|int|float              $max = null,
-        public null|int                    $minLength = null,
-        public null|int                    $maxLength = null,
-        public null|array                  $in = null,
+        public null|string|true                 $object = null,
+        public null|int|float                   $min = null,
+        public null|int|float                   $max = null,
+        public null|int                         $minLength = null,
+        public null|int                         $maxLength = null,
+        public null|array                       $in = null,
         /**
          * 是否使用浅层验证（不展开嵌套 DTO 的验证规则）
          * - true: 对于嵌套对象/数组，只验证基础类型，不递归获取子 DTO 的验证规则
          * - false: 完整验证，会展开所有嵌套规则（默认）
          */
-        public bool                         $shallowValidation = false,
+        public bool                             $shallowValidation = false,
+        /**
+         * 用于多态类型识别，指定当前对象依赖哪个字段的值来决定类型
+         * 示例：'type' 表示根据 type 字段的值来决定当前字段的 DTO 类型
+         */
+        null|array|ValidationRulesDiscriminator $discriminator = null,
     )
     {
+        if ($discriminator) {
+            $this->discriminator = ValidationRulesDiscriminator::fromData($discriminator);
+        }
     }
 
     /**
@@ -279,13 +289,21 @@ final class ValidationRules
 
     /**
      * 从原始类型的值，构造出 ValidationRule 中设定的类型的值
+     * @param mixed $value 原始值
+     * @param array $context 上下文数据（包含整个 DTO 的数据）
      */
-    public function makeValueFromRawType(mixed $value): mixed
+    public function makeValueFromRawType(mixed $value, array $context = []): mixed
     {
         // null 支持
         if ($this->nullable && ($value === null || $value === '')) {
             return null;
         }
+
+        // discriminator 多态支持（优先级最高）
+        if ($this->discriminator) {
+            return $this->discriminator->makeValueFromContext($value, $context, (bool)$this->nullable);
+        }
+
         // 枚举
         if ($this->enum) {
             if (!is_string($value) && !is_int($value)) {

@@ -1,0 +1,200 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "App OpenAPI",
+        "version": "0.1"
+    },
+    "paths": {
+        "/orders": {
+            "post": {
+                "tags": [
+                    "orders"
+                ],
+                "summary": "Create a new order",
+                "operationId": "62c35f7506515aaf5c6020222fc12198",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateOrderForm"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CreateOrderResult"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "CreateOrderForm": {
+                "description": "```php\n// Validation Rules\n[\n    'type' => ['required', 'string', __object],\n    'userId' => ['required', 'string'],\n    'orderData' => ['required'],\n    'remark' => ['nullable', 'string'],\n]\n```",
+                "type": "object",
+                "discriminator": {
+                    "propertyName": "type",
+                    "mapping": {
+                        "normal": "#/components/schemas/CreateOrderForm_type_normal",
+                        "express": "#/components/schemas/CreateOrderForm_type_express"
+                    }
+                },
+                "oneOf": [
+                    {
+                        "$ref": "#/components/schemas/CreateOrderForm_type_normal"
+                    },
+                    {
+                        "$ref": "#/components/schemas/CreateOrderForm_type_express"
+                    }
+                ]
+            },
+            "CreateOrderFormOrderDataExpress": {
+                "description": "快递订单数据",
+                "required": [
+                    "expressCompany",
+                    "trackingNumber",
+                    "receiverAddress"
+                ],
+                "properties": {
+                    "expressCompany": {
+                        "description": "快递公司",
+                        "type": "string",
+                        "example": "顺丰"
+                    },
+                    "trackingNumber": {
+                        "description": "快递单号",
+                        "type": "string",
+                        "example": "SF1234567890"
+                    },
+                    "receiverAddress": {
+                        "description": "收货地址",
+                        "type": "string",
+                        "example": "北京市朝阳区xxx"
+                    },
+                    "shippingFee": {
+                        "description": "运费",
+                        "type": "number",
+                        "format": "float",
+                        "example": "15.0",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "CreateOrderFormOrderDataNormal": {
+                "description": "普通订单数据",
+                "required": [
+                    "customerName"
+                ],
+                "properties": {
+                    "customerName": {
+                        "description": "客户姓名",
+                        "type": "string",
+                        "example": "张三"
+                    },
+                    "pickupTime": {
+                        "description": "自提时间",
+                        "type": "string",
+                        "example": "2024-03-06 12:00",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "CreateOrderForm_type_express": {
+                "required": [
+                    "type",
+                    "userId",
+                    "orderData"
+                ],
+                "properties": {
+                    "type": {
+                        "description": "订单类型",
+                        "type": "string",
+                        "enum": [
+                            "express"
+                        ],
+                        "example": "normal"
+                    },
+                    "userId": {
+                        "description": "用户ID",
+                        "type": "string",
+                        "example": "U123456"
+                    },
+                    "orderData": {
+                        "$ref": "#/components/schemas/CreateOrderFormOrderDataExpress"
+                    },
+                    "remark": {
+                        "description": "备注",
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "CreateOrderForm_type_normal": {
+                "required": [
+                    "type",
+                    "userId",
+                    "orderData"
+                ],
+                "properties": {
+                    "type": {
+                        "description": "订单类型",
+                        "type": "string",
+                        "enum": [
+                            "normal"
+                        ],
+                        "example": "normal"
+                    },
+                    "userId": {
+                        "description": "用户ID",
+                        "type": "string",
+                        "example": "U123456"
+                    },
+                    "orderData": {
+                        "$ref": "#/components/schemas/CreateOrderFormOrderDataNormal"
+                    },
+                    "remark": {
+                        "description": "备注",
+                        "type": "string",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "CreateOrderResult": {
+                "required": [
+                    "success",
+                    "orderId"
+                ],
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": "true"
+                    },
+                    "orderId": {
+                        "type": "string",
+                        "example": "ORD1234567890"
+                    }
+                },
+                "type": "object"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "orders",
+            "description": "订单管理"
+        }
+    ]
+}

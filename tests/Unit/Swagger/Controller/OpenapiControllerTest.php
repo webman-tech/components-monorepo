@@ -36,6 +36,18 @@ test('openapiDoc dto example', function () {
         ->and($response->getHeader('Content-Type'))->toBe('application/json;charset=utf-8');
 });
 
+test('openapiDoc discriminator example', function () {
+    $controller = new OpenapiController();
+    $response = $controller->openapiDoc([
+        'scan_path' => fixture_get_path('Swagger/ExampleDiscriminator'),
+        'format' => 'json',
+        'cache_key' => 'json_discriminator',
+    ]);
+
+    expect($response->rawBody())->toMatchSnapshot()
+        ->and($response->getHeader('Content-Type'))->toBe('application/json;charset=utf-8');
+});
+
 
 test('openapiDoc validation rules multi schema', function () {
     $controller = new OpenapiController();

@@ -21,6 +21,7 @@ use WebmanTech\Swagger\RouteAnnotation\Processors\ExpandEloquentModelProcessor;
 use WebmanTech\Swagger\RouteAnnotation\Processors\ExpandEnumDescriptionProcessor;
 use WebmanTech\Swagger\RouteAnnotation\Processors\MergeClassInfoProcessor;
 use WebmanTech\Swagger\RouteAnnotation\Processors\SortComponentsProcessor;
+use WebmanTech\Swagger\RouteAnnotation\Processors\XDiscriminatorProcessor;
 use WebmanTech\Swagger\RouteAnnotation\Processors\XSchemaRequestProcessor;
 use WebmanTech\Swagger\RouteAnnotation\Processors\XSchemaResponseProcessor;
 
@@ -359,4 +360,29 @@ test('ExpandEloquentModelProcessor', function () {
     expect($fnGetData(SchemaEloquentAbsModel::class))->toBe([
         ['property' => 'created_at', 'type' => 'string', 'description' => '创建时间'],
     ]);
+});
+
+test('XDiscriminatorProcessor', function () {
+    $analysis = TestFactory::analysisFromFiles(['ExampleDiscriminator/CreateOrderForm.php']);
+    
+    $analysis->process([
+        new ExpandDTOAttributionsProcessor(),
+        new XDiscriminatorProcessor(),
+    ]);
+    
+    $schema = $analysis->getSchemaForSource(\Tests\Fixtures\Swagger\ExampleDiscriminator\CreateOrderForm::class);
+    expect($schema)->not->toBeNull()
+        ->and($schema->oneOf)->not->toBe(\OpenApi\Generator::UNDEFINED)
+        ->toBeArray()
+        ->toHaveCount(2)
+        ->and($schema->discriminator)->not->toBe(\OpenApi\Generator::UNDEFINED)
+        ->and($schema->discriminator->propertyName)->toBe('type')
+        ->and($schema->discriminator->mapping)->toBe([
+            'normal' => '#/components/schemas/CreateOrderForm_type_normal',
+            'express' => '#/components/schemas/CreateOrderForm_type_express',
+        ]);
+    
+    // 验证子 Schema 存在
+    expect($analysis->getSchemaForSource(\Tests\Fixtures\Swagger\ExampleDiscriminator\CreateOrderFormOrderDataNormal::class))->not->toBeNull()
+        ->and($analysis->getSchemaForSource(\Tests\Fixtures\Swagger\ExampleDiscriminator\CreateOrderFormOrderDataExpress::class))->not->toBeNull();
 });
