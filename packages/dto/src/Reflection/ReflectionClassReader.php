@@ -210,6 +210,8 @@ final class ReflectionClassReader
      */
     public function newInstanceByData(array $data): mixed
     {
+        $context = $data;
+
         $constructArgs = [];
         foreach ($this->getConstructParameterReflections() as $key => $parameterReflection) {
             // 校验 $data 中是否有值
@@ -225,7 +227,7 @@ final class ReflectionClassReader
             $value = $data[$key];
             // 根据 ValidationRule 中定义出来的类型进行赋值
             $validationRules = $this->getAttributionValidationRules($parameterReflection);
-            $constructArgs[$key] = $validationRules->makeValueFromRawType($value);
+            $constructArgs[$key] = $validationRules->makeValueFromRawType($value, $context);
             $shouldResolve = false;
             if ($validationRules->array && !$validationRules->arrayItem && is_array($value) && array_is_list($value) && $value) {
                 // 对于列表数组的值，在 construct 上无法解析注释进行正确的类型赋值，此时需要在 property 中重新处理，所以不能移除掉
@@ -249,7 +251,7 @@ final class ReflectionClassReader
                 $value = $data[$key];
                 // 根据 ValidationRule 中定义出来的类型进行赋值
                 $validationRules = $this->getAttributionValidationRules($propertyReflection);
-                $value = $validationRules->makeValueFromRawType($value);
+                $value = $validationRules->makeValueFromRawType($value, $context);
                 if (array_key_exists($key, $constructArgs)) {
                     // 有些参数是构造参数（比如列表数组），放到构造参数中
                     // 能放构造参数的尽量放构造里，因为可能该参数被设为 readonly
