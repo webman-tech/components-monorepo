@@ -113,14 +113,7 @@ test('XSchemaRequestProcessor', function () {
 });
 
 test('XSchemaRequestProcessor skip json body when body property exists', function () {
-    fixture_get_require('Swagger/ControllerForXSchemaRequestBodyProperty.php');
-    $fixture = fixture_get_path('Swagger/ControllerForXSchemaRequestBodyProperty.php');
-    $analysis = new \OpenApi\Analysis([], new \OpenApi\Context());
-    (new \OpenApi\Generator())
-        ->setAnalyser(new \OpenApi\Analysers\ReflectionAnalyser([
-            new \OpenApi\Analysers\AttributeAnnotationFactory(),
-        ]))
-        ->generate([$fixture], $analysis, false);
+    $analysis = TestFactory::analysisFromFiles(['ControllerForXSchemaRequestBodyProperty.php']);
 
     $analysis->process([
         new ExpandDTOAttributionsProcessor(),

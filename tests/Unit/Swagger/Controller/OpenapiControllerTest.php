@@ -60,3 +60,16 @@ test('openapiDoc validation rules multi schema', function () {
     expect($response->rawBody())->toMatchSnapshot()
         ->and($response->getHeader('Content-Type'))->toBe('application/json;charset=utf-8');
 });
+
+test('openapiDoc keeps schema referenced by sub path ref when clean unused components enabled', function () {
+    $controller = new OpenapiController();
+    $response = $controller->openapiDoc([
+        'scan_path' => fixture_get_path('Swagger/ControllerForXSchemaRequestBodyProperty.php'),
+        'format' => 'json',
+        'cache_key' => 'json_clean_unused_sub_ref',
+        'clean_unused_components_enable' => true,
+    ]);
+
+    expect($response->rawBody())->toMatchSnapshot()
+        ->and($response->getHeader('Content-Type'))->toBe('application/json;charset=utf-8');
+});

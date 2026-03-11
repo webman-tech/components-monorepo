@@ -1,0 +1,71 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "App OpenAPI",
+        "version": "0.1"
+    },
+    "paths": {
+        "/post/schema-body-property": {
+            "post": {
+                "operationId": "51625d3e2541f548a4d486d98477b24d",
+                "parameters": [
+                    {
+                        "$ref": "#/components/schemas/ControllerForXSchemaRequestBodyPropertySchema/x-in-property-parameter/X-File-Key"
+                    },
+                    {
+                        "$ref": "#/components/schemas/ControllerForXSchemaRequestBodyPropertySchema/x-in-property-parameter/X-File-Key-Encode"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/octet-stream": {
+                            "schema": {
+                                "description": "文件内容",
+                                "type": "string",
+                                "format": "binary"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "ControllerForXSchemaRequestBodyPropertySchema": {
+                "required": [
+                    "key"
+                ],
+                "type": "object",
+                "x-in-property-parameter": {
+                    "X-File-Key": {
+                        "parameter": "X-File-Key",
+                        "name": "X-File-Key",
+                        "in": "header",
+                        "schema": {
+                            "type": "string",
+                            "example": "file.txt"
+                        },
+                        "example": "file.txt"
+                    },
+                    "X-File-Key-Encode": {
+                        "parameter": "X-File-Key-Encode",
+                        "name": "X-File-Key-Encode",
+                        "in": "header",
+                        "schema": {
+                            "type": "string",
+                            "example": "base64",
+                            "nullable": true
+                        },
+                        "example": "base64"
+                    }
+                }
+            }
+        }
+    }
+}
