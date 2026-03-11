@@ -134,6 +134,7 @@ final class ValidationRules
                     // 当解析时个对象时，当前实例应该是个对象，而不是 array
                     $this->array = null;
                     $this->object = true;
+                    $this->nullable = $this->nullable ?? $arrayItemType->nullable;
                     $this->arrayItem = $arrayItemType->arrayItem;
                 } else {
                     $this->arrayItem = $arrayItemType;

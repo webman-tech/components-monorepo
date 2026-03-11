@@ -65,6 +65,11 @@ test('extractVarTypes', function () {
         ->and($result->arrayItem)->toBe(DocBlockArrayItemExtractorItem::class)
         ->and($result->nullable)->toBeTrue();
 
+    $result = DocBlockHelper::extractClassPropertyArrayItemType($reflectionClass->getProperty('object_object_nullable_reverse'));
+    expect($result->object)->toBeTrue()
+        ->and($result->arrayItem)->toBe(DocBlockArrayItemExtractorItem::class)
+        ->and($result->nullable)->toBeTrue();
+
     $result = DocBlockHelper::extractClassPropertyArrayItemType($reflectionClass->getProperty('object_object_array'));
     expect($result->object)->toBeTrue()
         ->and($result->arrayItem)->toBeInstanceOf(ValidationRules::class)

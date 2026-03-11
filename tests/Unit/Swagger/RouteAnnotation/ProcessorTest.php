@@ -246,6 +246,12 @@ test('ExpandDTOAttributionsProcessor', function () {
     expect($property->type)->toBe('object')
         ->and($property->additionalProperties->type)->toBe('string');
 
+    // array map 使用注释的，value 可空
+    $property = $fnFindPropertyByName('mapUseDocNullable');
+    expect($property->type)->toBe('object')
+        ->and($property->additionalProperties->ref)->toBe(OA\Components::ref($schemaChild))
+        ->and($property->additionalProperties->nullable)->toBeTrue();
+
     // RequestPropertyIn
     $property = $fnFindPropertyByName('hasXin');
     expect($property->x['in'])->toBe('header');
