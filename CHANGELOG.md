@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.0.17] - 2026-03-11
+
+### Fixed
+
+- swagger: cacheKey 不允许为空字符串
+
 ## [5.0.16] - 2026-03-09
 
 ### Added
@@ -214,7 +220,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 >
 > 如需查看完整的历史变更，请访问 [GitHub Commit 历史](https://github.com/webman-tech/components-monorepo/commits/main/)
 
-[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.0.16...HEAD
+[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.0.17...HEAD
+
+[5.0.17]: https://github.com/webman-tech/components-monorepo/compare/v5.0.16...v5.0.17
 
 [5.0.16]: https://github.com/webman-tech/components-monorepo/compare/v5.0.15...v5.0.16
 
