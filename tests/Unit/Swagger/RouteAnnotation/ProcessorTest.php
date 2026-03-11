@@ -22,6 +22,7 @@ use WebmanTech\Swagger\RouteAnnotation\Processors\ExpandEnumDescriptionProcessor
 use WebmanTech\Swagger\RouteAnnotation\Processors\MergeClassInfoProcessor;
 use WebmanTech\Swagger\RouteAnnotation\Processors\SortComponentsProcessor;
 use WebmanTech\Swagger\RouteAnnotation\Processors\XDiscriminatorProcessor;
+use WebmanTech\Swagger\RouteAnnotation\Processors\XSchemaPropertyInProcessor;
 use WebmanTech\Swagger\RouteAnnotation\Processors\XSchemaRequestProcessor;
 use WebmanTech\Swagger\RouteAnnotation\Processors\XSchemaResponseProcessor;
 
@@ -109,6 +110,33 @@ test('XSchemaRequestProcessor', function () {
         ControllerForXSchemaRequestSchemaB::class,
         ControllerForXSchemaRequestSchemaC::class,
     ])->and($operation->x[SchemaConstants::X_SCHEMA_COMBINE_TYPE])->toBe('oneOf');
+});
+
+test('XSchemaRequestProcessor skip json body when body property exists', function () {
+    fixture_get_require('Swagger/ControllerForXSchemaRequestBodyProperty.php');
+    $fixture = fixture_get_path('Swagger/ControllerForXSchemaRequestBodyProperty.php');
+    $analysis = new \OpenApi\Analysis([], new \OpenApi\Context());
+    (new \OpenApi\Generator())
+        ->setAnalyser(new \OpenApi\Analysers\ReflectionAnalyser([
+            new \OpenApi\Analysers\AttributeAnnotationFactory(),
+        ]))
+        ->generate([$fixture], $analysis, false);
+
+    $analysis->process([
+        new ExpandDTOAttributionsProcessor(),
+        new XSchemaPropertyInProcessor(),
+        new XSchemaRequestProcessor(),
+    ]);
+
+    $operation = collect($analysis->openapi->paths)
+        ->first(fn(OA\PathItem $pathItem) => $pathItem->path === '/post/schema-body-property')
+        ?->post;
+
+    expect($operation)->not->toBeNull()
+        ->and($operation->parameters)->toHaveCount(2)
+        ->and(isset($operation->requestBody->content['application/json']))->toBeFalse()
+        ->and($operation->requestBody->content['application/octet-stream']->schema->type)->toBe('string')
+        ->and($operation->requestBody->content['application/octet-stream']->schema->format)->toBe('binary');
 });
 
 test('XSchemaResponseProcessor', function () {
