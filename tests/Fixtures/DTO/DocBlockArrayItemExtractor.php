@@ -73,6 +73,10 @@ final class DocBlockArrayItemExtractor
      */
     public array $object_object_nullable;
     /**
+     * @var array<string, null|DocBlockArrayItemExtractorItem>
+     */
+    public array $object_object_nullable_reverse;
+    /**
      * @var array<string, DocBlockArrayItemExtractorItem[]>
      */
     public array $object_object_array;

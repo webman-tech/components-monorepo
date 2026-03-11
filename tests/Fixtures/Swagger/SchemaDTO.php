@@ -60,6 +60,12 @@ class SchemaDTO extends BaseRequestDTO
     #[OA\Property]
     public array $mapUseDoc;
 
+    /**
+     * @var array<string, SchemaDTOChild|null>
+     */
+    #[OA\Property]
+    public array $mapUseDocNullable;
+
     #[OA\Property]
     #[RequestPropertyInHeader]
     public ?string $hasXin = null;

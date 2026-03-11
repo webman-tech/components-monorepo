@@ -83,7 +83,7 @@ final class DocBlockHelper
                     $nullable = str_contains($valueType, '|null') || str_contains($valueType, 'null|');
                     if ($nullable) {
                         // 去掉 null
-                        $valueType = str_replace(['|null', '|null'], '', $valueType);
+                        $valueType = str_replace(['|null', 'null|'], '', $valueType);
                     }
                     if (str_contains($valueType, '|')) {
                         // array<int|string, ClassName|xxx> 不支持多类型的情况
