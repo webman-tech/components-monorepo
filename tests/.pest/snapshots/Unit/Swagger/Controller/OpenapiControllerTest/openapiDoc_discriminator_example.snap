@@ -1,5 +1,5 @@
 {
-    "openapi": "3.0.0",
+    "openapi": "3.1.0",
     "info": {
         "title": "App OpenAPI",
         "version": "0.1"
@@ -114,10 +114,12 @@
                     },
                     "shippingFee": {
                         "description": "运费",
-                        "type": "number",
+                        "type": [
+                            "number",
+                            "null"
+                        ],
                         "format": "float",
-                        "example": "15.0",
-                        "nullable": true
+                        "example": "15.0"
                     }
                 },
                 "type": "object"
@@ -135,9 +137,11 @@
                     },
                     "pickupTime": {
                         "description": "自提时间",
-                        "type": "string",
-                        "example": "2024-03-06 12:00",
-                        "nullable": true
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "example": "2024-03-06 12:00"
                     }
                 },
                 "type": "object"
@@ -167,8 +171,10 @@
                     },
                     "remark": {
                         "description": "备注",
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     }
                 },
                 "type": "object"
@@ -198,8 +204,10 @@
                     },
                     "remark": {
                         "description": "备注",
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     }
                 },
                 "type": "object"

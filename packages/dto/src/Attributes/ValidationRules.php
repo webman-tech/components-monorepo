@@ -26,6 +26,7 @@ final class ValidationRules
         public null|string|array                $rules = null,
         public null|true                        $required = null,
         public null|true                        $nullable = null,
+        public null|true                        $objectValueNullable = null,
         public null|true                        $string = null,
         public null|true                        $boolean = null,
         public null|true                        $integer = null,
@@ -134,7 +135,7 @@ final class ValidationRules
                     // 当解析时个对象时，当前实例应该是个对象，而不是 array
                     $this->array = null;
                     $this->object = true;
-                    $this->nullable = $this->nullable ?? $arrayItemType->nullable;
+                    $this->objectValueNullable = $this->objectValueNullable ?? $arrayItemType->nullable;
                     $this->arrayItem = $arrayItemType->arrayItem;
                 } else {
                     $this->arrayItem = $arrayItemType;

@@ -1,5 +1,5 @@
 {
-    "openapi": "3.0.0",
+    "openapi": "3.1.0",
     "info": {
         "title": "App OpenAPI",
         "version": "0.1"
@@ -60,19 +60,24 @@
                         "example": "false"
                     },
                     "address": {
-                        "type": "array",
+                        "type": [
+                            "array",
+                            "null"
+                        ],
                         "items": {
                             "$ref": "#/components/schemas/UserCreateFormAddressItem"
-                        },
-                        "nullable": true
+                        }
                     },
                     "id_card": {
                         "oneOf": [
                             {
-                                "$ref": "#/components/schemas/UserCreateFormIdCard"
+                                "$ref": "#/components/schemas/UserCreateFormIdCard",
+                                "description": "身份证"
+                            },
+                            {
+                                "type": "null"
                             }
                         ],
-                        "nullable": true,
                         "description": "身份证",
                         "type": "object"
                     },
@@ -154,14 +159,18 @@
                     },
                     "nickname": {
                         "description": "可空的简单类型",
-                        "type": "string",
-                        "nullable": true
+                        "type": [
+                            "string",
+                            "null"
+                        ]
                     },
                     "height": {
                         "description": "可空的浮点数",
-                        "type": "number",
-                        "format": "float",
-                        "nullable": true
+                        "type": [
+                            "number",
+                            "null"
+                        ],
+                        "format": "float"
                     },
                     "status": {
                         "description": "带默认值的整数",
