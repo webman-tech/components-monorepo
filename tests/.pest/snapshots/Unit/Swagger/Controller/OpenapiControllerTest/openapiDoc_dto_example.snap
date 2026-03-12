@@ -53,11 +53,11 @@
                     },
                     "age": {
                         "type": "integer",
-                        "example": "18"
+                        "example": 18
                     },
                     "is_admin": {
                         "type": "boolean",
-                        "example": "false"
+                        "example": false
                     },
                     "address": {
                         "type": [
@@ -95,7 +95,11 @@
                         "type": "array",
                         "items": {
                             "type": "string"
-                        }
+                        },
+                        "example": [
+                            "tag1",
+                            "tag2"
+                        ]
                     },
                     "scores": {
                         "description": "整数数组",
@@ -211,7 +215,7 @@
                 "properties": {
                     "type": {
                         "type": "integer",
-                        "example": "1"
+                        "example": 1
                     },
                     "number": {
                         "type": "string",
@@ -227,7 +231,7 @@
                 "properties": {
                     "success": {
                         "type": "boolean",
-                        "example": "true"
+                        "example": true
                     }
                 },
                 "type": "object"
@@ -252,7 +256,7 @@
                         "description": "是否启用",
                         "type": "boolean",
                         "default": true,
-                        "example": "true"
+                        "example": true
                     }
                 },
                 "type": "object"

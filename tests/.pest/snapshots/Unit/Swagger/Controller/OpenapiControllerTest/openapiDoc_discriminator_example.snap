@@ -119,7 +119,7 @@
                             "null"
                         ],
                         "format": "float",
-                        "example": "15.0"
+                        "example": 15
                     }
                 },
                 "type": "object"
@@ -220,7 +220,7 @@
                 "properties": {
                     "success": {
                         "type": "boolean",
-                        "example": "true"
+                        "example": true
                     },
                     "orderId": {
                         "type": "string",

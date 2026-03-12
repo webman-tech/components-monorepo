@@ -91,3 +91,24 @@ test('openapiDoc default uses openapi 3.1 nullable union style', function () {
         ->and($property['additionalProperties']['oneOf'])->toHaveCount(2)
         ->and($property['additionalProperties']['oneOf'][1]['type'])->toBe('null');
 });
+
+test('openapiDoc example values have correct types', function () {
+    $controller = new OpenapiController();
+    $response = $controller->openapiDoc([
+        'scan_path' => fixture_get_path('Swagger/ExampleDTO'),
+        'format' => 'json',
+        'cache_key' => 'json_dto_example_types',
+    ]);
+
+    $json = json_decode($response->rawBody(), true, 512, JSON_THROW_ON_ERROR);
+    $props = $json['components']['schemas']['UserCreateForm']['properties'];
+
+    // string example 保持字符串
+    expect($props['name']['example'])->toBe('张三')->toBeString()
+        // integer example 转为 int
+        ->and($props['age']['example'])->toBe(18)->toBeInt()
+        // boolean example 转为 bool
+        ->and($props['is_admin']['example'])->toBe(false)->toBeBool()
+        // array example 从 JSON 字符串转为数组
+        ->and($props['tags']['example'])->toBe(['tag1', 'tag2'])->toBeArray();
+});

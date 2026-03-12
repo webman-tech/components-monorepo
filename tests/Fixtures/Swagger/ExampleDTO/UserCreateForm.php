@@ -42,6 +42,7 @@ final class UserCreateForm extends BaseRequestDTO
     /**
      * 简单字符串数组
      * @var string[]
+     * @example ["tag1", "tag2"]
      */
     public array $tags = [];
 
