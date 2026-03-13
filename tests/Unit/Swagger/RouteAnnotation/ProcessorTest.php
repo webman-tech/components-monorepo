@@ -22,7 +22,6 @@ use WebmanTech\Swagger\RouteAnnotation\Processors\ExpandEnumDescriptionProcessor
 use WebmanTech\Swagger\RouteAnnotation\Processors\MergeClassInfoProcessor;
 use WebmanTech\Swagger\RouteAnnotation\Processors\SortComponentsProcessor;
 use WebmanTech\Swagger\RouteAnnotation\Processors\XDiscriminatorProcessor;
-use WebmanTech\Swagger\RouteAnnotation\Processors\XSchemaPropertyInProcessor;
 use WebmanTech\Swagger\RouteAnnotation\Processors\XSchemaRequestProcessor;
 use WebmanTech\Swagger\RouteAnnotation\Processors\XSchemaResponseProcessor;
 
@@ -110,26 +109,6 @@ test('XSchemaRequestProcessor', function () {
         ControllerForXSchemaRequestSchemaB::class,
         ControllerForXSchemaRequestSchemaC::class,
     ])->and($operation->x[SchemaConstants::X_SCHEMA_COMBINE_TYPE])->toBe('oneOf');
-});
-
-test('XSchemaRequestProcessor skip json body when body property exists', function () {
-    $analysis = TestFactory::analysisFromFiles(['ControllerForXSchemaRequestBodyProperty.php']);
-
-    $analysis->process([
-        new ExpandDTOAttributionsProcessor(),
-        new XSchemaPropertyInProcessor(),
-        new XSchemaRequestProcessor(),
-    ]);
-
-    $operation = collect($analysis->openapi->paths)
-        ->first(fn(OA\PathItem $pathItem) => $pathItem->path === '/post/schema-body-property')
-        ?->post;
-
-    expect($operation)->not->toBeNull()
-        ->and($operation->parameters)->toHaveCount(2)
-        ->and(isset($operation->requestBody->content['application/json']))->toBeFalse()
-        ->and($operation->requestBody->content['application/octet-stream']->schema->type)->toBe('string')
-        ->and($operation->requestBody->content['application/octet-stream']->schema->format)->toBe('binary');
 });
 
 test('XSchemaResponseProcessor', function () {
@@ -391,12 +370,12 @@ test('ExpandEloquentModelProcessor', function () {
 
 test('XDiscriminatorProcessor', function () {
     $analysis = TestFactory::analysisFromFiles(['ExampleDiscriminator/CreateOrderForm.php']);
-    
+
     $analysis->process([
         new ExpandDTOAttributionsProcessor(),
         new XDiscriminatorProcessor(),
     ]);
-    
+
     $schema = $analysis->getSchemaForSource(\Tests\Fixtures\Swagger\ExampleDiscriminator\CreateOrderForm::class);
     expect($schema)->not->toBeNull()
         ->and($schema->oneOf)->not->toBe(\OpenApi\Generator::UNDEFINED)
@@ -408,7 +387,7 @@ test('XDiscriminatorProcessor', function () {
             'normal' => '#/components/schemas/CreateOrderForm_type_normal',
             'express' => '#/components/schemas/CreateOrderForm_type_express',
         ]);
-    
+
     // 验证子 Schema 存在
     expect($analysis->getSchemaForSource(\Tests\Fixtures\Swagger\ExampleDiscriminator\CreateOrderFormOrderDataNormal::class))->not->toBeNull()
         ->and($analysis->getSchemaForSource(\Tests\Fixtures\Swagger\ExampleDiscriminator\CreateOrderFormOrderDataExpress::class))->not->toBeNull();
@@ -416,13 +395,13 @@ test('XDiscriminatorProcessor', function () {
 
 test('XDiscriminatorProcessor for Response', function () {
     $analysis = TestFactory::analysisFromFiles(['ExampleDiscriminator/CreateOrderForm.php']);
-    
+
     $analysis->process([
         new ExpandDTOAttributionsProcessor(),
         new XSchemaResponseProcessor(),
         new XDiscriminatorProcessor(),
     ]);
-    
+
     // 验证 Response discriminator
     $responseSchema = $analysis->getSchemaForSource(\Tests\Fixtures\Swagger\ExampleDiscriminator\GetOrderResponse::class);
     expect($responseSchema)->not->toBeNull()

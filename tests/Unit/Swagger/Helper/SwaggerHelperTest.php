@@ -1,6 +1,11 @@
 <?php
 
+use OpenApi\Analysis;
+use OpenApi\Annotations\Header as AnHeader;
+use OpenApi\Annotations\Parameter as AnParameter;
 use OpenApi\Annotations\Schema as AnSchema;
+use OpenApi\Attributes\OpenApi;
+use OpenApi\Context;
 use Tests\Fixtures\Swagger\EnumColor;
 use Tests\Fixtures\Swagger\SchemaA;
 use Tests\Fixtures\Swagger\SchemaNested;
@@ -16,6 +21,110 @@ test('getAnnotationClassName', function () {
         ->and(SwaggerHelper::getAnnotationClassName($analysis->getAnnotationForSource(EnumColor::class, AnSchema::class)))->toBe('\\' . EnumColor::class)
         ->and(SwaggerHelper::getAnnotationClassName($analysis->getAnnotationForSource(SchemaWithTrait::class, AnSchema::class)))->toBe('\\' . SchemaWithTrait::class);
 });
+
+test('appendComponent with parameter', function () {
+    $analysis = new Analysis([], new Context());
+    $analysis->openapi = new OpenApi();
+
+    $parameter = new AnParameter([
+        'parameter' => 'TestParam',
+        'name' => 'test_param',
+        'in' => 'query',
+    ]);
+
+    $ref = SwaggerHelper::appendComponent($analysis, $parameter);
+
+    expect($ref)->toBe('#/components/parameters/TestParam')
+        ->and($analysis->openapi->components->parameters)->toHaveKey('TestParam')
+        ->and($analysis->openapi->components->parameters['TestParam'])->toBe($parameter);
+});
+
+test('appendComponent with header', function () {
+    $analysis = new Analysis([], new Context());
+    $analysis->openapi = new OpenApi();
+
+    $header = new AnHeader([
+        'header' => 'X-Test-Header',
+        'description' => 'Test header',
+    ]);
+
+    $ref = SwaggerHelper::appendComponent($analysis, $header);
+
+    expect($ref)->toBe('#/components/headers/X-Test-Header')
+        ->and($analysis->openapi->components->headers)->toHaveKey('X-Test-Header')
+        ->and($analysis->openapi->components->headers['X-Test-Header'])->toBe($header);
+});
+
+test('appendComponent with schema', function () {
+    $analysis = new Analysis([], new Context());
+    $analysis->openapi = new OpenApi();
+
+    $schema = new AnSchema([
+        'schema' => 'TestSchema',
+        'type' => 'object',
+    ]);
+
+    $ref = SwaggerHelper::appendComponent($analysis, $schema);
+
+    expect($ref)->toBe('#/components/schemas/TestSchema')
+        ->and($analysis->openapi->components->schemas)->toHaveKey('TestSchema')
+        ->and($analysis->openapi->components->schemas['TestSchema'])->toBe($schema);
+});
+
+test('appendComponent throws exception when component already exists', function () {
+    $analysis = new Analysis([], new Context());
+    $analysis->openapi = new OpenApi();
+
+    $parameter1 = new AnParameter([
+        'parameter' => 'TestParam',
+        'name' => 'test_param',
+        'in' => 'query',
+    ]);
+    SwaggerHelper::appendComponent($analysis, $parameter1);
+
+    $parameter2 = new AnParameter([
+        'parameter' => 'TestParam',
+        'name' => 'another_param',
+        'in' => 'header',
+    ]);
+
+    SwaggerHelper::appendComponent($analysis, $parameter2);
+})->throws(\InvalidArgumentException::class, 'components.parameters "TestParam" already exists');
+
+test('appendComponent with overwrite replaces existing component', function () {
+    $analysis = new Analysis([], new Context());
+    $analysis->openapi = new OpenApi();
+
+    $parameter1 = new AnParameter([
+        'parameter' => 'TestParam',
+        'name' => 'test_param',
+        'in' => 'query',
+    ]);
+    SwaggerHelper::appendComponent($analysis, $parameter1);
+
+    $parameter2 = new AnParameter([
+        'parameter' => 'TestParam',
+        'name' => 'replaced_param',
+        'in' => 'header',
+    ]);
+    $ref = SwaggerHelper::appendComponent($analysis, $parameter2, true);
+
+    expect($ref)->toBe('#/components/parameters/TestParam')
+        ->and($analysis->openapi->components->parameters['TestParam']->name)->toBe('replaced_param')
+        ->and($analysis->openapi->components->parameters['TestParam']->in)->toBe('header');
+});
+
+test('appendComponent throws exception when openapi not defined', function () {
+    $analysis = new Analysis([], new Context());
+
+    $parameter = new AnParameter([
+        'parameter' => 'TestParam',
+        'name' => 'test_param',
+        'in' => 'query',
+    ]);
+
+    SwaggerHelper::appendComponent($analysis, $parameter);
+})->throws(\InvalidArgumentException::class, 'analysis openapi not defined');
 
 //test('getPropertyRefByClassNameAndPropertyName', function () {
 //    $analysis = analysisFromFiles(['SchemaA.php', 'SchemaB.php', 'SchemaNested.php', 'SchemaWithParent.php', 'SchemaWithTrait.php']);

@@ -4,8 +4,10 @@ namespace Tests\Fixtures\Swagger;
 
 use OpenApi\Attributes as OA;
 use WebmanTech\DTO\Attributes\RequestPropertyInHeader;
+use WebmanTech\DTO\Attributes\RequestPropertyInPath;
 use WebmanTech\DTO\Attributes\ResponsePropertyInBody;
 use WebmanTech\DTO\BaseRequestDTO;
+use WebmanTech\DTO\BaseResponseDTO;
 use WebmanTech\Swagger\DTO\SchemaConstants;
 
 class ControllerForXSchemaRequestBodyProperty
@@ -13,7 +15,7 @@ class ControllerForXSchemaRequestBodyProperty
     #[OA\Post(
         path: '/post/schema-body-property',
         x: [
-            SchemaConstants::X_SCHEMA_REQUEST => ControllerForXSchemaRequestBodyPropertySchema::class,
+            SchemaConstants::X_SCHEMA_REQUEST => ControllerForXSchemaRequestBodyPropertySchema::class . '@handle',
         ],
     )]
     public function post()
@@ -27,21 +29,35 @@ class ControllerForXSchemaRequestBodyPropertySchema extends BaseRequestDTO
     /**
      * @example file.txt
      */
-    #[OA\Property]
     #[RequestPropertyInHeader(name: 'X-File-Key')]
     public string $key;
 
     /**
      * @example base64
      */
-    #[OA\Property]
-    #[RequestPropertyInHeader(name: 'X-File-Key-Encode')]
+    #[RequestPropertyInPath(name: 'encode')]
     public ?string $keyEncode = null;
 
     /**
      * 文件内容
      */
-    #[OA\Property]
     #[ResponsePropertyInBody]
     public string $content = '';
+
+    public function handle(): ControllerForXSchemaRequestBodyPropertySchemaResult
+    {
+        return new ControllerForXSchemaRequestBodyPropertySchemaResult(
+            key: '123'
+        );
+    }
+}
+
+#[OA\Schema]
+class ControllerForXSchemaRequestBodyPropertySchemaResult extends BaseResponseDTO
+{
+    #[RequestPropertyInHeader(name: 'X-File-Key')]
+    public string $key;
+
+    #[ResponsePropertyInBody]
+    public string $content;
 }

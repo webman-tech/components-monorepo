@@ -72,16 +72,6 @@ class ControllerForXSchemaResponse
     public function get4()
     {
     }
-
-    #[OA\Post(
-        path: '/post/schema-x-in',
-        x: [
-            SchemaConstants::X_SCHEMA_RESPONSE => ControllerForXSchemaResponseSchemaC::class,
-        ],
-    )]
-    public function post2()
-    {
-    }
 }
 
 #[OA\Schema]
@@ -96,11 +86,4 @@ class ControllerForXSchemaResponseSchemaB
 {
     #[OA\Property]
     public int $age;
-}
-
-#[OA\Schema]
-class ControllerForXSchemaResponseSchemaC
-{
-    #[OA\Property(x: ['in' => 'header'])]
-    public string $header;
 }

@@ -10,10 +10,10 @@
                 "operationId": "51625d3e2541f548a4d486d98477b24d",
                 "parameters": [
                     {
-                        "$ref": "#/components/schemas/ControllerForXSchemaRequestBodyPropertySchema/x-in-property-parameter/X-File-Key"
+                        "$ref": "#/components/parameters/ControllerForXSchemaRequestBodyPropertySchema_X-File-Key"
                     },
                     {
-                        "$ref": "#/components/schemas/ControllerForXSchemaRequestBodyPropertySchema/x-in-property-parameter/X-File-Key-Encode"
+                        "$ref": "#/components/parameters/ControllerForXSchemaRequestBodyPropertySchema_encode"
                     }
                 ],
                 "requestBody": {
@@ -29,44 +29,51 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "headers": {
+                            "X-File-Key": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/octet-stream": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
     },
     "components": {
-        "schemas": {
-            "ControllerForXSchemaRequestBodyPropertySchema": {
-                "required": [
-                    "key"
-                ],
-                "type": "object",
-                "x-in-property-parameter": {
-                    "X-File-Key": {
-                        "parameter": "X-File-Key",
-                        "name": "X-File-Key",
-                        "in": "header",
-                        "schema": {
-                            "type": "string",
-                            "example": "file.txt"
-                        },
-                        "example": "file.txt"
-                    },
-                    "X-File-Key-Encode": {
-                        "parameter": "X-File-Key-Encode",
-                        "name": "X-File-Key-Encode",
-                        "in": "header",
-                        "schema": {
-                            "type": [
-                                "string",
-                                "null"
-                            ],
-                            "example": "base64"
-                        },
-                        "example": "base64"
-                    }
-                }
+        "parameters": {
+            "ControllerForXSchemaRequestBodyPropertySchema_X-File-Key": {
+                "name": "X-File-Key",
+                "in": "header",
+                "required": true,
+                "schema": {
+                    "type": "string",
+                    "example": "file.txt"
+                },
+                "example": "file.txt"
+            },
+            "ControllerForXSchemaRequestBodyPropertySchema_encode": {
+                "name": "encode",
+                "in": "path",
+                "schema": {
+                    "type": [
+                        "string",
+                        "null"
+                    ],
+                    "example": "base64"
+                },
+                "example": "base64"
             }
         }
     }
