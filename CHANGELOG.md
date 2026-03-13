@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.0.18] - 2026-03-13
+
+### Added
+
+- dto+swagger: 默认输出 OpenAPI 3.1 并支持版本可配置
+
+### Changed
+
+- swagger: 将 x-in 子路径 ref 提升为独立组件
+
+### Fixed
+
+- dto+swagger: 修复 map value nullable 丢失
+- swagger: 修复 body 属性请求仍追加 json body
+- swagger: 收敛 x-in 子路径 ref 保活
+- swagger: 修正 docblock @example 的类型转换
+
 ## [5.0.17] - 2026-03-11
 
 ### Fixed
@@ -220,7 +237,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 >
 > 如需查看完整的历史变更，请访问 [GitHub Commit 历史](https://github.com/webman-tech/components-monorepo/commits/main/)
 
-[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.0.17...HEAD
+[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.0.18...HEAD
+
+[5.0.18]: https://github.com/webman-tech/components-monorepo/compare/v5.0.17...v5.0.18
 
 [5.0.17]: https://github.com/webman-tech/components-monorepo/compare/v5.0.16...v5.0.17
 
