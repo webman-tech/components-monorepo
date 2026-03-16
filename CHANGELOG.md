@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.0.19] - 2026-03-16
+
+### Fixed
+
+- amis-admin: 修正时间戳转换时显式使用默认时区
+
 ## [5.0.18] - 2026-03-13
 
 ### Added
@@ -237,7 +243,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 >
 > 如需查看完整的历史变更，请访问 [GitHub Commit 历史](https://github.com/webman-tech/components-monorepo/commits/main/)
 
-[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.0.18...HEAD
+[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.0.19...HEAD
+
+[5.0.19]: https://github.com/webman-tech/components-monorepo/compare/v5.0.18...v5.0.19
 
 [5.0.18]: https://github.com/webman-tech/components-monorepo/compare/v5.0.17...v5.0.18
 
