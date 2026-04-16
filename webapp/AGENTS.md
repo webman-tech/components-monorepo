@@ -1,7 +1,3 @@
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## 项目概述
 
 webapp 是一个基于 pnpm workspace 的前端工具 monorepo，用于管理项目的各种前端工具应用。
@@ -117,4 +113,4 @@ webapp/
 ## 相关文档
 
 - dto-generator 详细文档：[apps/dto-generator/README.md](apps/dto-generator/README.md)
-- DTO 组件文档：[packages/dto/CLAUDE.md](../packages/dto/CLAUDE.md)
+- DTO 组件文档：[packages/dto/AGENTS.md](../packages/dto/AGENTS.md)

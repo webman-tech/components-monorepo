@@ -1,7 +1,3 @@
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## 项目概述
 
 通用工具组件，聚焦"消除 Webman/Laravel/自定义环境差异"，为运行时、HTTP、配置、日志、测试等核心能力提供一致的 API。
@@ -16,7 +12,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 开发命令
 
-测试、静态分析等通用命令与根项目一致，详见根目录 [CLAUDE.md](../../CLAUDE.md)。
+测试、静态分析等通用命令与根项目一致，详见根目录 [AGENTS.md](../../AGENTS.md)。
 
 ## 项目架构
 
@@ -53,11 +49,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - `Functions/`：全局函数
 - `src/Install.php`：Webman 安装脚本
 
-测试文件位于项目根目录的 `tests/Unit/CommonUtils/`。测试环境配置和 Helper 函数详见根目录 [CLAUDE.md](../../CLAUDE.md) 的测试相关章节。
+测试文件位于项目根目录的 `tests/Unit/CommonUtils/`。测试环境配置和 Helper 函数详见根目录 [AGENTS.md](../../AGENTS.md) 的测试相关章节。
 
 ## 代码风格
 
-与根项目保持一致，详见根目录 [CLAUDE.md](../../CLAUDE.md)。
+与根项目保持一致，详见根目录 [AGENTS.md](../../AGENTS.md)。
 
 ## 注意事项
 
