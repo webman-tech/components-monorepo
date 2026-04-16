@@ -34,6 +34,25 @@
 
 测试文件位于项目根目录的 `tests/Unit/CommonUtils/`。测试环境配置和 Helper 函数详见根目录 [AGENTS.md](../../AGENTS.md) 的测试相关章节。
 
+## 工作流程
+
+```
+业务代码
+    │
+    ▼
+common-utils 统一 API
+(Request / Response / Config / Log / Session / Route...)
+    │
+    ▼
+Runtime (运行时自动检测 / RuntimeCustomRegister 手动注册)
+    │
+    ├── Webman 环境
+    ├── Laravel 环境
+    └── 自定义环境
+```
+
+测试时通过 `Factory::registerTestRuntime()` 注入测试假体，业务代码无需修改。
+
 ## 代码风格
 
 与根项目保持一致，详见根目录 [AGENTS.md](../../AGENTS.md)。

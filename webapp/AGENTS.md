@@ -64,6 +64,21 @@ webapp/
 - **输出位置**：构建后写入 `packages/dto/web/`
 - **功能**：从 JSON 数据生成 PHP DTO 代码
 
+## 工作流程
+
+```
+webapp/apps/dto-generator/src/  (Vue 3 + TypeScript 开发)
+    │
+    ▼
+pnpm build (Vite)
+    │ 所有 JS/CSS 内联到单文件 HTML
+    ▼
+packages/dto/web/index.html
+    │
+    ├── 直接浏览器打开 (离线可用)
+    └── PHP 路由返回   (file_get_contents + Response)
+```
+
 ## 代码风格
 
 - **Vue 3**：使用 Composition API
