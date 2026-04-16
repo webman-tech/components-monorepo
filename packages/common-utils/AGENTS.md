@@ -14,39 +14,22 @@
 
 测试、静态分析等通用命令与根项目一致，详见根目录 [AGENTS.md](../../AGENTS.md)。
 
-## 项目架构
-
-### 核心组件
-- **Runtime**：
-  - `Runtime`：运行时抽象，统一不同环境的路径、容器等
-  - `RuntimeCustomRegister`：运行时自定义注册
-- **HTTP**：
-  - `Request`：统一请求对象，兼容 Webman/Symfony/Laravel
-  - `Response`：统一响应对象
-  - `Session`：统一 Session 对象
-  - `Route`：统一路由对象
-  - `Middleware`：中间件基类
-- **Config**：
-  - `Config`：配置类，支持闭包默认值
-  - `EnvAttr`：环境变量管理
-- **Helper**：
-  - `Json`：JSON 处理，支持 INF/NAN、非 UTF-8
-  - `Encoding`：编码修正
-  - `View`：纯 PHP 模板渲染
-- **Testing**：
-  - `Factory`：测试工厂
-  - `TestRequest/TestResponse/TestRoute/TestSession`：测试假体
-- **Functions**：
-  - 全局辅助函数
-
-### 目录结构
+## 目录结构
 - `src/`：
-  - `Runtime/`：运行时相关
-  - `Http/`：HTTP 相关
-  - `Config/`：配置相关
-  - `Helper/`：助手类
-  - `Support/`：支持类
-  - `Functions/`：全局函数
+  - `Runtime.php`：运行时抽象，统一不同环境的路径、容器等核心能力
+  - `RuntimeCustomRegister.php`：运行时自定义注册
+  - `Request.php`/`Response.php`/`Session.php`/`Route.php`：HTTP 层统一封装，兼容 Webman/Symfony/Laravel
+  - `Config.php`：配置类，支持闭包默认值
+  - `EnvAttr.php`：环境变量管理
+  - `Json.php`：JSON 处理，支持 INF/NAN、非 UTF-8
+  - `Encoding.php`：编码修正
+  - `View.php`：纯 PHP 模板渲染
+  - `Middleware/`：BaseMiddleware 基类
+  - `Cache/`：ArrayCache/NullCache
+  - `Testing/`：
+    - `Factory.php`：测试工厂，注册测试运行时
+    - `Test*.php`：各类测试假体（Request/Response/Route/Session/Config/Container 等）
+  - `functions.php`：全局辅助函数（base_path()/runtime_path()/logger() 等）
 - `src/Install.php`：Webman 安装脚本
 
 测试文件位于项目根目录的 `tests/Unit/CommonUtils/`。测试环境配置和 Helper 函数详见根目录 [AGENTS.md](../../AGENTS.md) 的测试相关章节。

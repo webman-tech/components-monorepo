@@ -39,9 +39,7 @@ cd webapp
 pnpm --filter dto-generator lint
 ```
 
-## 项目架构
-
-### 目录结构
+## 目录结构
 ```
 webapp/
 ├── apps/                    # 各独立前端工具

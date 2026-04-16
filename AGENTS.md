@@ -80,22 +80,8 @@ pnpm --filter dto-generator lint
 
 ### Monorepo 维护脚本
 ```bash
-# 更新子包的 composer 依赖到根 composer.json
+# 更新子包相关的信息
 composer script:update-packages
-# 或
-php scripts/update_packages.php
-
-# 生成根 composer.json（汇总子包依赖）
-php scripts/generate_composer.php
-```
-
-### Composer 操作
-```bash
-# 分析依赖大小
-composer-du
-
-# 规范化 composer.json
-composer normalize --no-check-lock --no-update-lock --indent-size=2 --indent-style=space
 ```
 
 ## 项目架构
@@ -103,8 +89,6 @@ composer normalize --no-check-lock --no-update-lock --indent-size=2 --indent-sty
 ### Monorepo 结构
 - **packages/**: 各个组件的源代码目录，每个子包都是独立的 composer 包
 - **webapp/**: 前端工具 monorepo（使用 pnpm workspace）
-  - `apps/dto-generator/`：DTO 代码生成器（Vue 3 + TypeScript）
-  - 构建输出到 `packages/dto/web/`
 - **tests/**: 测试目录
   - Unit: 单元测试，按组件名划分目录（如 Unit/DTO、Unit/Logger 等）
   - Fixtures: 测试数据
@@ -113,10 +97,6 @@ composer normalize --no-check-lock --no-update-lock --indent-size=2 --indent-sty
 - **phpstan/**: PHPStan 静态分析工具的扩展和配置
   - stubs/: 自定义类型声明存根（如 OpenApi、Webman 等）
 - **scripts/**: Monorepo 维护脚本
-  - generate_composer.php: 汇总子包依赖到根 composer.json
-  - generate_gitsplit.php: 生成 gitsplit 配置
-  - generate_readme.php: 生成 README 组件列表
-  - update_packages.php: 更新包信息
 - **.gitsplit.yml**: Git Split 配置文件
 
 ### 组件依赖关系
