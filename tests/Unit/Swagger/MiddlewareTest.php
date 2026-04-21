@@ -1,6 +1,7 @@
 <?php
 
 use WebmanTech\CommonUtils\Response;
+use WebmanTech\Swagger\Middleware\BasicAuthMiddleware;
 use WebmanTech\Swagger\Middleware\HostForbiddenMiddleware;
 
 test('HostForbiddenMiddleware check', function () {
@@ -100,4 +101,55 @@ test('HostForbiddenMiddleware check', function () {
     $response = $middleware->process($request, fn() => response('ok'));
     expect($response->getStatusCode())->toBe(403);
     expect($response->getBody())->toBe('Access Denied');
+});
+
+test('BasicAuthMiddleware check', function () {
+    $request = request_create_one();
+    $rawRequest = request_get_raw($request);
+
+    // 关闭时不拦截
+    $middleware = new BasicAuthMiddleware(['enable' => false]);
+    $response = $middleware->processRequest($request, fn() => Response::make()->withBody('ok'));
+    expect($response->getStatusCode())->toBe(200);
+
+    // 开启但未传 Authorization
+    $middleware = new BasicAuthMiddleware([
+        'enable' => true,
+        'username' => 'admin',
+        'password' => 'secret',
+    ]);
+    $response = $middleware->processRequest($request, fn() => Response::make()->withBody('ok'));
+    expect($response->getStatusCode())->toBe(401);
+    expect($response->getHeader('WWW-Authenticate'))->toBe('Basic realm="Swagger API Documentation"');
+
+    // 正确的凭证
+    $rawRequest->setHeader('authorization', 'Basic ' . base64_encode('admin:secret'));
+    $response = $middleware->processRequest($request, fn() => Response::make()->withBody('ok'));
+    expect($response->getStatusCode())->toBe(200);
+
+    // 错误的用户名
+    $rawRequest->setHeader('authorization', 'Basic ' . base64_encode('wrong:secret'));
+    $response = $middleware->processRequest($request, fn() => Response::make()->withBody('ok'));
+    expect($response->getStatusCode())->toBe(401);
+
+    // 错误的密码
+    $rawRequest->setHeader('authorization', 'Basic ' . base64_encode('admin:wrong'));
+    $response = $middleware->processRequest($request, fn() => Response::make()->withBody('ok'));
+    expect($response->getStatusCode())->toBe(401);
+
+    // 非 Basic 的 Authorization header
+    $rawRequest->setHeader('authorization', 'Bearer sometoken');
+    $response = $middleware->processRequest($request, fn() => Response::make()->withBody('ok'));
+    expect($response->getStatusCode())->toBe(401);
+
+    // 自定义 realm
+    $middleware = new BasicAuthMiddleware([
+        'enable' => true,
+        'username' => 'admin',
+        'password' => 'secret',
+        'realm' => 'My API Docs',
+    ]);
+    $rawRequest->setHeader('authorization', '');
+    $response = $middleware->processRequest($request, fn() => Response::make()->withBody('ok'));
+    expect($response->getHeader('WWW-Authenticate'))->toBe('Basic realm="My API Docs"');
 });
