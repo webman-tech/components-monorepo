@@ -3,27 +3,6 @@ info:
   title: 'App OpenAPI'
   version: '0.1'
 paths:
-  /same-path:
-    get:
-      operationId: a16af954711ddf37a3be80134cf418aa
-      responses:
-        '200':
-          description: OK
-    put:
-      operationId: 3dfc4a91d3b7bb5bef9dc0784310e7e1
-      responses:
-        '200':
-          description: OK
-    post:
-      operationId: 443d2de84262eb071730681473d1cca6
-      responses:
-        '200':
-          description: OK
-    delete:
-      operationId: 0cac586e86cf5c2796219368f0d0ca61
-      responses:
-        '200':
-          description: OK
   /crud:
     get:
       tags:
@@ -35,32 +14,28 @@ paths:
           name: page
           in: query
           description: 页数
-          schema:
-            type: integer
+          schema: { type: integer }
         -
           name: page_size
           in: query
           description: 每页数量
-          schema:
-            type: integer
+          schema: { type: integer }
         -
           name: username
           in: query
           description: 用户名
-          schema:
-            type: string
+          schema: { type: string }
         -
           name: status
           in: query
           description: 状态
-          schema:
-            type: integer
+          schema: { type: integer }
       responses:
-        '200':
+        200:
           description: 列表数据
       security:
         -
-          api_key: []
+          api_key: {  }
     post:
       tags:
         - crud
@@ -69,34 +44,13 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
-            schema:
-              required:
-                - username
-                - password
-                - name
-              properties:
-                username:
-                  description: 用户名
-                  type: string
-                  maxLength: 64
-                  example: admin
-                password:
-                  description: 密码
-                  type: string
-                  maxLength: 64
-                  example: '123456'
-                name:
-                  description: 名称
-                  type: string
-                  example: 测试用户
-              type: object
+          application/json: { schema: { required: [username, password, name], properties: { username: { description: 用户名, type: string, maxLength: 64, example: admin }, password: { description: 密码, type: string, maxLength: 64, example: '123456' }, name: { description: 名称, type: string, example: 测试用户 } }, type: object } }
       responses:
-        '200':
+        200:
           description: 新建后的明细
       security:
         -
-          api_key: []
+          api_key: {  }
   '/crud/{id}':
     get:
       tags:
@@ -109,14 +63,13 @@ paths:
           in: path
           description: ID
           required: true
-          schema:
-            type: integer
+          schema: { type: integer }
       responses:
-        '200':
+        200:
           description: 明细
       security:
         -
-          api_key: []
+          api_key: {  }
     put:
       tags:
         - crud
@@ -125,34 +78,13 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
-            schema:
-              properties:
-                username:
-                  description: 用户名
-                  type: string
-                  maxLength: 64
-                  example: admin
-                password:
-                  description: 密码
-                  type: string
-                  maxLength: 64
-                  example: '123456'
-                name:
-                  description: 名称
-                  type: string
-                  example: 测试用户
-                status:
-                  description: 状态
-                  type: integer
-                  example: 0
-              type: object
+          application/json: { schema: { properties: { username: { description: 用户名, type: string, maxLength: 64, example: admin }, password: { description: 密码, type: string, maxLength: 64, example: '123456' }, name: { description: 名称, type: string, example: 测试用户 }, status: { description: 状态, type: integer, example: 0 } }, type: object } }
       responses:
-        '200':
+        200:
           description: 更新后的明细
       security:
         -
-          api_key: []
+          api_key: {  }
     delete:
       tags:
         - crud
@@ -164,14 +96,13 @@ paths:
           in: path
           description: ID
           required: true
-          schema:
-            type: integer
+          schema: { type: integer }
       responses:
-        '200':
+        200:
           description: 无返回数据
       security:
         -
-          api_key: []
+          api_key: {  }
   '/crud/{id}/recovery':
     put:
       tags:
@@ -184,14 +115,34 @@ paths:
           in: path
           description: ID
           required: true
-          schema:
-            type: integer
+          schema: { type: integer }
       responses:
-        '200':
+        200:
           description: 明细
       security:
         -
-          api_key: []
+          api_key: {  }
+  /same-path:
+    get:
+      operationId: a16af954711ddf37a3be80134cf418aa
+      responses:
+        200:
+          description: OK
+    put:
+      operationId: 3dfc4a91d3b7bb5bef9dc0784310e7e1
+      responses:
+        200:
+          description: OK
+    post:
+      operationId: 443d2de84262eb071730681473d1cca6
+      responses:
+        200:
+          description: OK
+    delete:
+      operationId: 0cac586e86cf5c2796219368f0d0ca61
+      responses:
+        200:
+          description: OK
 tags:
   -
     name: crud

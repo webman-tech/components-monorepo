@@ -8,7 +8,7 @@ test('openapiDoc', function () {
         'scan_path' => fixture_get_path('Swagger/RouteAnnotation/ExampleAttribution')
     ]);
 
-    expect($response->rawBody())->toMatchSnapshot()
+    expect(normalizeOpenApiPaths($response->rawBody(), 'yaml'))->toMatchSnapshot()
         ->and($response->getHeader('Content-Type'))->toBe('application/yaml;charset=utf-8');
 });
 
@@ -20,7 +20,7 @@ test('openapiDoc generate json', function () {
         'cache_key' => 'json',
     ]);
 
-    expect($response->rawBody())->toMatchSnapshot()
+    expect(normalizeOpenApiPaths($response->rawBody(), 'json'))->toMatchSnapshot()
         ->and($response->getHeader('Content-Type'))->toBe('application/json;charset=utf-8');
 });
 

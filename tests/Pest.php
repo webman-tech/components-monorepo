@@ -81,3 +81,24 @@ function request_get_raw(Request $request): TestRequest
 {
     return $request->getRaw();
 }
+
+/**
+ * 对 OpenAPI 文档的 paths 进行排序，消除不同环境下文件扫描顺序不一致导致的 snapshot 差异
+ */
+function normalizeOpenApiPaths(string $body, string $format): string
+{
+    if ($format === 'json') {
+        $data = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
+        if (isset($data['paths'])) {
+            $data['paths'] = collect($data['paths'])->sortKeys()->toArray();
+        }
+        return json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n";
+    }
+
+    // YAML: 解析后排序 paths 再输出
+    $data = \Symfony\Component\Yaml\Yaml::parse($body);
+    if (isset($data['paths'])) {
+        $data['paths'] = collect($data['paths'])->sortKeys()->toArray();
+    }
+    return \Symfony\Component\Yaml\Yaml::dump($data, 6, 2, \Symfony\Component\Yaml\Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
+}
