@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.0.20] - 2026-04-23
+
+### Added
+
+- swagger: 支持 Basic Auth 认证和自定义中间件
+- docs: 为 dto/swagger/amis-admin/auth/crontab-task/logger 包添加面向使用者的 AI skill 最佳实践指南
+
+### Changed
+
+- docs: 将 CLAUDE.md 重命名为 AGENTS.md，优化各包文档结构和工作流程图
+- docs: 添加文档规范，精简各包 README 为功能概览
+
+### Fixed
+
+- 修复 OpenAPI snapshot 测试因路径扫描顺序不一致导致 CI 失败
+
 ## [5.0.19] - 2026-03-16
 
 ### Fixed
@@ -243,7 +259,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 >
 > 如需查看完整的历史变更，请访问 [GitHub Commit 历史](https://github.com/webman-tech/components-monorepo/commits/main/)
 
-[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.0.19...HEAD
+[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.0.20...HEAD
+
+[5.0.20]: https://github.com/webman-tech/components-monorepo/compare/v5.0.19...v5.0.20
 
 [5.0.19]: https://github.com/webman-tech/components-monorepo/compare/v5.0.18...v5.0.19
 
