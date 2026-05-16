@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.0.21] - 2026-05-16
+
+### Fixed
+
+- debugbar: 修复主动初始化未使用数据库连接
+
 ## [5.0.20] - 2026-04-23
 
 ### Added
@@ -259,7 +265,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 >
 > 如需查看完整的历史变更，请访问 [GitHub Commit 历史](https://github.com/webman-tech/components-monorepo/commits/main/)
 
-[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.0.20...HEAD
+[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.0.21...HEAD
+
+[5.0.21]: https://github.com/webman-tech/components-monorepo/compare/v5.0.20...v5.0.21
 
 [5.0.20]: https://github.com/webman-tech/components-monorepo/compare/v5.0.19...v5.0.20
 
