@@ -29,6 +29,7 @@ use WebmanTech\CommonUtils\Request;
 use WebmanTech\CommonUtils\Testing\TestContainer;
 use WebmanTech\CommonUtils\Testing\TestRequest;
 use WebmanTech\CommonUtils\Testing\TestSession;
+use WebmanTech\CommonUtils\Timer\PcntlTimer;
 
 expect()->extend('toBeOne', function () {
     return $this->toBe(1);
@@ -37,6 +38,8 @@ expect()->extend('toBeOne', function () {
 pest()->beforeEach(function () {
     // 清理测试容器
     TestContainer::clear();
+    // 清理测试定时器
+    PcntlTimer::reset();
 });
 
 pest()->afterEach(function () {

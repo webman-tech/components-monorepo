@@ -9,6 +9,7 @@ use WebmanTech\CommonUtils\Constants;
 use WebmanTech\CommonUtils\Local;
 use WebmanTech\CommonUtils\Runtime;
 use WebmanTech\CommonUtils\RuntimeCustomRegister;
+use WebmanTech\CommonUtils\Timer\PcntlTimer;
 use function WebmanTech\CommonUtils\base_path;
 use function WebmanTech\CommonUtils\config_path;
 
@@ -45,6 +46,7 @@ final class Factory
         RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_RESPONSE, fn() => new TestResponse());
         RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_SESSION, fn() => TestSession::instance());
         RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_ROUTE, fn() => TestRoute::instance());
+        RuntimeCustomRegister::register(RuntimeCustomRegister::KEY_TIMER, PcntlTimer::call(...));
 
         // 加载 config 配置
         self::loadAllConfig(['route']);

@@ -21,6 +21,7 @@ final class RuntimeCustomRegister
     public const KEY_RESPONSE = 'response';
     public const KEY_SESSION = 'session';
     public const KEY_ROUTE = 'route';
+    public const KEY_TIMER = 'timer';
 
     /**
      * @var array<self::KEY_*, \Closure>
