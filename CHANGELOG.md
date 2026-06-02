@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.0.22] - 2026-06-02
+
+### Added
+
+- common-utils: 新增 Timer 定时器抽象
+
 ## [5.0.21] - 2026-05-16
 
 ### Fixed
@@ -265,7 +271,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 >
 > 如需查看完整的历史变更，请访问 [GitHub Commit 历史](https://github.com/webman-tech/components-monorepo/commits/main/)
 
-[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.0.21...HEAD
+[5.0.22]: https://github.com/webman-tech/components-monorepo/compare/v5.0.21...v5.0.22
+[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.0.22...HEAD
 
 [5.0.21]: https://github.com/webman-tech/components-monorepo/compare/v5.0.20...v5.0.21
 
