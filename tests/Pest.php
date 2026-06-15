@@ -83,6 +83,23 @@ function request_get_raw(Request $request): TestRequest
 }
 
 /**
+ * @param class-string|Closure|object|array<class-string|Closure|object> $processor
+ */
+function swagger_processor_analyse($processor, \OpenApi\Analysis $analysis, bool $setGenerator = true, ?\OpenApi\Generator $generator = null): void
+{
+    $processors = is_array($processor) ? $processor : [$processor];
+    foreach ($processors as $processor) {
+        if (is_string($processor)) {
+            $processor = new $processor;
+        }
+        if ($setGenerator && method_exists($processor, 'setGenerator')) {
+            $processor->setGenerator($generator ?? new \OpenApi\Generator());
+        }
+        $processor($analysis);
+    }
+}
+
+/**
  * 对 OpenAPI 文档的 paths 进行排序，消除不同环境下文件扫描顺序不一致导致的 snapshot 差异
  */
 function normalizeOpenApiPaths(string $body, string $format): string

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Arr;
 use OpenApi\Annotations as OA;
+use OpenApi\Generator;
 use Tests\Fixtures\Swagger\ControllerForXSchemaRequestSchemaA;
 use Tests\Fixtures\Swagger\ControllerForXSchemaRequestSchemaB;
 use Tests\Fixtures\Swagger\ControllerForXSchemaRequestSchemaC;
@@ -15,6 +16,7 @@ use Tests\Fixtures\Swagger\SchemaEloquentVisibleModel;
 use Tests\Fixtures\Swagger\TestFactory;
 use Webman\Http\UploadFile;
 use WebmanTech\Swagger\DTO\SchemaConstants;
+use WebmanTech\Swagger\Helper\SwaggerHelper;
 use WebmanTech\Swagger\RouteAnnotation\Processors\AppendResponseProcessor;
 use WebmanTech\Swagger\RouteAnnotation\Processors\ExpandDTOAttributionsProcessor;
 use WebmanTech\Swagger\RouteAnnotation\Processors\ExpandEloquentModelProcessor;
@@ -25,12 +27,11 @@ use WebmanTech\Swagger\RouteAnnotation\Processors\XDiscriminatorProcessor;
 use WebmanTech\Swagger\RouteAnnotation\Processors\XSchemaRequestProcessor;
 use WebmanTech\Swagger\RouteAnnotation\Processors\XSchemaResponseProcessor;
 
+
 test('SortComponentsProcessor', function () {
     $analysis = TestFactory::analysisFromFiles(['SchemaA.php', 'SchemaB.php']);
 
-    $analysis->process(
-        new SortComponentsProcessor(),
-    );
+    swagger_processor_analyse(SortComponentsProcessor::class, $analysis);
 
     expect(collect($analysis->openapi->components->schemas)->pluck('schema'))
         ->toMatchArray(['SchemaA', 'SchemaB']);
@@ -39,19 +40,23 @@ test('SortComponentsProcessor', function () {
 test('AppendResponseProcessor', function () {
     $analysis = TestFactory::analysisFromFiles(['ControllerNoResponse.php']);
 
-    $analysis->process(
-        new AppendResponseProcessor(),
-    );
+    swagger_processor_analyse(AppendResponseProcessor::class, $analysis);
 
-    expect($analysis->openapi->paths[0]->get->responses[200])->not->toBeEmpty();
+    expect($analysis->openapi->paths[0]->get->responses[0])->not->toBeEmpty()
+        ->and($analysis->openapi->paths[0]->get->responses[0]->response)->toBe(200);
 });
 
 test('MergeClassInfoProcessor', function () {
-    $analysis = TestFactory::analysisFromFiles(['ControllerWithInfo.php']);
+    // AugmentTags 默认会清理未被 operation 引用的 class 级别 tag，
+    // 生产环境（Overwrite\Generator）会将其调整到 MergeClassInfoProcessor 之后执行，
+    // 这里对齐该行为：先移除 AugmentTags，由 MergeClassInfoProcessor 将 class tag 合并到 operation 后再手动触发。
+    $analysis = TestFactory::analysisFromFiles(['ControllerWithInfo.php'], function (\OpenApi\Generator $generator): void {
+        $generator->withProcessorPipeline(function (\OpenApi\Pipeline $pipeline): void {
+            $pipeline->remove(\OpenApi\Processors\AugmentTags::class);
+        });
+    });
 
-    $analysis->process(
-        new MergeClassInfoProcessor(),
-    );
+    swagger_processor_analyse(MergeClassInfoProcessor::class, $analysis);
 
     // tag
     expect($analysis->openapi->paths[0]->get->tags)->toBe(['controller'])
@@ -63,9 +68,7 @@ test('MergeClassInfoProcessor', function () {
 test('XSchemaRequestProcessor', function () {
     $analysis = TestFactory::analysisFromFiles(['ControllerForXSchemaRequest.php']);
 
-    $analysis->process(
-        new XSchemaRequestProcessor(),
-    );
+    swagger_processor_analyse(XSchemaRequestProcessor::class, $analysis);
 
     $fnFindPathItemByPath = function (string $path, string $method) use ($analysis): OA\Operation {
         return collect($analysis->openapi->paths)
@@ -114,9 +117,7 @@ test('XSchemaRequestProcessor', function () {
 test('XSchemaResponseProcessor', function () {
     $analysis = TestFactory::analysisFromFiles(['ControllerForXSchemaResponse.php']);
 
-    $analysis->process(
-        new XSchemaResponseProcessor(),
-    );
+    swagger_processor_analyse(XSchemaResponseProcessor::class, $analysis);
 
     $fnFindPathItemByPath = function (string $path, string $method) use ($analysis): OA\Operation {
         return collect($analysis->openapi->paths)
@@ -128,13 +129,13 @@ test('XSchemaResponseProcessor', function () {
 
     // 单 string 类，转到 200 上
     $operation = $fnFindPathItemByPath('/get/schema', 'get');
-    expect($operation->responses[200]->content['application/json']->schema->ref)->toBe('#/components/schemas/ControllerForXSchemaResponseSchemaA')
+    expect(SwaggerHelper::getOperationResponse($operation, 200)->content['application/json']->schema->ref)->toBe('#/components/schemas/ControllerForXSchemaResponseSchemaA')
         ->and($operation->x)->toBe(\OpenApi\Generator::UNDEFINED); // 用完被清理
 
     // 多维 index 数组，转到 200 上
     $operation = $fnFindPathItemByPath('/get/schema-multi', 'get');
-    expect($operation->responses[200]->content['application/json']->schema->allOf)->toHaveCount(2);
-    $allOfRefs = array_map(fn(OA\Schema $schema) => $schema->ref, $operation->responses[200]->content['application/json']->schema->allOf);
+    expect(SwaggerHelper::getOperationResponse($operation, 200)->content['application/json']->schema->allOf)->toHaveCount(2);
+    $allOfRefs = array_map(fn(OA\Schema $schema) => $schema->ref, SwaggerHelper::getOperationResponse($operation, 200)->content['application/json']->schema->allOf);
     expect($allOfRefs)->toBe([
         '#/components/schemas/ControllerForXSchemaResponseSchemaA',
         '#/components/schemas/ControllerForXSchemaResponseSchemaB',
@@ -142,8 +143,8 @@ test('XSchemaResponseProcessor', function () {
 
     // 多维 index 数组，转到 200 上 -- 使用 oneOf
     $operation = $fnFindPathItemByPath('/get/schema-multi-oneOf', 'get');
-    expect($operation->responses[200]->content['application/json']->schema->oneOf)->toHaveCount(2);
-    $allOfRefs = array_map(fn(OA\Schema $schema) => $schema->ref, $operation->responses[200]->content['application/json']->schema->oneOf);
+    expect(SwaggerHelper::getOperationResponse($operation, 200)->content['application/json']->schema->oneOf)->toHaveCount(2);
+    $allOfRefs = array_map(fn(OA\Schema $schema) => $schema->ref, SwaggerHelper::getOperationResponse($operation, 200)->content['application/json']->schema->oneOf);
     expect($allOfRefs)->toBe([
         '#/components/schemas/ControllerForXSchemaResponseSchemaA',
         '#/components/schemas/ControllerForXSchemaResponseSchemaB',
@@ -151,14 +152,14 @@ test('XSchemaResponseProcessor', function () {
 
     // status_code 单 string
     $operation = $fnFindPathItemByPath('/get/schema-status-code', 'get');
-    expect($operation->responses[200]->content['application/json']->schema->ref)->toBe('#/components/schemas/ControllerForXSchemaResponseSchemaA')
-        ->and($operation->responses[201]->content['application/json']->schema->ref)->toBe('#/components/schemas/ControllerForXSchemaResponseSchemaB');
+    expect(SwaggerHelper::getOperationResponse($operation, 200)->content['application/json']->schema->ref)->toBe('#/components/schemas/ControllerForXSchemaResponseSchemaA')
+        ->and(SwaggerHelper::getOperationResponse($operation, 201)->content['application/json']->schema->ref)->toBe('#/components/schemas/ControllerForXSchemaResponseSchemaB');
 
     // status_code 数组
     $operation = $fnFindPathItemByPath('/get/schema-status-code-multi', 'get');
-    expect($operation->responses[200]->content['application/json']->schema->allOf)->toHaveCount(2)
-        ->and($operation->responses[201]->content['application/json']->schema->ref)->toBe('#/components/schemas/ControllerForXSchemaResponseSchemaB');
-    $allOfRefs = array_map(fn(OA\Schema $schema) => $schema->ref, $operation->responses[200]->content['application/json']->schema->allOf);
+    expect(SwaggerHelper::getOperationResponse($operation, 200)->content['application/json']->schema->allOf)->toHaveCount(2)
+        ->and(SwaggerHelper::getOperationResponse($operation, 201)->content['application/json']->schema->ref)->toBe('#/components/schemas/ControllerForXSchemaResponseSchemaB');
+    $allOfRefs = array_map(fn(OA\Schema $schema) => $schema->ref, SwaggerHelper::getOperationResponse($operation, 200)->content['application/json']->schema->allOf);
     expect($allOfRefs)->toBe([
         '#/components/schemas/ControllerForXSchemaResponseSchemaA',
         '#/components/schemas/ControllerForXSchemaResponseSchemaB',
@@ -168,12 +169,10 @@ test('XSchemaResponseProcessor', function () {
 test('ExpandDTOAttributionsProcessor', function () {
     $analysis = TestFactory::analysisFromFiles(['SchemaDTO.php']);
 
-    $analysis->process(
-        new ExpandDTOAttributionsProcessor(),
-    );
+    swagger_processor_analyse(ExpandDTOAttributionsProcessor::class, $analysis);
 
-    $schema = $analysis->getSchemaForSource(SchemaDTO::class);
-    $schemaChild = $analysis->getSchemaForSource(SchemaDTOChild::class);
+    $schema = $analysis->getAnnotationForSource(SchemaDTO::class);
+    $schemaChild = $analysis->getAnnotationForSource(SchemaDTOChild::class);
     $fnFindPropertyByName = function (string $propertyName) use ($schema): OA\Property {
         return Arr::first($schema->properties, fn(OA\Property $property) => $property->property === $propertyName);
     };
@@ -195,7 +194,7 @@ test('ExpandDTOAttributionsProcessor', function () {
     // array 空类型
     $property = $fnFindPropertyByName('arrayEmptyType');
     expect($property->type)->toBe('array')
-        ->and($property->items->type)->toBe(\OpenApi\Generator::UNDEFINED);
+        ->and($property->items->type)->toBe(Generator::UNDEFINED);
 
     // array 对象
     $property = $fnFindPropertyByName('children');
@@ -205,7 +204,7 @@ test('ExpandDTOAttributionsProcessor', function () {
     // 对象
     $property = $fnFindPropertyByName('child');
     expect($property->type)->toBe('object')
-        ->and($property->_context->type)->toBe('\\' . SchemaDTOChild::class);
+        ->and($property->_context->reflector->getType()->getName())->toBe(SchemaDTOChild::class);
 
     // datetime
     $property = $fnFindPropertyByName('date');
@@ -272,20 +271,15 @@ test('ExpandDTOAttributionsProcessor', function () {
 test('ExpandEnumDescriptionProcessor', function () {
     // 未附加 ExpandEnumDescriptionProcessor 时
     $analysis = TestFactory::analysisFromFiles(['EnumColor.php']);
-    $analysis->process([
-        new \OpenApi\Processors\ExpandEnums(),
-    ]);
-    $schema = $analysis->getSchemaForSource(EnumColor::class);
+    swagger_processor_analyse(\OpenApi\Processors\ExpandEnums::class, $analysis);
+    $schema = $analysis->getAnnotationForSource(EnumColor::class);
     expect($schema->enum)->toBe(['red', 'green', 'blue'])
         ->and($schema->description)->toBe('颜色枚举');
 
     // 附加 ExpandEnumDescriptionProcessor 时
     $analysis = TestFactory::analysisFromFiles(['EnumColor.php']);
-    $analysis->process([
-        new \OpenApi\Processors\ExpandEnums(),
-        new ExpandEnumDescriptionProcessor(),
-    ]);
-    $schema = $analysis->getSchemaForSource(EnumColor::class);
+    swagger_processor_analyse([\OpenApi\Processors\ExpandEnums::class, new ExpandEnumDescriptionProcessor()], $analysis);
+    $schema = $analysis->getAnnotationForSource(EnumColor::class);
     expect($schema->enum)->toBe(['red', 'green', 'blue'])
         ->and($schema->description)->toBe(implode("\n", [
             '颜色枚举',
@@ -296,11 +290,8 @@ test('ExpandEnumDescriptionProcessor', function () {
 
     // 附加 ExpandEnumDescriptionProcessor 时，使用指定的 method 获取
     $analysis = TestFactory::analysisFromFiles(['EnumColor.php']);
-    $analysis->process([
-        new \OpenApi\Processors\ExpandEnums(),
-        new ExpandEnumDescriptionProcessor(descriptionMethod: 'getDescription'),
-    ]);
-    $schema = $analysis->getSchemaForSource(EnumColor::class);
+    swagger_processor_analyse([\OpenApi\Processors\ExpandEnums::class, new ExpandEnumDescriptionProcessor(descriptionMethod: 'getDescription')], $analysis);
+    $schema = $analysis->getAnnotationForSource(EnumColor::class);
     expect($schema->enum)->toBe(['red', 'green', 'blue'])
         ->and($schema->description)->toBe(implode("\n", [
             '颜色枚举',
@@ -311,11 +302,8 @@ test('ExpandEnumDescriptionProcessor', function () {
 
     // 附加 ExpandEnumDescriptionProcessor 时，使用指定的 method 不存在时
     $analysis = TestFactory::analysisFromFiles(['EnumColor.php']);
-    $analysis->process([
-        new \OpenApi\Processors\ExpandEnums(),
-        new ExpandEnumDescriptionProcessor(descriptionMethod: 'getDescription2'),
-    ]);
-    $schema = $analysis->getSchemaForSource(EnumColor::class);
+    swagger_processor_analyse([\OpenApi\Processors\ExpandEnums::class, new ExpandEnumDescriptionProcessor(descriptionMethod: 'getDescription2')], $analysis);
+    $schema = $analysis->getAnnotationForSource(EnumColor::class);
     expect($schema->enum)->toBe(['red', 'green', 'blue'])
         ->and($schema->description)->toBe(implode("\n", [
             '颜色枚举',
@@ -332,12 +320,10 @@ test('ExpandEloquentModelProcessor', function () {
         'SchemaEloquentVisibleModel.php',
         'SchemaEloquentAbsModel.php',
     ]);
-    $analysis->process([
-        new ExpandEloquentModelProcessor(),
-    ]);
+    swagger_processor_analyse(ExpandEloquentModelProcessor::class, $analysis);
 
     $fnGetData = function (string $className) use ($analysis) {
-        $schema = $analysis->getSchemaForSource($className);
+        $schema = $analysis->getAnnotationForSource($className);
         $data = [];
         foreach ($schema->properties as $property) {
             $data[] = [
@@ -371,12 +357,9 @@ test('ExpandEloquentModelProcessor', function () {
 test('XDiscriminatorProcessor', function () {
     $analysis = TestFactory::analysisFromFiles(['ExampleDiscriminator/CreateOrderForm.php']);
 
-    $analysis->process([
-        new ExpandDTOAttributionsProcessor(),
-        new XDiscriminatorProcessor(),
-    ]);
+    swagger_processor_analyse([ExpandDTOAttributionsProcessor::class, XDiscriminatorProcessor::class], $analysis);
 
-    $schema = $analysis->getSchemaForSource(\Tests\Fixtures\Swagger\ExampleDiscriminator\CreateOrderForm::class);
+    $schema = $analysis->getAnnotationForSource(\Tests\Fixtures\Swagger\ExampleDiscriminator\CreateOrderForm::class);
     expect($schema)->not->toBeNull()
         ->and($schema->oneOf)->not->toBe(\OpenApi\Generator::UNDEFINED)
         ->toBeArray()
@@ -389,21 +372,17 @@ test('XDiscriminatorProcessor', function () {
         ]);
 
     // 验证子 Schema 存在
-    expect($analysis->getSchemaForSource(\Tests\Fixtures\Swagger\ExampleDiscriminator\CreateOrderFormOrderDataNormal::class))->not->toBeNull()
-        ->and($analysis->getSchemaForSource(\Tests\Fixtures\Swagger\ExampleDiscriminator\CreateOrderFormOrderDataExpress::class))->not->toBeNull();
+    expect($analysis->getAnnotationForSource(\Tests\Fixtures\Swagger\ExampleDiscriminator\CreateOrderFormOrderDataNormal::class))->not->toBeNull()
+        ->and($analysis->getAnnotationForSource(\Tests\Fixtures\Swagger\ExampleDiscriminator\CreateOrderFormOrderDataExpress::class))->not->toBeNull();
 });
 
 test('XDiscriminatorProcessor for Response', function () {
     $analysis = TestFactory::analysisFromFiles(['ExampleDiscriminator/CreateOrderForm.php']);
 
-    $analysis->process([
-        new ExpandDTOAttributionsProcessor(),
-        new XSchemaResponseProcessor(),
-        new XDiscriminatorProcessor(),
-    ]);
+    swagger_processor_analyse([ExpandDTOAttributionsProcessor::class, XSchemaResponseProcessor::class, XDiscriminatorProcessor::class], $analysis);
 
     // 验证 Response discriminator
-    $responseSchema = $analysis->getSchemaForSource(\Tests\Fixtures\Swagger\ExampleDiscriminator\GetOrderResponse::class);
+    $responseSchema = $analysis->getAnnotationForSource(\Tests\Fixtures\Swagger\ExampleDiscriminator\GetOrderResponse::class);
     expect($responseSchema)->not->toBeNull()
         ->and($responseSchema->oneOf)->not->toBe(\OpenApi\Generator::UNDEFINED)
         ->toBeArray()

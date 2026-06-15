@@ -44,7 +44,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json: { schema: { required: [username, password, name], properties: { username: { description: 用户名, type: string, maxLength: 64, example: admin }, password: { description: 密码, type: string, maxLength: 64, example: '123456' }, name: { description: 名称, type: string, example: 测试用户 } }, type: object } }
+          application/json: { schema: { required: [username, password, name], properties: { username: { description: 用户名, type: string, example: admin, maxLength: 64 }, password: { description: 密码, type: string, example: '123456', maxLength: 64 }, name: { description: 名称, type: string, example: 测试用户 } }, type: object } }
       responses:
         200:
           description: 新建后的明细
@@ -78,7 +78,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/json: { schema: { properties: { username: { description: 用户名, type: string, maxLength: 64, example: admin }, password: { description: 密码, type: string, maxLength: 64, example: '123456' }, name: { description: 名称, type: string, example: 测试用户 }, status: { description: 状态, type: integer, example: 0 } }, type: object } }
+          application/json: { schema: { properties: { username: { description: 用户名, type: string, example: admin, maxLength: 64 }, password: { description: 密码, type: string, example: '123456', maxLength: 64 }, name: { description: 名称, type: string, example: 测试用户 }, status: { description: 状态, type: integer, example: 0 } }, type: object } }
       responses:
         200:
           description: 更新后的明细

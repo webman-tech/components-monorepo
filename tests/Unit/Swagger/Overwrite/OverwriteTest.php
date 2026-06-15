@@ -3,6 +3,7 @@
 use OpenApi\Annotations as OA;
 use OpenApi\Context;
 use OpenApi\Generator;
+use Psr\Log\NullLogger;
 use Tests\Fixtures\Swagger\EnumColor;
 use Tests\Fixtures\Swagger\Overwrite\ClassWithMissingType;
 use Tests\Fixtures\Swagger\Overwrite\ClassWithStaticProp;
@@ -26,7 +27,7 @@ test('Generator formatSchemaName applies custom formatter to unnamed schemas', f
         schema_name_format_use_classname: fn(string $className) => 'Custom' . basename(str_replace('\\', '/', $className)),
     );
     $generator = new OW\Generator($config);
-    $openapi = $generator->init()->generate($config->getScanSources());
+    $openapi = $generator->init()->generate($config->getScanSources(), validate: false);
 
     $schemaNames = collect($openapi->components->schemas)
         ->map(fn(OA\Schema $s) => $schemaName = $s->schema)
@@ -41,7 +42,7 @@ test('Generator formatSchemaName preserves explicitly named schemas', function (
         schema_name_format_use_classname: fn(string $className) => 'Custom' . basename(str_replace('\\', '/', $className)),
     );
     $generator = new OW\Generator($config);
-    $openapi = $generator->init()->generate($config->getScanSources());
+    $openapi = $generator->init()->generate($config->getScanSources(), validate: false);
 
     $schema = collect($openapi->components->schemas)
         ->first(fn(OA\Schema $s) => SwaggerHelper_getSchemaName($s) === 'ExplicitlyNamed');
@@ -56,7 +57,7 @@ test('Generator formatSchemaName does nothing when disabled', function () {
         schema_name_format_use_classname: null,
     );
     $generator = new OW\Generator($config);
-    $openapi = $generator->init()->generate($config->getScanSources());
+    $openapi = $generator->init()->generate($config->getScanSources(), validate: false);
 
     $schema = collect($openapi->components->schemas)->first();
     expect($schema)->not->toBeNull()
@@ -72,10 +73,10 @@ test('AugmentSchemas processor formats root unnamed schemas', function () {
 
     $analysis = TestFactory::analysisFromFiles(['SchemaA.php']);
     // TestFactory 已跑过完整 pipeline，schema 已有名称，需重置为 UNDEFINED 才能触发格式化
-    $schema = $analysis->getSchemaForSource(SchemaA::class);
+    $schema = $analysis->getAnnotationForSource(SchemaA::class);
     $schema->schema = Generator::UNDEFINED;
 
-    $analysis->process(new OW\Processors\AugmentSchemas($formatter));
+    swagger_processor_analyse(new OW\Processors\AugmentSchemas($formatter), $analysis);
 
     expect($formatted)->toContain('');
     expect($schema->schema)->toBe('Formatted_SchemaA');
@@ -90,12 +91,10 @@ test('ExpandEnums processor formats enum schemas before expansion', function () 
 
     $analysis = TestFactory::analysisFromFiles(['EnumColor.php']);
     // 重置 schema 名称以触发格式化
-    $schema = $analysis->getSchemaForSource(EnumColor::class);
+    $schema = $analysis->getAnnotationForSource(EnumColor::class);
     $schema->schema = Generator::UNDEFINED;
 
-    $analysis->process([
-        new OW\Processors\ExpandEnums($formatter),
-    ]);
+    swagger_processor_analyse(new OW\Processors\ExpandEnums($formatter), $analysis);
 
     expect($formatted)->toContain('');
     expect($schema->schema)->toBe('FormattedEnum_EnumColor');
@@ -107,6 +106,7 @@ test('ExpandEnums processor formats enum schemas before expansion', function () 
 
 test('AttributeAnnotationFactory auto Schema for enum', function () {
     $factory = new OW\Analysers\AttributeAnnotationFactory();
+    $factory->setGenerator(new Generator());
     $context = new Context(['enum' => 'PlainEnum']);
     $reflector = new ReflectionClass(PlainEnum::class);
 
@@ -221,7 +221,9 @@ test('ReflectionAnalyser handles valid class without error', function () {
     $analyser = new OW\ReflectionAnalyser([
         new \OpenApi\Analysers\AttributeAnnotationFactory(),
     ]);
-    $analysis = new \OpenApi\Analysis([], new Context());
+    $analysis = new \OpenApi\Analysis([], new Context([
+        'logger' => new NullLogger(),
+    ]));
 
     $method = new ReflectionMethod($analyser, 'analyzeFqdn');
     $details = [
@@ -243,7 +245,9 @@ test('ReflectionAnalyser skips non-existent class gracefully', function () {
     $analyser = new OW\ReflectionAnalyser([
         new \OpenApi\Analysers\AttributeAnnotationFactory(),
     ]);
-    $analysis = new \OpenApi\Analysis([], new Context());
+    $analysis = new \OpenApi\Analysis([], new Context([
+        'logger' => new NullLogger(),
+    ]));
 
     $method = new ReflectionMethod($analyser, 'analyzeFqdn');
     $result = $method->invoke($analyser, 'CompletelyNonExistentClass12345', $analysis, []);
@@ -274,7 +278,7 @@ test('full pipeline with schema name formatting produces correct output', functi
         format: 'json',
     );
     $generator = new OW\Generator($config);
-    $openapi = $generator->init()->generate($config->getScanSources());
+    $openapi = $generator->init()->generate($config->getScanSources(), validate: false);
 
     // PlainDtoClass 没有 #[Schema] 注解，但通过 autoLoadSchemaClasses 应该被自动加载
     $schemas = $openapi->components->schemas;
@@ -299,7 +303,7 @@ test('full pipeline with enum schema name formatting', function () {
         format: 'json',
     );
     $generator = new OW\Generator($config);
-    $openapi = $generator->init()->generate($config->getScanSources());
+    $openapi = $generator->init()->generate($config->getScanSources(), validate: false);
 
     $schema = collect($openapi->components->schemas)->first();
     expect($schema->schema)->toBe('Custom_PlainEnum')
@@ -318,7 +322,7 @@ test('Generator formatSchemaName with true uses default Str formatter', function
         schema_name_format_use_classname: true,
     );
     $generator = new OW\Generator($config);
-    $openapi = $generator->init()->generate($config->getScanSources());
+    $openapi = $generator->init()->generate($config->getScanSources(), validate: false);
 
     $schema = collect($openapi->components->schemas)->first();
     // Tests\Fixtures\Swagger\SchemaA → Tests Fixtures Swagger SchemaA → TestsFixturesSwaggerSchemaA
@@ -344,7 +348,7 @@ test('Generator generate with non-Overwrite Analysis still works', function () {
     // 传入原生 Analysis（非 Overwrite\Analysis），generate 仍应正常完成
     // 格式化通过 Processor 管线（AugmentSchemas/ExpandEnums）触发，不依赖 Analysis hook
     $nativeAnalysis = new \OpenApi\Analysis([], new Context());
-    $openapi = $generator->init()->generate($config->getScanSources(), $nativeAnalysis);
+    $openapi = $generator->init()->generate($config->getScanSources(), $nativeAnalysis, false);
 
     // Processor 管线中的格式化仍然生效
     $schema = collect($openapi->components->schemas)->first();
@@ -358,6 +362,7 @@ test('Generator generate with non-Overwrite Analysis still works', function () {
 test('AttributeAnnotationFactory auto Schema for unit enum defaults to string type', function () {
     // Unit enum（无 backing type）应默认类型为 string
     $factory = new OW\Analysers\AttributeAnnotationFactory();
+    $factory->setGenerator(new Generator());
     $context = new Context(['enum' => 'PlainUnitEnum']);
     $reflector = new ReflectionClass(PlainUnitEnum::class);
 
@@ -450,31 +455,31 @@ test('ReflectionAnalyser catches Class not found during analysis', function () {
 // 补充：Analysis 边界
 // ===========================================
 
-test('Analysis getSchemaForSource without formatter works as parent', function () {
+test('Analysis getAnnotationForSource without formatter works as parent', function () {
     $config = new ConfigOpenapiDocDTO(
         scan_path: [fixture_get_path('Swagger/SchemaA.php')],
         schema_name_format_use_classname: null, // 不启用格式化
     );
     $generator = new OW\Generator($config);
-    $openapi = $generator->init()->generate($config->getScanSources());
+    $openapi = $generator->init()->generate($config->getScanSources(), validate: false);
 
     // 不启用格式化时，schema 名称保持 swagger-php 默认行为
     $schema = collect($openapi->components->schemas)->first();
     expect($schema->schema)->toBe('SchemaA');
 });
 
-test('Analysis getSchemaForSource returns null for unknown FQDN', function () {
+test('Analysis getAnnotationForSource returns null for unknown FQDN', function () {
     $config = new ConfigOpenapiDocDTO(
         scan_path: [fixture_get_path('Swagger/SchemaA.php')],
         schema_name_format_use_classname: fn(string $className) => 'Custom' . basename(str_replace('\\', '/', $className)),
     );
     $generator = new OW\Generator($config);
     // generate 会创建 Overwrite\Analysis 内部实例
-    $generator->init()->generate($config->getScanSources());
+    $generator->init()->generate($config->getScanSources(), validate: false);
 
-    // 通过 TestFactory 获取 analysis 来测试 getSchemaForSource 对不存在 FQDN 的处理
+    // 通过 TestFactory 获取 analysis 来测试 getAnnotationForSource 对不存在 FQDN 的处理
     $analysis = TestFactory::analysisFromFiles(['SchemaA.php']);
-    $result = $analysis->getSchemaForSource('NonExistentClass');
+    $result = $analysis->getAnnotationForSource('NonExistentClass');
     expect($result)->toBeNull();
 });
 
