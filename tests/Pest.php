@@ -112,12 +112,11 @@ function normalizeOpenApiPaths(string $body, string $format): string
         return json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n";
     }
 
-    // YAML: 解析后排序 paths 再输出
+    // YAML: 解析后排序 paths，统一用 JSON 输出以消除不同 symfony/yaml 版本间的序列化格式差异
+    // （如空对象 `{  }` vs `{}`、列表项多行 vs 内联等）
     $data = \Symfony\Component\Yaml\Yaml::parse($body);
     if (isset($data['paths'])) {
         $data['paths'] = collect($data['paths'])->sortKeys()->toArray();
     }
-    $yaml = \Symfony\Component\Yaml\Yaml::dump($data, 6, 2, \Symfony\Component\Yaml\Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
-    // 归一化空对象/空数组的内联表示，消除不同 symfony/yaml 版本间的格式差异（如 `{  }` vs `{}`）
-    return strtr($yaml, ['{  }' => '{}', '[ ]' => '[]']);
+    return json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n";
 }
