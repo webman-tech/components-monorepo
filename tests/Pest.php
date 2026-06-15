@@ -117,5 +117,7 @@ function normalizeOpenApiPaths(string $body, string $format): string
     if (isset($data['paths'])) {
         $data['paths'] = collect($data['paths'])->sortKeys()->toArray();
     }
-    return \Symfony\Component\Yaml\Yaml::dump($data, 6, 2, \Symfony\Component\Yaml\Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
+    $yaml = \Symfony\Component\Yaml\Yaml::dump($data, 6, 2, \Symfony\Component\Yaml\Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
+    // 归一化空对象/空数组的内联表示，消除不同 symfony/yaml 版本间的格式差异（如 `{  }` vs `{}`）
+    return strtr($yaml, ['{  }' => '{}', '[ ]' => '[]']);
 }

@@ -35,7 +35,7 @@ paths:
           description: 列表数据
       security:
         -
-          api_key: {  }
+          api_key: {}
     post:
       tags:
         - crud
@@ -50,7 +50,7 @@ paths:
           description: 新建后的明细
       security:
         -
-          api_key: {  }
+          api_key: {}
   '/crud/{id}':
     get:
       tags:
@@ -69,7 +69,7 @@ paths:
           description: 明细
       security:
         -
-          api_key: {  }
+          api_key: {}
     put:
       tags:
         - crud
@@ -84,7 +84,7 @@ paths:
           description: 更新后的明细
       security:
         -
-          api_key: {  }
+          api_key: {}
     delete:
       tags:
         - crud
@@ -102,7 +102,7 @@ paths:
           description: 无返回数据
       security:
         -
-          api_key: {  }
+          api_key: {}
   '/crud/{id}/recovery':
     put:
       tags:
@@ -121,7 +121,7 @@ paths:
           description: 明细
       security:
         -
-          api_key: {  }
+          api_key: {}
   /same-path:
     get:
       operationId: a16af954711ddf37a3be80134cf418aa
