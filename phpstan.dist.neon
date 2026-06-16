@@ -14,6 +14,7 @@ parameters:
         - packages/debugbar/src/Laravel/DataFormatter/QueryFormatter.php # 不是自己写的
         - packages/*/src/Helper/ArrayHelper.php # 不是自己写的
         - packages/swagger/src/Controller/RequiredElementsAttributes # 不需要
+        - packages/*/copy/* # 配置示例，引用用户应用的类（如 app\model\User），无需静态分析
     tmpDir: runtime/phpstan
     ignoreErrors:
         - identifier: missingType.iterableValue # Property XXXX type has no value type specified in iterable type array.

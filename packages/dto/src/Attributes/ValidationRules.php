@@ -239,11 +239,11 @@ final class ValidationRules
 
         // 如果没有任何验证规则（联合类型等不支持的类型），
         // 添加 sometimes 规则以确保字段在验证结果中被保留
-        if (!$this->parsedRules || $this->parsedRules === []) {
+        if (!$this->parsedRules) {
             $this->parsedRules = ['sometimes'];
         }
 
-        $rules = $this->parsedRules ? [$key => $this->parsedRules] : [];
+        $rules = [$key => $this->parsedRules];
 
         if ($this->object && $this->object !== true && class_exists($this->object)) {
             // 检查是否是 BaseDTO，如果是，获取完整的验证规则（包括额外规则）
