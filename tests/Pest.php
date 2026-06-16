@@ -86,6 +86,23 @@ function request_get_raw(Request $request): TestRequest
 }
 
 /**
+ * @param class-string|Closure|object|array<class-string|Closure|object> $processor
+ */
+function swagger_processor_analyse($processor, \OpenApi\Analysis $analysis, bool $setGenerator = true, ?\OpenApi\Generator $generator = null): void
+{
+    $processors = is_array($processor) ? $processor : [$processor];
+    foreach ($processors as $processor) {
+        if (is_string($processor)) {
+            $processor = new $processor;
+        }
+        if ($setGenerator && method_exists($processor, 'setGenerator')) {
+            $processor->setGenerator($generator ?? new \OpenApi\Generator());
+        }
+        $processor($analysis);
+    }
+}
+
+/**
  * 对 OpenAPI 文档的 paths 进行排序，消除不同环境下文件扫描顺序不一致导致的 snapshot 差异
  */
 function normalizeOpenApiPaths(string $body, string $format): string
@@ -98,10 +115,11 @@ function normalizeOpenApiPaths(string $body, string $format): string
         return json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n";
     }
 
-    // YAML: 解析后排序 paths 再输出
+    // YAML: 解析后排序 paths，统一用 JSON 输出以消除不同 symfony/yaml 版本间的序列化格式差异
+    // （如空对象 `{  }` vs `{}`、列表项多行 vs 内联等）
     $data = \Symfony\Component\Yaml\Yaml::parse($body);
     if (isset($data['paths'])) {
         $data['paths'] = collect($data['paths'])->sortKeys()->toArray();
     }
-    return \Symfony\Component\Yaml\Yaml::dump($data, 6, 2, \Symfony\Component\Yaml\Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK);
+    return json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n";
 }

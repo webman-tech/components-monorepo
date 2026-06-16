@@ -77,14 +77,14 @@
                                     "username": {
                                         "description": "用户名",
                                         "type": "string",
-                                        "maxLength": 64,
-                                        "example": "admin"
+                                        "example": "admin",
+                                        "maxLength": 64
                                     },
                                     "password": {
                                         "description": "密码",
                                         "type": "string",
-                                        "maxLength": 64,
-                                        "example": "123456"
+                                        "example": "123456",
+                                        "maxLength": 64
                                     },
                                     "name": {
                                         "description": "名称",
@@ -153,14 +153,14 @@
                                     "username": {
                                         "description": "用户名",
                                         "type": "string",
-                                        "maxLength": 64,
-                                        "example": "admin"
+                                        "example": "admin",
+                                        "maxLength": 64
                                     },
                                     "password": {
                                         "description": "密码",
                                         "type": "string",
-                                        "maxLength": 64,
-                                        "example": "123456"
+                                        "example": "123456",
+                                        "maxLength": 64
                                     },
                                     "name": {
                                         "description": "名称",

@@ -111,9 +111,9 @@
                     "prices": {
                         "description": "浮点数数组",
                         "type": "array",
-                        "format": "float",
                         "items": {
-                            "type": "number"
+                            "type": "number",
+                            "format": "float"
                         }
                     },
                     "metadata": {
@@ -159,7 +159,8 @@
                     },
                     "extra": {
                         "description": "混合类型的关联数组",
-                        "type": "object"
+                        "type": "object",
+                        "additionalProperties": {}
                     },
                     "nickname": {
                         "description": "可空的简单类型",
@@ -255,8 +256,8 @@
                     "enabled": {
                         "description": "是否启用",
                         "type": "boolean",
-                        "default": true,
-                        "example": true
+                        "example": true,
+                        "default": true
                     }
                 },
                 "type": "object"

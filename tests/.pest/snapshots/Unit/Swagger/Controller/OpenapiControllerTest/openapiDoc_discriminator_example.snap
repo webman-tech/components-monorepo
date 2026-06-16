@@ -156,10 +156,10 @@
                     "type": {
                         "description": "订单类型",
                         "type": "string",
+                        "example": "normal",
                         "enum": [
                             "express"
-                        ],
-                        "example": "normal"
+                        ]
                     },
                     "userId": {
                         "description": "用户ID",
@@ -189,10 +189,10 @@
                     "type": {
                         "description": "订单类型",
                         "type": "string",
+                        "example": "normal",
                         "enum": [
                             "normal"
-                        ],
-                        "example": "normal"
+                        ]
                     },
                     "userId": {
                         "description": "用户ID",
@@ -261,10 +261,10 @@
                     "type": {
                         "description": "订单类型",
                         "type": "string",
+                        "example": "normal",
                         "enum": [
                             "express"
-                        ],
-                        "example": "normal"
+                        ]
                     },
                     "orderId": {
                         "description": "订单ID",
@@ -287,10 +287,10 @@
                     "type": {
                         "description": "订单类型",
                         "type": "string",
+                        "example": "normal",
                         "enum": [
                             "normal"
-                        ],
-                        "example": "normal"
+                        ]
                     },
                     "orderId": {
                         "description": "订单ID",

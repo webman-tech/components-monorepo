@@ -52,6 +52,18 @@
         }
     },
     "components": {
+        "schemas": {
+            "ControllerForXSchemaRequestBodyPropertySchema": {
+                "type": "object",
+                "x-in-property-parameter": {
+                    "ControllerForXSchemaRequestBodyPropertySchema_X-File-Key": "#/components/parameters/ControllerForXSchemaRequestBodyPropertySchema_X-File-Key",
+                    "ControllerForXSchemaRequestBodyPropertySchema_encode": "#/components/parameters/ControllerForXSchemaRequestBodyPropertySchema_encode"
+                }
+            },
+            "ControllerForXSchemaRequestBodyPropertySchemaResult": {
+                "type": "object"
+            }
+        },
         "parameters": {
             "ControllerForXSchemaRequestBodyPropertySchema_X-File-Key": {
                 "name": "X-File-Key",

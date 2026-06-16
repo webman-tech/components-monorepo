@@ -7,18 +7,28 @@ use OpenApi\Analysers\ReflectionAnalyser;
 use OpenApi\Analysis;
 use OpenApi\Context;
 use OpenApi\Generator;
+use OpenApi\Pipeline;
 
 class TestFactory
 {
-    public static function analysisFromFiles(array $files): Analysis
+    /**
+     * @param array<string>                                     $files
+     * @param callable(\OpenApi\Generator): void|null           $configureGenerator
+     */
+    public static function analysisFromFiles(array $files, ?callable $configureGenerator = null): Analysis
     {
         $analysis = new Analysis([], new Context());
 
-        (new Generator())
+        $generator = (new Generator())
             ->setAnalyser(new ReflectionAnalyser([
                 new AttributeAnnotationFactory()
-            ]))
-            ->generate(array_map(fn($file) => fixture_get_path('Swagger/' . $file), $files), $analysis, false);
+            ]));
+
+        if ($configureGenerator) {
+            $configureGenerator($generator);
+        }
+
+        $generator->generate(array_map(fn($file) => fixture_get_path('Swagger/' . $file), $files), $analysis, false);
 
         return $analysis;
     }
