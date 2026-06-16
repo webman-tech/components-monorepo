@@ -41,7 +41,7 @@ final class ExpandEloquentModelProcessor implements GeneratorAwareInterface
                 continue;
             }
             $className = $schema->_context->fullyQualifiedName($schema->_context->class);
-            if (!is_a($className, Model::class, true)) {
+            if ($className === null || !is_a($className, Model::class, true)) {
                 continue;
             }
             $schema->properties = array_values(array_merge(
