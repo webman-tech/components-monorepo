@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.1.0] - 2026-06-16
+
+### Changed
+
+- **Breaking**: swagger: 升级 swagger-php 版本约束至 ^6.0
+
+### Fixed
+
+- 修复全量 PHPStan level 9 错误
+
 ## [5.0.22] - 2026-06-02
 
 ### Added
@@ -271,8 +281,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 >
 > 如需查看完整的历史变更，请访问 [GitHub Commit 历史](https://github.com/webman-tech/components-monorepo/commits/main/)
 
+[5.1.0]: https://github.com/webman-tech/components-monorepo/compare/v5.0.22...v5.1.0
 [5.0.22]: https://github.com/webman-tech/components-monorepo/compare/v5.0.21...v5.0.22
-[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.0.22...HEAD
+[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.1.0...HEAD
 
 [5.0.21]: https://github.com/webman-tech/components-monorepo/compare/v5.0.20...v5.0.21
 
