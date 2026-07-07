@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Arr;
 use OpenApi\Annotations as OA;
-use OpenApi\Generator;
+use OpenApi\Undefined;
 use Tests\Fixtures\Swagger\ControllerForXSchemaRequestSchemaA;
 use Tests\Fixtures\Swagger\ControllerForXSchemaRequestSchemaB;
 use Tests\Fixtures\Swagger\ControllerForXSchemaRequestSchemaC;
@@ -51,7 +51,7 @@ test('MergeClassInfoProcessor', function () {
     // 生产环境（Overwrite\Generator）会将其调整到 MergeClassInfoProcessor 之后执行，
     // 这里对齐该行为：先移除 AugmentTags，由 MergeClassInfoProcessor 将 class tag 合并到 operation 后再手动触发。
     $analysis = TestFactory::analysisFromFiles(['ControllerWithInfo.php'], function (\OpenApi\Generator $generator): void {
-        $generator->withProcessorPipeline(function (\OpenApi\Pipeline $pipeline): void {
+        $generator->withProcessorPipeline(function (\OpenApi\Utils\Pipeline $pipeline): void {
             $pipeline->remove(\OpenApi\Processors\AugmentTags::class);
         });
     });
@@ -83,7 +83,7 @@ test('XSchemaRequestProcessor', function () {
     expect($operation->method)->toBe('get')
         ->and(count($operation->parameters))->toBe(1)
         ->and($operation->parameters[0]->name)->toBe('name')
-        ->and($operation->x)->toBe(\OpenApi\Generator::UNDEFINED); // 用完被清理
+        ->and($operation->x)->toBe(\OpenApi\Undefined::UNDEFINED); // 用完被清理
 
     // 支持数组形式传递多个
     $operation = $fnFindPathItemByPath('/get/schema-multi', 'get');
@@ -130,7 +130,7 @@ test('XSchemaResponseProcessor', function () {
     // 单 string 类，转到 200 上
     $operation = $fnFindPathItemByPath('/get/schema', 'get');
     expect(SwaggerHelper::getOperationResponse($operation, 200)->content['application/json']->schema->ref)->toBe('#/components/schemas/ControllerForXSchemaResponseSchemaA')
-        ->and($operation->x)->toBe(\OpenApi\Generator::UNDEFINED); // 用完被清理
+        ->and($operation->x)->toBe(\OpenApi\Undefined::UNDEFINED); // 用完被清理
 
     // 多维 index 数组，转到 200 上
     $operation = $fnFindPathItemByPath('/get/schema-multi', 'get');
@@ -194,7 +194,7 @@ test('ExpandDTOAttributionsProcessor', function () {
     // array 空类型
     $property = $fnFindPropertyByName('arrayEmptyType');
     expect($property->type)->toBe('array')
-        ->and($property->items->type)->toBe(Generator::UNDEFINED);
+        ->and($property->items->type)->toBe(Undefined::UNDEFINED);
 
     // array 对象
     $property = $fnFindPropertyByName('children');
@@ -264,7 +264,7 @@ test('ExpandDTOAttributionsProcessor', function () {
     ]);
 
     // 会将 validation rules 暂存到 schema 的 x 中，而不是 schema description
-    expect($schema->description)->toBe(\OpenApi\Generator::UNDEFINED)
+    expect($schema->description)->toBe(\OpenApi\Undefined::UNDEFINED)
         ->and($schema->x[SchemaConstants::X_SCHEMA_VALIDATION_RULES])->toBeArray();
     expect($schemaChild->description)->not->toContain('Validation Rules');
 });
@@ -361,10 +361,10 @@ test('XDiscriminatorProcessor', function () {
 
     $schema = $analysis->getAnnotationForSource(\Tests\Fixtures\Swagger\ExampleDiscriminator\CreateOrderForm::class);
     expect($schema)->not->toBeNull()
-        ->and($schema->oneOf)->not->toBe(\OpenApi\Generator::UNDEFINED)
+        ->and($schema->oneOf)->not->toBe(\OpenApi\Undefined::UNDEFINED)
         ->toBeArray()
         ->toHaveCount(2)
-        ->and($schema->discriminator)->not->toBe(\OpenApi\Generator::UNDEFINED)
+        ->and($schema->discriminator)->not->toBe(\OpenApi\Undefined::UNDEFINED)
         ->and($schema->discriminator->propertyName)->toBe('type')
         ->and($schema->discriminator->mapping)->toBe([
             'normal' => '#/components/schemas/CreateOrderForm_type_normal',
@@ -384,10 +384,10 @@ test('XDiscriminatorProcessor for Response', function () {
     // 验证 Response discriminator
     $responseSchema = $analysis->getAnnotationForSource(\Tests\Fixtures\Swagger\ExampleDiscriminator\GetOrderResponse::class);
     expect($responseSchema)->not->toBeNull()
-        ->and($responseSchema->oneOf)->not->toBe(\OpenApi\Generator::UNDEFINED)
+        ->and($responseSchema->oneOf)->not->toBe(\OpenApi\Undefined::UNDEFINED)
         ->toBeArray()
         ->toHaveCount(2)
-        ->and($responseSchema->discriminator)->not->toBe(\OpenApi\Generator::UNDEFINED)
+        ->and($responseSchema->discriminator)->not->toBe(\OpenApi\Undefined::UNDEFINED)
         ->and($responseSchema->discriminator->propertyName)->toBe('type')
         ->and($responseSchema->discriminator->mapping)->toBe([
             'normal' => '#/components/schemas/GetOrderResponse_type_normal',

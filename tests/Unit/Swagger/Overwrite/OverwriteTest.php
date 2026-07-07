@@ -3,6 +3,7 @@
 use OpenApi\Annotations as OA;
 use OpenApi\Context;
 use OpenApi\Generator;
+use OpenApi\Undefined;
 use Psr\Log\NullLogger;
 use Tests\Fixtures\Swagger\EnumColor;
 use Tests\Fixtures\Swagger\Overwrite\ClassWithMissingType;
@@ -74,7 +75,7 @@ test('AugmentSchemas processor formats root unnamed schemas', function () {
     $analysis = TestFactory::analysisFromFiles(['SchemaA.php']);
     // TestFactory 已跑过完整 pipeline，schema 已有名称，需重置为 UNDEFINED 才能触发格式化
     $schema = $analysis->getAnnotationForSource(SchemaA::class);
-    $schema->schema = Generator::UNDEFINED;
+    $schema->schema = Undefined::UNDEFINED;
 
     swagger_processor_analyse(new OW\Processors\AugmentSchemas($formatter), $analysis);
 
@@ -92,7 +93,7 @@ test('ExpandEnums processor formats enum schemas before expansion', function () 
     $analysis = TestFactory::analysisFromFiles(['EnumColor.php']);
     // 重置 schema 名称以触发格式化
     $schema = $analysis->getAnnotationForSource(EnumColor::class);
-    $schema->schema = Generator::UNDEFINED;
+    $schema->schema = Undefined::UNDEFINED;
 
     swagger_processor_analyse(new OW\Processors\ExpandEnums($formatter), $analysis);
 
@@ -489,5 +490,5 @@ test('Analysis getAnnotationForSource returns null for unknown FQDN', function (
 
 function SwaggerHelper_getSchemaName(OA\Schema $schema): string
 {
-    return Generator::isDefault($schema->schema) ? '' : $schema->schema;
+    return Undefined::isDefault($schema->schema) ? '' : $schema->schema;
 }

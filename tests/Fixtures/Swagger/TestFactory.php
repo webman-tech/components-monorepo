@@ -7,7 +7,6 @@ use OpenApi\Analysers\ReflectionAnalyser;
 use OpenApi\Analysis;
 use OpenApi\Context;
 use OpenApi\Generator;
-use OpenApi\Pipeline;
 
 class TestFactory
 {

@@ -10,14 +10,14 @@ namespace OpenApi
 namespace OpenApi\Annotations
 {
     use OpenApi\Context;
-    use OpenApi\Generator;
+    use OpenApi\Undefined;
 
     class MediaType extends AbstractAnnotation
     {
         /**
          * @var Schema|mixed
          */
-        public $schema = Generator::UNDEFINED;
+        public $schema = Undefined::UNDEFINED;
     }
 
     abstract class AbstractAnnotation implements \JsonSerializable
@@ -33,7 +33,7 @@ namespace OpenApi\Annotations
         /**
          * @var array<string, MediaType>
          */
-        public $content = Generator::UNDEFINED;
+        public $content = Undefined::UNDEFINED;
     }
 
     class Response extends AbstractAnnotation
@@ -41,7 +41,7 @@ namespace OpenApi\Annotations
         /**
          * @var array<string, MediaType>
          */
-        public $content = Generator::UNDEFINED;
+        public $content = Undefined::UNDEFINED;
     }
 
     class Schema extends AbstractAnnotation
@@ -49,6 +49,6 @@ namespace OpenApi\Annotations
         /**
          * @var array<string|int>
          */
-        public $enum = Generator::UNDEFINED;
+        public $enum = Undefined::UNDEFINED;
     }
 }
