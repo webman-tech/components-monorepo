@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.1.1] - 2026-07-07
+
+### Fixed
+
+- swagger: 兼容 swagger-php 6.3 API
+
 ## [5.1.0] - 2026-06-16
 
 ### Changed
@@ -281,9 +287,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 >
 > 如需查看完整的历史变更，请访问 [GitHub Commit 历史](https://github.com/webman-tech/components-monorepo/commits/main/)
 
+[5.1.1]: https://github.com/webman-tech/components-monorepo/compare/v5.1.0...v5.1.1
 [5.1.0]: https://github.com/webman-tech/components-monorepo/compare/v5.0.22...v5.1.0
 [5.0.22]: https://github.com/webman-tech/components-monorepo/compare/v5.0.21...v5.0.22
-[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.1.0...HEAD
+[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.1.1...HEAD
 
 [5.0.21]: https://github.com/webman-tech/components-monorepo/compare/v5.0.20...v5.0.21
 
