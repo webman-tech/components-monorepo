@@ -34,6 +34,10 @@ composer require webman-tech/auth
 
 各组件的详细使用方法，请参考对应包的文档。
 
+## LLM 支持
+
+支持使用 [llm/skills](https://packagist.org/packages/llm/skills) 对当前仓库的 agent skill 进行主动发现
+
 ## 贡献指南
 
 欢迎提交 Issue 和 Pull Request。

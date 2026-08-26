@@ -81,6 +81,19 @@
     },
     "sort-packages": true
   },
+  "extra": {
+    "skills": {
+      "source": [
+        "packages/amis-admin/skills",
+        "packages/auth/skills",
+        "packages/common-utils/skills",
+        "packages/crontab-task/skills",
+        "packages/dto/skills",
+        "packages/logger/skills",
+        "packages/swagger/skills"
+      ]
+    }
+  },
   "scripts": {
     "composer-du": "composer du",
     "composer-update": "composer update",
