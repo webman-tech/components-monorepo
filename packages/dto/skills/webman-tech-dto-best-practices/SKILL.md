@@ -1,6 +1,6 @@
 ---
 name: webman-tech-dto-best-practices
-description: webman-tech/dto 最佳实践。使用场景：用户使用 WebmanTech\DTO 相关类时，给出明确的推荐用法。
+description: DTO 验证与转换。触发：HTTP 请求验证（Form）、响应序列化（Result）、配置读取（Config）、嵌套数据结构、@handle 模式、多态类型。
 ---
 
 # webman-tech/dto 最佳实践
@@ -362,78 +362,13 @@ class OrderRequest extends BaseRequestDTO
 
 ## 多态类型（进阶）
 
-当一个字段的类型取决于另一个字段的值时使用：
-
-```php
-class ShipmentRequest extends BaseRequestDTO
-{
-    public string $type;  // 'normal' | 'express'
-
-    #[ValidationRules(nullable: true, discriminator: [
-        'property' => 'type',
-        'mapping'  => [
-            'normal'  => NormalShipmentDTO::class,
-            'express' => ExpressShipmentDTO::class,
-        ],
-    ])]
-    public NormalShipmentDTO|ExpressShipmentDTO|null $detail = null;
-}
-```
+当一个字段的类型取决于另一个字段的值时使用 discriminator，详见 [references/polymorphic.md](references/polymorphic.md)。
 
 ---
 
 ## 完整控制器示例
 
-```php
-// 请求
-class CreateOrderRequest extends BaseRequestDTO
-{
-    public string $title;
-
-    #[ValidationRules(min: 1, max: 9999)]
-    public int $amount;
-
-    /** @var OrderItemRequest[] */
-    public array $items;
-
-    #[RequestPropertyInHeader(name: 'X-Tenant-Id')]
-    public string $tenantId;
-}
-
-class OrderItemRequest extends BaseDTO
-{
-    public string $sku;
-    public int $qty;
-}
-
-// 响应
-class CreateOrderResponse extends BaseResponseDTO
-{
-    public int $id;
-    public string $status;
-    public ?string $remark = null;
-}
-
-// 控制器
-class OrderController
-{
-    public function create(): mixed
-    {
-        try {
-            $req = CreateOrderRequest::fromRequest();
-        } catch (DTOValidateException $e) {
-            return json(['errors' => $e->getErrors()], 422);
-        }
-
-        $order = OrderService::create($req);
-
-        $resp = new CreateOrderResponse();
-        $resp->id     = $order->id;
-        $resp->status = $order->status;
-        return $resp->toResponse();
-    }
-}
-```
+完整的请求-处理-响应流程示例，详见 [references/controller-example.md](references/controller-example.md)。
 
 ---
 

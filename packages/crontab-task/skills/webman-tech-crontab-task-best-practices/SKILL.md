@@ -1,6 +1,6 @@
 ---
 name: webman-tech-crontab-task-best-practices
-description: webman-tech/crontab-task 最佳实践。使用场景：用户配置定时任务时，给出明确的推荐写法。
+description: 定时任务管理。触发：Cron 表达式、BaseTask、异常处理、日志配置、事件机制、进程管理。
 ---
 
 # webman-tech/crontab-task 最佳实践

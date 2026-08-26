@@ -1,6 +1,6 @@
 ---
 name: webman-tech-common-utils-best-practices
-description: webman-tech/common-utils 最佳实践。使用场景：用户在 Webman/Laravel/自定义环境中使用统一 API、编写跨框架中间件、搭建测试环境时，给出明确的推荐写法。
+description: 跨框架统一 API。触发：Request/Response 抽象、路径函数、运行时感知、JSON 序列化、跨框架中间件、测试环境。
 ---
 
 # webman-tech/common-utils 最佳实践
@@ -62,7 +62,7 @@ if (Runtime::isCli()) {
 
 ### 获取当前请求
 
-始终通过 `Request::getCurrent()` 获取，不要直接依赖框架 Request 类：
+始终通过 `Request::getCurrent()` 获取当前请求：
 
 ```php
 use WebmanTech\CommonUtils\Request;
@@ -72,11 +72,16 @@ $all = $request->allPostJson();
 $userId = $request->getCustomData('userId');
 ```
 
+避免直接使用框架类或类型提示具体框架的 Request（无法在其他环境中运行）：
+
 ```php
-// ❌ 直接使用框架类，无法在其他环境中运行
+// ✅ 通过抽象层操作（跨框架兼容）
+$request = Request::getCurrent();
+
+// ❌ 避免：直接使用框架类，无法在其他环境中运行
 $request = request(); // Webman 专属函数
 
-// ❌ 直接类型提示具体框架的 Request
+// ❌ 避免：直接类型提示具体框架的 Request
 public function handle(\Webman\Http\Request $request)
 ```
 
@@ -119,8 +124,6 @@ final class TraceMiddleware extends BaseMiddleware
 
 关键点：对请求的修改（`withHeaders()`、`withCustomData()`）会直接写回底层真实请求对象，不需要额外传递。
 
-不要在中间件中直接操作框架原生 Request：
-
 ```php
 // ❌ 绕过抽象层，Webman 和 Laravel 行为不一致
 $request->getRaw()->header('X-Foo');
@@ -129,6 +132,8 @@ $request->getRaw()->header('X-Foo');
 $request->header('X-Foo');
 ```
 
+避免在中间件中直接操作框架原生 Request（会绕过抽象层，导致 Webman 和 Laravel 行为不一致）。
+
 ---
 
 ## JSON 序列化
@@ -136,16 +141,11 @@ $request->header('X-Foo');
 推荐始终使用 `Json::encode()` 而非原生 `json_encode()`：
 
 ```php
-use WebmanTech\CommonUtils\Json;
-
-// 自动处理 INF/NAN、非 UTF-8、Expression 等边界情况
-$json = Json::encode($data);
-```
-
-```php
 // ❌ 原生 json_encode 遇到 NaN/非 UTF-8 会失败
 $json = json_encode($data, JSON_UNESCAPED_UNICODE);
 ```
+
+`Json::encode()` 自动处理 INF/NAN、非 UTF-8、Expression 等边界情况。
 
 当需要在前端模板中内联 JS 表达式时，使用 `Json\Expression`：
 
@@ -176,43 +176,15 @@ $debug = EnvAttr::get('APP_DEBUG', false);
 // ✅ 先关闭只读，再修改
 EnvAttr::changeSupportReadonly(false);
 EnvAttr::set('APP_DEBUG', true);
-
-// ❌ 不关闭只读直接修改，会抛异常
-EnvAttr::set('APP_DEBUG', true);
 ```
+
+直接修改会抛异常（默认只读模式已开启）。
 
 ---
 
 ## 缓存
 
-### 单次请求内缓存用 ArrayCache
-
-```php
-use WebmanTech\CommonUtils\Cache\ArrayCache;
-
-$cache = new ArrayCache(defaultTtl: 3600, maxTtl: 86400);
-$cache->set('user:123', $userData);
-$user = $cache->get('user:123');
-```
-
-### 禁用缓存用 NullCache
-
-```php
-use WebmanTech\CommonUtils\Cache\NullCache;
-use Psr\SimpleCache\CacheInterface;
-
-class MyService
-{
-    public function __construct(
-        private CacheInterface $cache = new NullCache()
-    ) {}
-
-    public function getData(string $key): mixed
-    {
-        return $this->cache->get($key) ?? $this->expensiveOperation($key);
-    }
-}
-```
+详见 [references/cache.md](references/cache.md)。
 
 ---
 

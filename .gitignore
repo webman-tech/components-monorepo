@@ -16,4 +16,5 @@ node_modules
 *.local.*
 .worktree
 .claude
+.agents
 .phpunit.result.cache
