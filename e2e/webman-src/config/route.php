@@ -1,9 +1,11 @@
 <?php
 
+use app\controller\AmisUserController;
 use app\controller\AuthController;
 use app\controller\DtoController;
 use app\controller\EchoController;
 use Webman\Route;
+use WebmanTech\AmisAdmin\Controller\RenderController;
 use WebmanTech\Auth\Middleware\Authentication;
 
 Route::get('/health', fn() => json(['status' => 'ok']));
@@ -24,3 +26,12 @@ Route::group('/auth', function () {
 });
 
 Route::post('/dto/create-user', [DtoController::class, 'createUser']);
+
+// amis-admin：RESTful CRUD（reset 必须先于 {id} 注册，否则会被当作 id 匹配）
+Route::post('/amis/users/reset', [AmisUserController::class, 'reset']);
+Route::get('/amis/users', [AmisUserController::class, 'index']);
+Route::post('/amis/users', [AmisUserController::class, 'store']);
+Route::get('/amis/users/{id}', [AmisUserController::class, 'show']);
+Route::put('/amis/users/{id}', [AmisUserController::class, 'update']);
+Route::delete('/amis/users/{id}', [AmisUserController::class, 'destroy']);
+Route::get('/amis/login', [RenderController::class, 'login']);

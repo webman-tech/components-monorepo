@@ -12,6 +12,7 @@ use Tests\Fixtures\Swagger\SchemaDTOChild;
 use Tests\Fixtures\Swagger\SchemaEloquentAbsModel;
 use Tests\Fixtures\Swagger\SchemaEloquentHiddenModel;
 use Tests\Fixtures\Swagger\SchemaEloquentModel;
+use Tests\Fixtures\Swagger\SchemaEloquentNoDescModel;
 use Tests\Fixtures\Swagger\SchemaEloquentVisibleModel;
 use Tests\Fixtures\Swagger\TestFactory;
 use Webman\Http\UploadFile;
@@ -319,6 +320,7 @@ test('ExpandEloquentModelProcessor', function () {
         'SchemaEloquentHiddenModel.php',
         'SchemaEloquentVisibleModel.php',
         'SchemaEloquentAbsModel.php',
+        'SchemaEloquentNoDescModel.php',
     ]);
     swagger_processor_analyse(ExpandEloquentModelProcessor::class, $analysis);
 
@@ -350,6 +352,13 @@ test('ExpandEloquentModelProcessor', function () {
         ['property' => 'username', 'type' => 'string', 'description' => '用户名'],
     ]);
     expect($fnGetData(SchemaEloquentAbsModel::class))->toBe([
+        ['property' => 'created_at', 'type' => 'string', 'description' => '创建时间'],
+    ]);
+    // 无 description 的 @property（laravel-idea 等工具生成的形态）：不应把下一行误当作描述、不丢属性
+    expect($fnGetData(SchemaEloquentNoDescModel::class))->toBe([
+        ['property' => 'id', 'type' => 'integer', 'description' => ''],
+        ['property' => 'username', 'type' => 'string', 'description' => ''],
+        ['property' => 'access_token', 'type' => 'string', 'description' => ''],
         ['property' => 'created_at', 'type' => 'string', 'description' => '创建时间'],
     ]);
 });

@@ -54,14 +54,19 @@ function app_definitions(): array
                 'pestphp/pest' => '^3.8',
                 'symfony/http-client' => '^7.3',
                 'symfony/process' => '^7.3',
+                // 加载 plugin 的 command.php，验证 crontab-task 等包的 CLI 命令集成链路
+                'webman/console' => '^2.0',
             ],
             // 骨架自带 monolog ^2，与 laravel-monorepo 拉入的 illuminate 12（monolog ^3）冲突，升级为 ^3
             'require_override' => [
                 'monolog/monolog' => '^3.0',
             ],
             // 批量 composer update 时 composer 进程内 autoloader 未就绪，包内 Install.php 不会触发；
-            // 需 reinstall（单包流程会刷新 autoloader，走 post-package-install -> support\Plugin::install 真实安装链）
-            'reinstall_packages' => array_keys(LOCAL_PACKAGES),
+            // 需 reinstall（单包流程会刷新 autoloader，走 post-package-install -> support\Plugin::install 真实安装链）。
+            // webman/console 也是 webman 插件（Install 落地 `webman` CLI 入口 + config/plugin），需一并 reinstall
+            'reinstall_packages' => array_merge(array_keys(LOCAL_PACKAGES), [
+                'webman/console',
+            ]),
         ],
         'laravel' => [
             'skeleton' => 'laravel/laravel',

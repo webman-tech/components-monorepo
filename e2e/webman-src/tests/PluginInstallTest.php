@@ -12,7 +12,14 @@ test('webman-tech 插件默认配置已由 Install.php 落地', function (string
     'swagger' => ['swagger', ['app.php', 'route.php']],
     'auth' => ['auth', ['app.php', 'auth.php']],
     'logger' => ['logger', ['app.php', 'middleware.php', 'log-channel.php']],
+    'crontab-task' => ['crontab-task', ['app.php', 'command.php', 'process.php']],
+    'amis-admin' => ['amis-admin', ['amis.php', 'app.php']],
 ]);
+
+test('amis-admin 翻译文件已由 Install.php 落地', function () {
+    $file = e2e_server()->appDir() . '/resource/translations/en/amis-admin.php';
+    expect(is_file($file))->toBeTrue("缺少 {$file}");
+});
 
 test('swagger 插件路由已注册（plugin route.php 被加载）', function () {
     $response = e2e_request('GET', '/openapi/doc');

@@ -57,3 +57,40 @@ if (!function_exists('e2e_json')) {
         return $response->toArray();
     }
 }
+
+if (!function_exists('e2e_crontab_task_count')) {
+    /**
+     * 统计 cron 任务副作用文件的行数（每执行一次追加一行）
+     */
+    function e2e_crontab_task_count(): int
+    {
+        $file = e2e_server()->appDir() . '/runtime/crontab-task-e2e.log';
+
+        return is_file($file) ? count(file($file, FILE_IGNORE_NEW_LINES)) : 0;
+    }
+}
+
+if (!function_exists('e2e_crontab_task_wait_executed')) {
+    /**
+     * 等待 cron 任务副作用行数超过 initialCount，返回当前行数。
+     *
+     * workerman/crontab 的调度按整分钟对齐（new Crontab() 后等到下一个 xx:00
+     * 才首次解析触发），因此轮询窗口必须覆盖跨分钟边界，最长约 60s。
+     */
+    function e2e_crontab_task_wait_executed(int $initialCount = 0): int
+    {
+        $timeout = 60 - (int)date('s') + 10;
+        $deadline = microtime(true) + $timeout;
+        $current = $initialCount;
+        while (microtime(true) < $deadline) {
+            clearstatcache();
+            $current = e2e_crontab_task_count();
+            if ($current > $initialCount) {
+                break;
+            }
+            usleep(300_000);
+        }
+
+        return $current;
+    }
+}
