@@ -1,0 +1,149 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "App OpenAPI",
+        "version": "0.1"
+    },
+    "paths": {
+        "/auth/login": {
+            "post": {
+                "summary": "登录签发 JWT",
+                "operationId": "6e56633823ccc4e9a0deffe6685ca317",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/auth/user": {
+            "get": {
+                "summary": "获取当前认证用户（需 Bearer token）",
+                "operationId": "63c8f53b2e9bd31671f40232f5a90355",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/echo/get": {
+            "get": {
+                "summary": "回显 GET 请求信息",
+                "operationId": "7952716998897c46df97b7943f586281",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/echo/post-json": {
+            "post": {
+                "summary": "回显 POST json 请求信息",
+                "operationId": "7c7bae09017bc1c80ddbc4e300e82d88",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/echo/post-form": {
+            "post": {
+                "summary": "回显 POST form 请求信息",
+                "operationId": "26cfe84bb3e91d5c329d5795538aa060",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/echo/session": {
+            "get": {
+                "summary": "写 session 并返回 traceId",
+                "operationId": "b0304da2b90ccb475e150eb9d10925bc",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/echo/session-get": {
+            "get": {
+                "summary": "读 session",
+                "operationId": "682790c534bb41a14a220aad3f425b98",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/echo/response": {
+            "get": {
+                "summary": "验证 Response facade",
+                "operationId": "ec69d076a07fd33ecbbcffdb9c1926f3",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/dto/create-user": {
+            "post": {
+                "summary": "DTO 验证创建用户",
+                "operationId": "1f83cc66c7dd6dbade3380ad828ef646",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "CreateUserDTO": {
+                "required": [
+                    "name",
+                    "age"
+                ],
+                "properties": {
+                    "name": {
+                        "description": "用户名",
+                        "type": "string",
+                        "maxLength": 20,
+                        "minLength": 2
+                    },
+                    "age": {
+                        "description": "年龄",
+                        "type": "integer",
+                        "maximum": 150,
+                        "minimum": 1
+                    },
+                    "email": {
+                        "description": "邮箱（可选）",
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "Test": {
+                "properties": {
+                    "timestamps": {
+                        "description": "Indicates if the model should be timestamped.",
+                        "type": "boolean"
+                    }
+                },
+                "type": "object"
+            }
+        }
+    }
+}

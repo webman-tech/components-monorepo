@@ -41,6 +41,22 @@ vendor/bin/pest tests/Unit/DTO
 vendor/bin/pest --update-snapshots
 ```
 
+### E2E 测试（真实 webman/laravel 环境）
+```bash
+# 完整安装 e2e 应用（首次或官方骨架升级后；生成目录可抛弃，被 git 忽略）
+php e2e/setup.php webman
+php e2e/setup.php laravel
+
+# 仅同步自有代码（改了 e2e/*-src 后的快速迭代）
+php e2e/setup.php webman --sync
+
+# 运行 e2e 测试（独立 composer 依赖，与根仓库不共享 vendor）
+cd e2e/webman && vendor/bin/pest
+cd e2e/laravel && vendor/bin/pest
+```
+
+详见 [e2e/README.md](e2e/README.md)。
+
 ### 静态分析
 ```bash
 # 运行 PHPStan 静态分析（level 9）
@@ -94,6 +110,10 @@ composer script:update-packages
   - Fixtures: 测试数据
   - Pest.php: Pest 测试框架配置文件
   - bootstrap.php: 测试启动文件
+- **e2e/**: 真实 webman/laravel 环境的 e2e 测试
+  - setup.php: 安装命令（create-project 官方骨架 → patch → update → sync）
+  - webman-src / laravel-src: 提交的自有代码（controller/config 覆盖/tests）
+  - webman / laravel: 可抛弃的生成目录（git 忽略，官方骨架升级时删除重建）
 - **phpstan/**: PHPStan 静态分析工具的扩展和配置
   - stubs/: 自定义类型声明存根（如 OpenApi、Webman 等）
 - **scripts/**: Monorepo 维护脚本
