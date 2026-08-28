@@ -216,9 +216,14 @@ final class ReflectionClassReader
         foreach ($this->getConstructParameterReflections() as $key => $parameterReflection) {
             // 校验 $data 中是否有值
             if (!array_key_exists($key, $data)) {
-                if ($parameterReflection->isOptional()) {
+                if ($parameterReflection->isDefaultValueAvailable()) {
                     // 可选的，可以不填
                     $constructArgs[$key] = $parameterReflection->getDefaultValue();
+                    continue;
+                }
+                if ($parameterReflection->isOptional()) {
+                    // 可选但无默认值（如可空参数）：默认 null（PHP 8.5 起对无默认值参数调 getDefaultValue() 触发 deprecation）
+                    $constructArgs[$key] = null;
                     continue;
                 }
                 throw new \InvalidArgumentException("class {$this->reflectionClass->getName()} construct parameter {$key} is missing");
