@@ -11,7 +11,7 @@
 
 ```
 e2e/
-├── setup.php                 # 安装命令（create-project → patch → update → reinstall → sync）
+├── e2e-setup.php             # 应用定义（安装编排由 webman-tech/testing 的 e2e-setup 框架执行）
 ├── README.md
 ├── webman-src/               # 提交：自有代码（controller/config 覆盖/tests）
 └── laravel-src/              # 提交：自有代码（routes/bootstrap 覆盖/tests）
@@ -21,28 +21,28 @@ e2e/
 ## 命令
 
 ```bash
-# 完整安装 webman e2e 应用（删除重建）
-php e2e/setup.php webman
-
-# 完整安装 laravel e2e 应用
-php e2e/setup.php laravel
-
-# 全部安装
-php e2e/setup.php all
+# 完整安装 e2e 应用（删除重建）
+vendor/bin/e2e-setup install webman
+vendor/bin/e2e-setup install laravel
 
 # 仅同步自有代码（dev 快速迭代）
-php e2e/setup.php webman --sync
-php e2e/setup.php laravel --sync
+vendor/bin/e2e-setup sync webman
+vendor/bin/e2e-setup sync laravel
+
+# 被测包经 GitHub VCS dev-main 安装（发布链路验证，需先推送 main）
+vendor/bin/e2e-setup install webman --vcs
 
 # 运行测试
-cd e2e/webman && vendor/bin/pest
-cd e2e/laravel && vendor/bin/pest
+composer e2e:test:webman
+composer e2e:test:laravel
 ```
+
+以上命令均有根 composer scripts 封装：`e2e:install:webman|laravel|all`、`e2e:sync`、`e2e:vcs`、`e2e:test:webman|laravel|all`。
 
 ## 安装流程（顺序关键）
 
 1. `composer create-project` 官方骨架（workerman/webman、laravel/laravel ^12）
-2. patch composer.json：path repository（`../../packages/*`，symlink + versions 钉 dev-main）+ 组件依赖
+2. patch composer.json：被测包声明转 path repository（同 path 合并，symlink + versions 钉 dev-main）+ 组件依赖
 3. `composer update`（COMPOSER_ROOT_VERSION=dev-main 兜底 detached HEAD 的版本解析）
 4. `composer reinstall` 本地包与 webman/console（webman：批量 update 时 composer 进程内 autoloader 未就绪，
    包内 Install.php 不触发；单包 reinstall 会走真实安装链落地 `config/plugin/webman-tech/*` 与 `webman` CLI 入口）
@@ -50,7 +50,7 @@ cd e2e/laravel && vendor/bin/pest
 
 ## 官方骨架升级
 
-生成目录是可抛弃的：**删除 `e2e/webman`（或 `e2e/laravel`）后重跑 `php e2e/setup.php <app>` 即可**。
+生成目录是可抛弃的：**删除 `e2e/webman`（或 `e2e/laravel`）后重跑 `vendor/bin/e2e-setup install <app>` 即可**。
 自有代码全部在 `*-src/` 中提交，不 fork 任何骨架文件，升级零成本。
 
 ## webman e2e 覆盖点

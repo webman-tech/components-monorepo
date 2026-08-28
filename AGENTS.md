@@ -44,16 +44,20 @@ vendor/bin/pest --update-snapshots
 ### E2E 测试（真实 webman/laravel 环境）
 ```bash
 # 完整安装 e2e 应用（首次或官方骨架升级后；生成目录可抛弃，被 git 忽略）
-php e2e/setup.php webman
-php e2e/setup.php laravel
+composer e2e:install:all
+# 或单应用：vendor/bin/e2e-setup install webman|laravel
 
 # 仅同步自有代码（改了 e2e/*-src 后的快速迭代）
-php e2e/setup.php webman --sync
+composer e2e:sync
+
+# 被测包经 GitHub VCS dev-main 安装（发布链路验证，需先推送 main）
+composer e2e:vcs
 
 # 运行 e2e 测试（独立 composer 依赖，与根仓库不共享 vendor）
-cd e2e/webman && vendor/bin/pest
-cd e2e/laravel && vendor/bin/pest
+composer e2e:test:all
 ```
+
+安装编排由 webman-tech/testing 的 e2e-setup 框架执行，应用定义在 `e2e/e2e-setup.php`。
 
 详见 [e2e/README.md](e2e/README.md)。
 

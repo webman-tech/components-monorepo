@@ -34,8 +34,11 @@ jobs:
 
       # 不缓存 e2e/webman（可抛弃的生成目录，缓存收益低且易脏）
 
+      - name: Install root dependencies
+        run: composer install --no-interaction --no-progress
+
       - name: Setup webman e2e app
-        run: php e2e/setup.php webman
+        run: vendor/bin/e2e-setup install webman
 
       - name: Run e2e tests
         run: vendor/bin/pest
@@ -62,8 +65,11 @@ jobs:
 
       # 不缓存 e2e/laravel（可抛弃的生成目录）
 
+      - name: Install root dependencies
+        run: composer install --no-interaction --no-progress
+
       - name: Setup laravel e2e app
-        run: php e2e/setup.php laravel
+        run: vendor/bin/e2e-setup install laravel
 
       - name: Run e2e tests
         run: vendor/bin/pest
