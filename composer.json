@@ -34,7 +34,7 @@
     "symfony/var-dumper": "^7.2",
     "tinywan/jwt": "^1.11",
     "webman-tech/laravel-monorepo": "12.x-dev",
-    "webman-tech/testing": "dev-main",
+    "webman-tech/testing": "^1.0",
     "workerman/webman-framework": "^2.1"
   },
   "replace": {

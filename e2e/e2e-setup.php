@@ -49,7 +49,7 @@ $webman
     ->requireDev([
         'pestphp/pest' => '^3.8',
         // 测试框架本身（独立仓库已发布到 packagist，dev-main 安装）
-        'webman-tech/testing' => 'dev-main',
+        'webman-tech/testing' => '^1.0',
         // testing 组件的 PSR-18 HTTP 客户端（自动发现；组件本身不再强依赖 guzzle）
         'guzzlehttp/guzzle' => '^7.8',
         // TestCase 中经 support\Db 做数据库直连断言
