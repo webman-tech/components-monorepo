@@ -10,6 +10,9 @@ use WebmanTech\Auth\Middleware\Authentication;
 
 Route::get('/health', fn() => json(['status' => 'ok']));
 
+// 重定向：跟随与否由测试断言决定（不跟随断言 302 + Location，followingRedirects 断言最终响应）
+Route::get('/redirect', fn() => redirect('/health'));
+
 Route::group('/echo', function () {
     Route::get('/get', [EchoController::class, 'get']);
     Route::post('/post-json', [EchoController::class, 'postJson']);

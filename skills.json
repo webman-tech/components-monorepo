@@ -1,13 +1,21 @@
 {
     "$schema": "https://raw.githubusercontent.com/roxblnfk/skills/master/resources/skills.schema.json",
-    "sources": [
-        {
-            "from": "github",
-            "package": "mattpocock/skills",
-            "ref": "~1.2.3",
-            "skills": [
-                "writing-for-agents"
+    "dependencies": {
+        "composer": {
+            "trusted": [
+                "vendor/*"
             ]
         }
-    ]
+    },
+    "sources": [
+      {
+        "from": "github",
+        "package": "mattpocock/skills",
+        "ref": "~1.2.3",
+        "skills": [
+          "writing-for-agents"
+        ]
+      }
+    ],
+    "discovery": true
 }

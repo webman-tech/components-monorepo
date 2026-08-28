@@ -4,9 +4,16 @@
          bootstrap="vendor/autoload.php"
          colors="true"
 >
+    <php>
+        <env name="APP_PORT" value="18787"/>
+        <env name="DB_CONNECTION" value="sqlite"/>
+    </php>
     <testsuites>
-        <testsuite name="E2E">
-            <directory>tests</directory>
+        <testsuite name="Unit">
+            <directory>tests/Unit</directory>
+        </testsuite>
+        <testsuite name="Feature">
+            <directory>tests/Feature</directory>
         </testsuite>
     </testsuites>
 </phpunit>

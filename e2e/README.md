@@ -5,7 +5,7 @@
 - **真实插件安装链路**：webman 的 `post-package-install → support\Plugin::install → 包 Install.php` 全链路（而非单测中的手工模拟）
 - **真实依赖声明完整性**：e2e 应用仅 require 被测包，包的 composer.json 若缺少依赖会直接安装失败
 - **真实运行时分支**：webman 与 laravel 各自的全局 helpers、容器、中间件管线、validator 实现
-- **真实进程 HTTP 测试**：webman 侧启动真实进程（随机端口 + /health 探活）发起 HTTP 请求断言
+- **真实进程 HTTP 测试**：webman 侧基于 [webman-tech/testing](https://github.com/webman-tech/testing) 组件启动真实进程 发起 HTTP 请求断言
 
 ## 目录结构
 
@@ -53,34 +53,19 @@ cd e2e/laravel && vendor/bin/pest
 生成目录是可抛弃的：**删除 `e2e/webman`（或 `e2e/laravel`）后重跑 `php e2e/setup.php <app>` 即可**。
 自有代码全部在 `*-src/` 中提交，不 fork 任何骨架文件，升级零成本。
 
-## dev 迭代
-
-- 改 `packages/*/src`：symlink 使改动即时生效，直接重跑测试
-- 改 `e2e/*-src`：先 `php e2e/setup.php <app> --sync` 再跑测试
-- e2e 测试不使用 Pest snapshot（可抛弃 app 重建后 snapshot 会丢失），
-  一律用 `*-src` 内提交的 fixture（见 `webman-src/tests/fixtures/openapi.json`）或内联断言
-- 更新 SwaggerTest fixture：从运行中的应用取实际输出（`curl .../openapi/doc`），
-  保存到 `webman-src/tests/fixtures/openapi.json`（源目录）；直接保存到生成目录会被下次重建覆盖
-- 涉及 crontab-task 调度时序的断言必须覆盖跨分钟边界：workerman/crontab 按整分钟对齐调度
-  （`new Crontab()` 后等到下一个 xx:00 才首次触发），见 `e2e_crontab_task_wait_executed()`；
-  同一执行内日志落盘顺序为 start → 副作用行 → end，断言日志时需轮询等待（见 CrontabTaskTest）
-- WebmanServer 在启停时按 cwd 扫尾清理本应用目录的残留 workerman 进程：
-  master 异常死亡后 worker 会成为孤儿进程继续跑定时任务（TaskProcess 每秒写副作用文件），
-  会污染“等待副作用增长”类的时序断言
-
 ## webman e2e 覆盖点
 
 | 测试文件 | 验证内容 |
 |----------|----------|
-| ServerBootTest | 进程启动 /health 探活、未注册路由 404 |
-| PluginInstallTest | Install.php 落地的 `config/plugin/webman-tech/*` 守护、swagger 插件路由注册 |
-| CommonUtilsRequestTest | Request/Session/Response facade 真实 HTTP 下的 GET/POST json/form/header/session/traceId |
-| SwaggerTest | `/openapi/doc` 输出结构与提交 fixture 比对（含 Eloquent Model 自动展开的 AmisUser schema） |
-| LoggerMiddlewareTest | HttpRequestLogMiddleware 写 `runtime/logs/httpRequest/` 日志、RequestTraceProcessor 的 traceId |
-| AuthTest | tinywan/jwt 登录签发、Authentication 中间件有效/无/无效 token 的 200/401 |
-| DtoControllerTest | laravel-monorepo validator() 下的 DTO 验证成功 200 / 失败 422 结构 |
-| CrontabTaskTest | 插件 process 配置加载、TaskProcess 进程随 server 启动、cron 真实调度执行、LogTrait 日志写入 channel、CLI 命令（list / exec） |
-| AmisAdminTest | AmisSourceController CRUD（页面 schema / _ajax 分页列表 / 搜索 / 详情 / 新增 / 编辑 / 删除）、LaravelValidator 验证失败 422 响应结构、amis 插件配置覆盖（validator 桥接）、异常 handler 转换 |
+| Feature/ServerBootTest | 进程启动 /health 探活、未注册路由 404 |
+| Feature/PluginInstallTest | Install.php 落地的 `config/plugin/webman-tech/*` 守护、swagger 插件路由注册 |
+| Feature/CommonUtilsRequestTest | Request/Session/Response facade 真实 HTTP 下的 GET/POST json/form/header/session/traceId |
+| Feature/SwaggerTest | `/openapi/doc` 输出结构与提交 fixture 比对（含 Eloquent Model 自动展开的 AmisUser schema） |
+| Feature/LoggerMiddlewareTest | HttpRequestLogMiddleware 写 `runtime/logs/httpRequest/` 日志、RequestTraceProcessor 的 traceId |
+| Feature/AuthTest | tinywan/jwt 登录签发、Authentication 中间件有效/无/无效 token 的 200/401 |
+| Feature/DtoControllerTest | laravel-monorepo validator() 下的 DTO 验证成功 200 / 失败 422 结构 |
+| Feature/CrontabTaskTest | 插件 process 配置加载、TaskProcess 进程随 server 启动、cron 真实调度执行、LogTrait 日志写入 channel、CLI 命令（list / exec） |
+| Feature/AmisAdminTest | AmisSourceController CRUD（页面 schema / _ajax 分页列表 / 搜索 / 详情 / 新增 / 编辑 / 删除）、LaravelValidator 验证失败 422 响应结构、amis 插件配置覆盖（validator 桥接）、异常 handler 转换 |
 
 ## laravel e2e 覆盖点
 

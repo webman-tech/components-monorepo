@@ -20,7 +20,7 @@ class AmisUserRepository extends EloquentRepository
     public function __construct()
     {
         parent::__construct(AmisUser::class);
-        // e2e 用 sqlite :memory:（http worker 单进程、连接常驻），连接内惰性建表
+        // e2e 用文件型 sqlite（runtime/e2e.sqlite，http worker 单进程、连接常驻），连接内惰性建表
         $this->model()->getConnection()->statement(self::TABLE_SQL);
     }
 

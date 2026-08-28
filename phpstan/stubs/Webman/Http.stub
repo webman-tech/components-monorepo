@@ -27,3 +27,17 @@ namespace Webman\Http
         public $route = null;
     }
 }
+
+namespace
+{
+    /**
+     * webman 全局配置函数（测试进程加载了 webman 框架时可用）
+     *
+     * @param string|null $key
+     * @param mixed $default
+     * @return mixed
+     */
+    function config(?string $key = null, $default = null)
+    {
+    }
+}

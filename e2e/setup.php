@@ -22,7 +22,7 @@ declare(strict_types=1);
 
 const ROOT_DIR = __DIR__ . '/..';
 
-// path repository 中钉死的本地包版本
+// 组件依赖（path repository 钉死 dev-main）
 const LOCAL_PACKAGES = [
     'webman-tech/amis-admin' => 'dev-main',
     'webman-tech/auth' => 'dev-main',
@@ -52,8 +52,12 @@ function app_definitions(): array
             ]),
             'require_dev' => [
                 'pestphp/pest' => '^3.8',
-                'symfony/http-client' => '^7.3',
-                'symfony/process' => '^7.3',
+                // e2e 测试框架本身（独立仓库已发布到 packagist，dev-main 安装）
+                'webman-tech/testing' => 'dev-main',
+                // testing 组件的 PSR-18 HTTP 客户端（自动发现；组件本身不再强依赖 guzzle）
+                'guzzlehttp/guzzle' => '^7.8',
+                // TestCase 中经 support\Db 做数据库直连断言
+                'webman/database' => '^2.1',
                 // 加载 plugin 的 command.php，验证 crontab-task 等包的 CLI 命令集成链路
                 'webman/console' => '^2.0',
             ],
@@ -62,11 +66,12 @@ function app_definitions(): array
                 'monolog/monolog' => '^3.0',
             ],
             // 批量 composer update 时 composer 进程内 autoloader 未就绪，包内 Install.php 不会触发；
-            // 需 reinstall（单包流程会刷新 autoloader，走 post-package-install -> support\Plugin::install 真实安装链）。
-            // webman/console 也是 webman 插件（Install 落地 `webman` CLI 入口 + config/plugin），需一并 reinstall
-            'reinstall_packages' => array_merge(array_keys(LOCAL_PACKAGES), [
-                'webman/console',
-            ]),
+            // 需 reinstall（单包流程会刷新 autoloader，走 post-package-install -> supportPlugin::install 真实安装链）。
+            // webman/console 也是 webman 插件（Install 落地 `webman` CLI 入口 + config/plugin），需一并 reinstall。
+            'reinstall_packages' => array_merge(
+                array_keys(LOCAL_PACKAGES),
+                ['webman/console'],
+            ),
         ],
         'laravel' => [
             'skeleton' => 'laravel/laravel',
@@ -247,6 +252,10 @@ function patch_composer_json(array $def): void
     // 保证 dev-main / 12.x-dev 可解析
     $json['minimum-stability'] = 'dev';
     $json['prefer-stable'] = true;
+
+    // tests/TestCase.php 的 Tests\ 命名空间映射：laravel 骨架自带，webman 骨架缺失需补齐
+    // （否则 Pest.php 的 pest()->extend(Tests\TestCase::class) 无法自动加载）
+    $json['autoload-dev']['psr-4']['Tests\\'] = 'tests/';
 
     // laravel 骨架的 post-autoload-dump 会执行 @php artisan package:discover，
     // laravel-src 同步的 phpunit.xml/tests 之前该步骤正常；无需改动 scripts
