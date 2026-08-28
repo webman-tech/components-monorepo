@@ -81,7 +81,3 @@ composer e2e:test:laravel
 | 组件 | 原因 |
 |------|------|
 | debugbar | 收益成本比低：可选依赖探测分支虽多但均为运行时 class_exists 探测，且该组件后续可能弃用，不投入 e2e |
-
-## CI
-
-`.github/workflows/e2e.yml`：e2e-webman / e2e-laravel 两个 job（PHP 8.4 + pcntl/posix/pdo_sqlite），不缓存生成 app。

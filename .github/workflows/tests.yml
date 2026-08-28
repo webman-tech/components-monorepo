@@ -1,4 +1,4 @@
-name: phpunit
+name: tests
 
 on:
   push:
@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php: [ 8.2, 8.3, 8.4 ]
+        php: [ 8.2, 8.3, 8.4, 8.5 ]
         stability: [
           #prefer-lowest, 问题较多
           prefer-stable
@@ -57,3 +57,89 @@ jobs:
 
       - name: Run test
         run: composer test
+
+  e2e-webman:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: [ 8.2, 8.3, 8.4, 8.5 ]
+
+    name: webman E2E (PHP ${{ matrix.php }})
+
+    env:
+      COMPOSER_ROOT_VERSION: dev-main
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: pcntl, posix, pdo_sqlite
+          tools: composer:v2
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: php${{ matrix.php }}-composer-${{ hashFiles('composer.lock') }}
+
+      - name: Install root dependencies
+        run: composer install --no-interaction --no-progress
+
+      # 不缓存 e2e/webman（可抛弃的生成目录，缓存收益低且易脏）
+      - name: Setup webman e2e app
+        run: vendor/bin/e2e-setup install webman
+
+      - name: Run e2e tests
+        run: vendor/bin/pest
+        working-directory: e2e/webman
+
+  e2e-laravel:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: [ 8.2, 8.3, 8.4, 8.5 ]
+
+    name: laravel E2E (PHP ${{ matrix.php }})
+
+    env:
+      COMPOSER_ROOT_VERSION: dev-main
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: pdo_sqlite
+          tools: composer:v2
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: php${{ matrix.php }}-composer-${{ hashFiles('composer.lock') }}
+
+      - name: Install root dependencies
+        run: composer install --no-interaction --no-progress
+
+      # 不缓存 e2e/laravel（可抛弃的生成目录）
+      - name: Setup laravel e2e app
+        run: vendor/bin/e2e-setup install laravel
+
+      - name: Run e2e tests
+        run: vendor/bin/pest
+        working-directory: e2e/laravel
