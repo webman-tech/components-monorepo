@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.1.2] - 2026-09-01
+
+### Added
+
+- composer: 添加 LLM 技能发现功能支持
+- tests: 添加 E2E 测试框架支持 webman 和 Laravel 环境
+- e2e: 添加 amis-admin 和 crontab-task 组件的端到端测试
+- e2e: 完善端到端测试基础设施
+
+### Fixed
+
+- reflection: 修复 PHP 8.5 兼容性问题
+
 ## [5.1.1] - 2026-07-07
 
 ### Fixed
@@ -290,7 +303,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [5.1.1]: https://github.com/webman-tech/components-monorepo/compare/v5.1.0...v5.1.1
 [5.1.0]: https://github.com/webman-tech/components-monorepo/compare/v5.0.22...v5.1.0
 [5.0.22]: https://github.com/webman-tech/components-monorepo/compare/v5.0.21...v5.0.22
-[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.1.1...HEAD
+[5.1.2]: https://github.com/webman-tech/components-monorepo/compare/v5.1.1...v5.1.2
+[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.1.2...HEAD
 
 [5.0.21]: https://github.com/webman-tech/components-monorepo/compare/v5.0.20...v5.0.21
 
