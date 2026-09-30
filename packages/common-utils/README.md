@@ -61,7 +61,7 @@ composer require webman-tech/common-utils
 
 ### 缓存
 
-- **ArrayCache**：符合 PSR-16 标准的内存数组缓存，适用于单次请求内的数据缓存。支持 TTL、默认 TTL 和最大 TTL 限制，支持 LRU 淘汰策略，支持 PSR-20 时钟接口注入便于单元测试，提供 `gc()/count()/keys()` 等辅助方法。
+- **ArrayCache**：符合 PSR-16 标准并兼容 `psr/simple-cache ^1.0|^2.0|^3.0` 的内存数组缓存，适用于单次请求内的数据缓存。支持 TTL、默认 TTL 和最大 TTL 限制，支持 LRU 淘汰策略，支持 PSR-20 时钟接口注入便于单元测试，提供 `gc()/count()/keys()` 等辅助方法。
 - **NullCache**：空缓存实现（Null Object 模式），所有操作均为空操作，用于禁用缓存或作为依赖注入的默认值。
 
 ## 测试工具箱

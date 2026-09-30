@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace WebmanTech\CommonUtils\Cache;
 
-use DateInterval;
 use Psr\SimpleCache\CacheInterface;
 
 /**
  * 空缓存（Null Object 模式）.
  *
  * 所有操作都是空操作，用于禁用缓存或作为默认值。
+ *
+ * 为兼容 psr/simple-cache 1.0/2.0/3.0，接口方法参数不声明类型，返回值类型与 3.0 接口保持一致，
+ * 具体说明详见 ArrayCache 类注释。
  *
  * @see https://en.wikipedia.org/wiki/Null_object_pattern
  */
@@ -19,7 +21,7 @@ final class NullCache implements CacheInterface
     /**
      * @inheritDoc
      */
-    public function get(string $key, mixed $default = null): mixed
+    public function get($key, $default = null): mixed
     {
         $this->verifyKey($key);
         return $default;
@@ -28,7 +30,7 @@ final class NullCache implements CacheInterface
     /**
      * @inheritDoc
      */
-    public function set(string $key, mixed $value, DateInterval|int|null $ttl = null): bool
+    public function set($key, $value, $ttl = null): bool
     {
         $this->verifyKey($key);
         return true;
@@ -37,7 +39,7 @@ final class NullCache implements CacheInterface
     /**
      * @inheritDoc
      */
-    public function delete(string $key): bool
+    public function delete($key): bool
     {
         $this->verifyKey($key);
         return true;
@@ -54,7 +56,7 @@ final class NullCache implements CacheInterface
     /**
      * @inheritDoc
      */
-    public function getMultiple(iterable $keys, mixed $default = null): iterable
+    public function getMultiple($keys, $default = null): iterable
     {
         $result = [];
         foreach ($keys as $key) {
@@ -66,7 +68,7 @@ final class NullCache implements CacheInterface
     /**
      * @inheritDoc
      */
-    public function setMultiple(iterable $values, DateInterval|int|null $ttl = null): bool
+    public function setMultiple($values, $ttl = null): bool
     {
         return true;
     }
@@ -74,7 +76,7 @@ final class NullCache implements CacheInterface
     /**
      * @inheritDoc
      */
-    public function deleteMultiple(iterable $keys): bool
+    public function deleteMultiple($keys): bool
     {
         return true;
     }
@@ -82,7 +84,7 @@ final class NullCache implements CacheInterface
     /**
      * @inheritDoc
      */
-    public function has(string $key): bool
+    public function has($key): bool
     {
         $this->verifyKey($key);
         return false;

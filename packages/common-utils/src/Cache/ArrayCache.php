@@ -13,7 +13,7 @@ use Symfony\Component\Clock\ClockAwareTrait;
  * 内存数组缓存.
  *
  * 特性：
- * - 符合 PSR-16 标准
+ * - 符合 PSR-16 标准，兼容 psr/simple-cache 1.0/2.0/3.0
  * - 支持 TTL（过期时间）
  * - 支持默认 TTL 和最大 TTL 限制
  * - 支持最大缓存数量（LRU 淘汰，淘汰时顺带清理过期项）
@@ -21,6 +21,10 @@ use Symfony\Component\Clock\ClockAwareTrait;
  * - 支持时钟注入（PSR-20），便于测试
  *
  * 注意：缓存数据存储在实例中，需要自行管理实例的生命周期。
+ *
+ * 为同时兼容 psr/simple-cache 1.0（接口参数无类型）/2.0（参数有类型）/3.0（参数、返回值均有类型），
+ * 下方接口方法的参数一律不声明类型（否则 1.0 下会因参数类型逆变违规而 Fatal error），
+ * 返回值类型与 3.0 接口保持一致（1.0/2.0 下允许实现方添加返回类型）。
  */
 final class ArrayCache implements CacheInterface
 {
@@ -61,7 +65,7 @@ final class ArrayCache implements CacheInterface
     /**
      * @inheritDoc
      */
-    public function get(string $key, mixed $default = null): mixed
+    public function get($key, $default = null): mixed
     {
         $this->verifyKey($key);
 
@@ -75,7 +79,7 @@ final class ArrayCache implements CacheInterface
     /**
      * @inheritDoc
      */
-    public function set(string $key, mixed $value, DateInterval|int|null $ttl = null): bool
+    public function set($key, $value, $ttl = null): bool
     {
         $this->verifyKey($key);
 
@@ -104,7 +108,7 @@ final class ArrayCache implements CacheInterface
     /**
      * @inheritDoc
      */
-    public function delete(string $key): bool
+    public function delete($key): bool
     {
         $this->verifyKey($key);
         $this->removeItem($key);
@@ -124,7 +128,7 @@ final class ArrayCache implements CacheInterface
     /**
      * @inheritDoc
      */
-    public function getMultiple(iterable $keys, mixed $default = null): iterable
+    public function getMultiple($keys, $default = null): iterable
     {
         $result = [];
         foreach ($keys as $key) {
@@ -136,7 +140,7 @@ final class ArrayCache implements CacheInterface
     /**
      * @inheritDoc
      */
-    public function setMultiple(iterable $values, DateInterval|int|null $ttl = null): bool
+    public function setMultiple($values, $ttl = null): bool
     {
         foreach ($values as $key => $value) {
             $this->set((string)$key, $value, $ttl);
@@ -147,7 +151,7 @@ final class ArrayCache implements CacheInterface
     /**
      * @inheritDoc
      */
-    public function deleteMultiple(iterable $keys): bool
+    public function deleteMultiple($keys): bool
     {
         foreach ($keys as $key) {
             $this->delete($key);
@@ -158,7 +162,7 @@ final class ArrayCache implements CacheInterface
     /**
      * @inheritDoc
      */
-    public function has(string $key): bool
+    public function has($key): bool
     {
         $this->verifyKey($key);
         return $this->hasInternal($key);
@@ -246,6 +250,11 @@ final class ArrayCache implements CacheInterface
             return;
         }
 
+        // 已在末尾（最近使用）时无需移动，避免每次 get 都触发 unset/重设
+        if (array_key_last($this->values) === $key) {
+            return;
+        }
+
         $value = $this->values[$key];
         $expiry = $this->expiries[$key];
         $this->removeItem($key);
@@ -305,7 +314,8 @@ final class ArrayCache implements CacheInterface
             return;
         }
 
-        if ($this->gcProbability >= 1.0 || random_int(1, 1000000) <= (int)($this->gcProbability * 1000000)) {
+        // 非安全场景，mt_rand 比 random_int（CSPRNG）快数倍
+        if ($this->gcProbability >= 1.0 || mt_rand() / mt_getrandmax() < $this->gcProbability) {
             $this->gc();
         }
     }
