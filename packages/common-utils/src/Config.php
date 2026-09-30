@@ -10,6 +10,11 @@ use WebmanTech\CommonUtils\Exceptions\UnsupportedRuntime;
 final class Config
 {
     /**
+     * 闭包默认值的哨兵对象（静态复用，=== 身份比较零碰撞、无随机数开销）
+     */
+    private static ?\stdClass $sentinel = null;
+
+    /**
      * 获取 config 配置
      * @param string $key 支持 abc.xyz 的形式
      * @param mixed $default 支持 callback
@@ -20,7 +25,7 @@ final class Config
         $defaultFn = null;
         if ($default instanceof \Closure) {
             $defaultFn = $default;
-            $default = '__RN__' . random_int(100000, 999999);
+            $default = self::$sentinel ??= new \stdClass();
         }
 
         $value = match (true) {

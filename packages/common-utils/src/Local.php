@@ -29,7 +29,7 @@ final class Local
                 default => throw new UnsupportedRuntime(),
             };
         }
-        return self::combinePath((string)self::$basePath, $path);
+        return $path === '' ? self::$basePath : self::combinePath((string)self::$basePath, $path);
     }
 
     /**
@@ -46,7 +46,7 @@ final class Local
                 default => throw new UnsupportedRuntime(),
             };
         }
-        return self::combinePath((string)self::$runtimePath, $path);
+        return $path === '' ? self::$runtimePath : self::combinePath((string)self::$runtimePath, $path);
     }
 
     /**
@@ -63,7 +63,7 @@ final class Local
             };
         }
 
-        return self::combinePath((string)self::$configPath, $path);
+        return $path === '' ? self::$configPath : self::combinePath((string)self::$configPath, $path);
     }
 
     /**
@@ -79,7 +79,7 @@ final class Local
                 default => throw new UnsupportedRuntime(),
             };
         }
-        return self::combinePath((string)self::$appPath, $path);
+        return $path === '' ? self::$appPath : self::combinePath((string)self::$appPath, $path);
     }
 
     /**
@@ -95,7 +95,7 @@ final class Local
                 default => throw new UnsupportedRuntime(),
             };
         }
-        return self::combinePath((string)self::$vendorPath, $path);
+        return $path === '' ? self::$vendorPath : self::combinePath((string)self::$vendorPath, $path);
     }
 
     /**

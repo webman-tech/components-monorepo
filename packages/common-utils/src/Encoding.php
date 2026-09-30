@@ -16,10 +16,12 @@ final class Encoding
     public static function toUTF8(mixed $value): mixed
     {
         if (is_string($value)) {
-            $detectedEncoding = mb_detect_encoding($value, ['UTF-8', 'GB2312', 'GBK', 'ISO-8859-1'], true);
-            if ($detectedEncoding === 'UTF-8') {
+            // 快速路径：绝大多数输入已是合法 UTF-8，单编码校验远快于多候选 detect
+            if (mb_check_encoding($value, 'UTF-8')) {
                 return $value;
             }
+            // 非 UTF-8 时再做多候选检测（无需再含 UTF-8，前面已校验过）
+            $detectedEncoding = mb_detect_encoding($value, ['GB2312', 'GBK', 'ISO-8859-1'], true);
             if ($detectedEncoding) {
                 $newValue = mb_convert_encoding($value, 'UTF-8', $detectedEncoding);
                 if (is_string($newValue)) {

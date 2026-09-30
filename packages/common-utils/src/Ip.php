@@ -6,12 +6,15 @@ use Webman\Http\Request as WebmanRequest;
 
 final class Ip
 {
+    private static ?bool $hasWebmanRequest = null;
+
     /**
      * 判断是否内网 IP
      */
     public static function isIntranetIp(string $ip): bool
     {
-        if (class_exists(WebmanRequest::class)) {
+        self::$hasWebmanRequest ??= class_exists(WebmanRequest::class);
+        if (self::$hasWebmanRequest) {
             return WebmanRequest::isIntranetIp($ip);
         }
 
