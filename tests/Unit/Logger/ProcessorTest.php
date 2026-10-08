@@ -110,3 +110,38 @@ test('RequestTraceProcessor in console', function () {
         ->not
         ->toBe($traceId);
 });
+
+test('RequestIpProcessor cache within same request', function () {
+    $processor = new RequestIpProcessor();
+
+    $request = request_create_one();
+    request_get_raw($request)->setData('userIp', '8.8.8.8');
+
+    $logRecord = get_log_record();
+    $processor->__invoke($logRecord);
+    expect($logRecord->extra['ip'])->toBe('8.8.8.8');
+
+    // 同一请求内 ip 被缓存：中途变更 userIp 后仍返回缓存值
+    request_get_raw($request)->setData('userIp', '9.9.9.9');
+    $logRecord2 = get_log_record();
+    $processor->__invoke($logRecord2);
+    expect($logRecord2->extra['ip'])->toBe('8.8.8.8');
+});
+
+test('RequestIpProcessor cache isolated between requests', function () {
+    $processor = new RequestIpProcessor();
+
+    $request1 = request_create_one();
+    request_get_raw($request1)->setData('userIp', '8.8.8.8');
+    $logRecord = get_log_record();
+    $processor->__invoke($logRecord);
+    expect($logRecord->extra['ip'])->toBe('8.8.8.8');
+
+    // 新请求不受旧请求缓存污染
+    $request2 = request_create_one();
+    expect($request2->getRaw())->not->toBe($request1->getRaw());
+    request_get_raw($request2)->setData('userIp', '9.9.9.9');
+    $logRecord2 = get_log_record();
+    $processor->__invoke($logRecord2);
+    expect($logRecord2->extra['ip'])->toBe('9.9.9.9');
+});
