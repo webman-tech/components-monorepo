@@ -119,6 +119,16 @@ class BaseDTO
 
     /**
      * 获取额外的验证规则
+     *
+     * 动态性边界：
+     * - 顶层调用（本 DTO 作为规则树根执行 getValidationRules()，如顶层请求
+     *   验证）时每请求实时执行，可返回随请求变化的动态值
+     * - 作为嵌套 DTO 属性展开时，仅在父级规则树首次组装时执行一次，之后
+     *   随规则树固化（进程 reload 前不再执行），应返回静态数组
+     *
+     * 嵌套字段需要动态规则时，在顶层 DTO 中以 dot-path 返回即可穿透嵌套，
+     * 例如 ['address.postcode' => 'required|string']。
+     *
      * @return array<string, array|string>
      */
     protected static function getExtraValidationRules(): array
@@ -205,6 +215,8 @@ class BaseDTO
                 $properties = array_diff($properties, $toArrayConfig->exclude);
             }
         }
+        // 日期格式每次 toArray 只取一次配置，避免每个 DateTime 属性都查一遍 config
+        $dateTimeFormat = null;
         foreach ($properties as $property) {
             $value = $this->{$property};
             if (is_array($value)) {
@@ -232,7 +244,8 @@ class BaseDTO
                     $value = array_filter($value, fn($v) => $v !== null);
                 }
             } elseif ($value instanceof DateTime) {
-                $value = $value->format($this->getDateTimeFormat());
+                $dateTimeFormat ??= $this->getDateTimeFormat();
+                $value = $value->format($dateTimeFormat);
             } elseif ($value instanceof BackedEnum) {
                 $value = $value->value;
             }

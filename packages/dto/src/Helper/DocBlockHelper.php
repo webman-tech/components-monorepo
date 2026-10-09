@@ -132,6 +132,49 @@ final class DocBlockHelper
     }
 
     /**
+     * 类文件 use 语句映射的静态缓存（key: 文件路径）
+     *
+     * 原实现对每个 array 属性的类型解析都 file_get_contents 整个类文件并
+     * 跑 2 次动态拼接的正则；缓存后每文件仅读盘一次，查找退化为 O(1)。
+     *
+     * @var array<string, array<string, string>>
+     */
+    private static array $useMapsByFile = [];
+
+    /**
+     * 提取类文件的 use 语句映射：末段类名 / 别名 => 完整类名
+     * @return array<string, string>
+     */
+    private static function getUseMap(ReflectionClass $reflectionClass): array
+    {
+        $file = $reflectionClass->getFileName();
+        if (!$file) {
+            return [];
+        }
+        if (isset(self::$useMapsByFile[$file])) {
+            return self::$useMapsByFile[$file];
+        }
+
+        $map = [];
+        $content = file_get_contents($file);
+        if ($content !== false) {
+            preg_match_all('/^use\s+([\w\\\\]+)(?:\s+as\s+(\w+))?;/m', $content, $matches, PREG_SET_ORDER);
+            foreach ($matches as $match) {
+                $fqcn = ltrim($match[1], '\\');
+                if (isset($match[2])) {
+                    // use X\Y\Z as Alias：别名不参与末段匹配（与原逐条正则行为一致）
+                    $map['@' . strtolower($match[2])] = $fqcn;
+                    continue;
+                }
+                $segments = explode('\\', $fqcn);
+                $map[strtolower(end($segments))] = $fqcn;
+            }
+        }
+
+        return self::$useMapsByFile[$file] = $map;
+    }
+
+    /**
      * @return null|class-string|ValidationRules
      */
     private static function parseSingleType(string $singleType, ReflectionClass $reflectionClass): null|string|ValidationRules
@@ -156,21 +199,18 @@ final class DocBlockHelper
             }
             return null;
         }
-        // 非 \ 开头的
-        /** @phpstan-ignore-next-line */
-        $content = file_get_contents($reflectionClass->getFileName());
-        assert($content !== false);
-        // 从 use 里提取
-        preg_match('/use\s+((.*)\\\\' . $singleType . ');$/m', $content, $matches);
-        if (isset($matches[1])) {
-            /** @phpstan-ignore-next-line */
-            return $matches[1];
+        // 非 \ 开头的，从 use 语句映射中查找（缓存，无需重复读文件）
+        $map = self::getUseMap($reflectionClass);
+        $needle = strtolower($singleType);
+        if (isset($map[$needle])) {
+            $fqcn = $map[$needle];
+            /** @var class-string $fqcn use 语句声明的完整类名 */
+            return $fqcn;
         }
-        // 从 use Xxx as Xxx 里提取
-        preg_match('/use\s+(.*)\s+as\s+' . $singleType . ';$/m', $content, $matches);
-        if (isset($matches[1])) {
-            /** @phpstan-ignore-next-line */
-            return $matches[1];
+        if (isset($map['@' . $needle])) {
+            $fqcn = $map['@' . $needle];
+            /** @var class-string $fqcn use as 别名声明的完整类名 */
+            return $fqcn;
         }
         // use 里没有的，与当前类同 namespace
         $className = $reflectionClass->getNamespaceName() . '\\' . $singleType;

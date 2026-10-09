@@ -17,6 +17,14 @@ use WebmanTech\DTO\BaseDTO;
 use WebmanTech\DTO\Helper\DocBlockHelper;
 use WebmanTech\DTO\Reflection\ReflectionReaderFactory;
 
+/**
+ * 验证规则注解
+ *
+ * 实例由 ReflectionClassReader 的 WeakMap 按（类, 属性）缓存、进程内复用，
+ * 经 fillWithReflection/normalize 初始化后应视为只读——运行期修改属性
+ * 不会反映到已缓存的规则树（getRules 输出已固化）。需要动态规则的场景
+ * 请自建实例，不要修改框架持有的实例。
+ */
 #[Attribute(Attribute::TARGET_PROPERTY | Attribute::TARGET_PARAMETER)]
 final class ValidationRules
 {
@@ -201,6 +209,18 @@ final class ValidationRules
     private ?array $parsedRules = null;
 
     /**
+     * 按 key 缓存 getRules 的完整输出（含嵌套 DTO 规则展开）
+     *
+     * 实例由 ReflectionClassReader 的 WeakMap 持有（进程级），缓存后同一类
+     * 规则树每次请求不再重复递归组装。嵌套 DTO 的 getExtraValidationRules()
+     * 会随首次展开固化（设计取舍：顶层动态已够用），
+     * 详见 BaseDTO::getExtraValidationRules() 注释。
+     *
+     * @var array<string, array>
+     */
+    private array $resolvedRules = [];
+
+    /**
      * 修复嵌套对象中的 required_with 前缀
      * @param array $rules 规则数组
      * @param string $parentKey 父级 key（当前对象相对于其父级的路径）
@@ -232,6 +252,10 @@ final class ValidationRules
      */
     public function getRules(string $key): array
     {
+        if (isset($this->resolvedRules[$key])) {
+            return $this->resolvedRules[$key];
+        }
+
         $this->normalize();
         if ($this->parsedRules === null) {
             $this->parsedRules = $this->parseRules();
@@ -286,7 +310,7 @@ final class ValidationRules
             }
         }
 
-        return $rules;
+        return $this->resolvedRules[$key] = $rules;
     }
 
     /**

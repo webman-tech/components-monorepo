@@ -188,10 +188,19 @@ final class ReflectionClassReader
 
     /**
      * 获取全部属性的验证规则
+     *
+     * 规则树由类结构决定（进程内恒定；嵌套 DTO 的 extra 规则随首次展开
+     * 固化，见 BaseDTO::getExtraValidationRules()），整体缓存输出；
+     * 调用方均为值语义（array_merge 拷贝、COW），不会污染缓存。
+     *
      * @return array<string, array>
      */
     public function getPropertiesValidationRules(): array
     {
+        if ($this->validationRulesCache !== null) {
+            return $this->validationRulesCache;
+        }
+
         $rules = [];
         foreach ($this->getAttributionValidationRulesList() as $key => $validationRules) {
             $itemRules = $validationRules->getRules($key);
@@ -201,7 +210,7 @@ final class ReflectionClassReader
             $rules = array_merge($rules, $itemRules);
         }
 
-        return $rules;
+        return $this->validationRulesCache = $rules;
     }
 
     /**
@@ -277,6 +286,8 @@ final class ReflectionClassReader
 
     private ?WeakMap $attributionCache = null;
 
+    private ?array $validationRulesCache = null;
+
     /**
      * 获取单个属性的反射，取第一个，然后实例化
      * @template T of object
@@ -290,14 +301,10 @@ final class ReflectionClassReader
         ?Closure                                               $initializer = null,
     ): ?object
     {
-        if ($this->attributionCache === null) {
-            $this->attributionCache = new WeakMap();
-        }
-        if (!isset($this->attributionCache[$reflection])) {
-            $this->attributionCache[$reflection] = [];
-        }
+        $this->attributionCache ??= new WeakMap();
+        // 单次 offsetGet 完成命中路径（isset + get 会访问两次 WeakMap）
         /** @var array $cache */
-        $cache = $this->attributionCache[$reflection];
+        $cache = $this->attributionCache[$reflection] ?? [];
 
         if (!isset($cache[$attributionName])) {
             $reflectionAttributes = $reflection->getAttributes($attributionName, ReflectionAttribute::IS_INSTANCEOF);
