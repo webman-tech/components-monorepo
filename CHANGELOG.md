@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.1.3] - 2026-10-10
+
+### Added
+
+- common-utils: ArrayCache/NullCache 兼容 psr/simple-cache 1.0/2.0/3.0
+
 ## [5.1.2] - 2026-09-01
 
 ### Added
@@ -304,7 +310,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [5.1.0]: https://github.com/webman-tech/components-monorepo/compare/v5.0.22...v5.1.0
 [5.0.22]: https://github.com/webman-tech/components-monorepo/compare/v5.0.21...v5.0.22
 [5.1.2]: https://github.com/webman-tech/components-monorepo/compare/v5.1.1...v5.1.2
-[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.1.2...HEAD
+[5.1.3]: https://github.com/webman-tech/components-monorepo/compare/v5.1.2...v5.1.3
+[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.1.3...HEAD
 
 [5.0.21]: https://github.com/webman-tech/components-monorepo/compare/v5.0.20...v5.0.21
 
