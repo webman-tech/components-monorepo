@@ -17,6 +17,7 @@ node_modules
 .worktree
 .claude
 .agents
+.workbuddy
 .phpunit.result.cache
 # e2e 测试生成的可抛弃应用（外部骨架代码，升级时删除重建）
 /e2e/webman/

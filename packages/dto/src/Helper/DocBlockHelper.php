@@ -77,7 +77,9 @@ final class DocBlockHelper
                         return $type;
                     }
                 } else {
-                    [, $valueType] = explode(', ', $itemType);
+                    // 只按第一个逗号切分（value 本身可能是 array<int, Foo> 含内层逗号），
+                    // 且不要求逗号后带空格，兼容 array<int,int> 这种紧凑写法
+                    [, $valueType] = explode(',', $itemType, 2);
                     $valueType = trim($valueType);
                     // array<string, string|null> 检测和支持
                     $nullable = str_contains($valueType, '|null') || str_contains($valueType, 'null|');
