@@ -156,11 +156,35 @@ final class ReflectionClassReader
      */
     public function getAttributionRequestPropertyInList(): array
     {
+        return $this->getAttributionList(RequestPropertyIn::class);
+    }
+
+    /** @var array<class-string, array<string, object>> */
+    private array $attributionListCache = [];
+
+    /**
+     * 获取打了指定注解的全部属性（注解实例，未打注解的属性被过滤）
+     *
+     * @template T of object
+     * @param class-string<T> $attributeClass
+     * @return array<string, T>
+     */
+    public function getAttributionList(string $attributeClass): array
+    {
+        if (!isset($this->attributionListCache[$attributeClass])) {
+            $attributes = [];
+            foreach ($this->getPropertyReflections() as $name => $reflection) {
+                $attribute = $this->getFirstNamedAttributionInstance($reflection, $attributeClass);
+                if ($attribute !== null) {
+                    $attributes[$name] = $attribute;
+                }
+            }
+            $this->attributionListCache[$attributeClass] = $attributes;
+        }
+
         return array_filter(
-            array_map(
-                fn(ReflectionProperty $reflection) => $this->getAttributionRequestPropertyIn($reflection),
-                $this->getPropertyReflections(),
-            ),
+            $this->attributionListCache[$attributeClass],
+            static fn(object $attribute): bool => $attribute instanceof $attributeClass,
         );
     }
 

@@ -63,6 +63,18 @@ composer require webman-tech/dto
 - [RequestPropertyInHeader](src/Attributes/RequestPropertyInHeader.php)：Header 数据
 - [RequestPropertyInCookie](src/Attributes/RequestPropertyInCookie.php)：Cookie 数据
 
+### FromDataConfig 数据处理配置
+
+[FromDataConfig](src/Attributes/FromDataConfig.php) 用于控制 `fromData()` 阶段的字符串 trim、空值忽略和验证停止策略。也可通过 `dto.from_data_config.request` / `dto.from_data_config.base` 设置全局默认值，类注解优先于全局配置。
+
+### DataDecrypt 字段解密
+
+[DataDecrypt](src/Attributes/DataDecrypt.php) 标记需要解密的字段。通过 `dto.data_decrypter` 配置 [DataDecrypterInterface](src/DataDecrypterInterface.php) 实现后，字段会在清洗和验证前解密，支持字符串、字符串数组和嵌套 DTO。
+
+### FromDataPipeline 数据处理管线
+
+[FromDataPipeline](src/Processor/FromDataPipeline.php) 默认依次执行字段解密、数据清洗和验证。自定义阶段实现 [ProcessorInterface](src/Processor/ProcessorInterface.php)，并通过 `configureFromDataPipeline()` 的 `add()`、`insert()`、`remove()` 调整；也可通过 `dto.from_data_processors` 完整替换默认管线。
+
 ## DTO 代码生成器（Web 版）
 
 仓库提供了一个前端版本的 DTO 代码生成器，构建产物位于 `web/index.html`，特点如下：

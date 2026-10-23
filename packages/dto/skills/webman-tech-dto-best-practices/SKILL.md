@@ -219,7 +219,7 @@ class RegisterRequest extends BaseRequestDTO
 
 ---
 
-## 异常处理：两种异常含义不同
+## 异常处理：按错误来源区分
 
 ```php
 try {
@@ -227,6 +227,9 @@ try {
 } catch (DTOValidateException $e) {
     // 用户输入不合法，正常业务流程，必须处理
     return json(['errors' => $e->getErrors()], 422);
+} catch (DTOProcessorException $e) {
+    // 数据处理失败（如解密）：密文被篡改、密钥过期等，通常是客户端错误
+    return json(['message' => 'bad request'], 400);
 }
 // DTONewInstanceException 不要 catch：
 // 它表示数据通过了验证但无法赋值，是代码 bug，应该让它抛出暴露问题
@@ -318,6 +321,24 @@ return [
 ```
 
 只有当某个 DTO 需要与全局配置不同的行为时，才在类上加注解覆盖。
+
+### 接口加解密：字段优先用 #[DataDecrypt]
+
+部分字段加密时，配置 `dto.data_decrypter` 并标注字段；验证规则按解密后的值编写：
+
+```php
+#[DataDecrypt]
+#[ValidationRules(rules: 'email')]
+public string $email;
+```
+
+整体加密、拆包或签名校验时，实现 `ProcessorInterface`，在共享 DTO 基类中明确插入位置：
+
+```php
+$pipeline->insert(new DecryptPayload(), before: DecryptFields::class);
+```
+
+保留默认管线，只插入所需阶段；只有基础设施层需要接管解密、清洗和验证全流程时，才完整替换 `dto.from_data_processors`。数据变换统一留在 DTO 管线，不要散落到控制器。
 
 ---
 

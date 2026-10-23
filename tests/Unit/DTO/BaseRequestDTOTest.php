@@ -82,4 +82,23 @@ test('fromRequest with RequestPropertyIn', function () {
         ->and($dto->name3)->toBe('name3HeaderValue')
         ->and($dto->name4)->toBe('name4GetValue')
         ->and($dto->name5)->toBe('name5PostValue');
+
+    $request = request_create_one();
+    $rawRequest = request_get_raw($request);
+    $rawRequest->setGet([
+        'name' => 'repeatedNameGetValue',
+        'new_key1' => 'repeatedName4GetValue',
+    ]);
+    $rawRequest->setPost([
+        'name2' => 'repeatedName2PostValue',
+        'new_key2' => 'repeatedName5PostValue',
+    ]);
+    $rawRequest->setHeader('name3', 'repeatedName3HeaderValue');
+    $repeatedDto = DTOFromRequestWithConfigRequestKeyFrom::fromRequest($request);
+
+    expect($repeatedDto->name)->toBe('repeatedNameGetValue')
+        ->and($repeatedDto->name2)->toBe('repeatedName2PostValue')
+        ->and($repeatedDto->name3)->toBe('repeatedName3HeaderValue')
+        ->and($repeatedDto->name4)->toBe('repeatedName4GetValue')
+        ->and($repeatedDto->name5)->toBe('repeatedName5PostValue');
 });

@@ -24,11 +24,15 @@ webman 数据传输对象（DTO）组件，提供完整的数据处理解决方�
     - `ValidationRules.php`：验证规则注解
     - `RequestPropertyIn*.php`：声明属性从请求的哪个位置取值（Body/Query/Header/Cookie 等）
     - `ToArrayConfig.php`：序列化行为配置
+    - `FromDataConfig.php`：fromData 阶段的清洗与验证行为配置
+    - `DataDecrypt.php`：字段级解密标记注解
+  - `Processor/`：fromData 处理管线；默认按 `DecryptFields` → `SanitizeData` → `ValidateData` 执行
   - `Reflection/`：ReflectionReaderFactory/ReflectionClassReader，驱动属性读取与类型转换
   - `Integrations/`：验证器集成接口及实现
-  - `Exceptions/`：异常类
+  - `Exceptions/`：异常类；processor 执行失败统一使用 `DTOProcessorException`
   - `Helper/`：DocBlockHelper/ArrayHelper/ConfigHelper
   - `Enums/`：RequestPropertyInEnum
+  - `DataDecrypterInterface.php`：字段解密算法接口
 - `web/`：DTO 代码生成器 Web 界面（构建输出，非核心功能）
 - `skills/`: AI 技能
   - `webman-tech-dto-best-practices`: dto 使用的最佳实践
@@ -45,8 +49,11 @@ HTTP 请求
     ▼
 BaseRequestDTO::fromRequest()
     ├── RequestPropertyIn* 注解 ──→ 从指定位置取值 (Query/Body/Header/Cookie...)
-    ├── ValidationRules 注解    ──→ 验证数据
-    └── Reflection              ──→ 自动类型转换 (枚举/日期/嵌套对象...)
+    │
+    ▼
+BaseDTO::fromData()
+    ├── FromDataPipeline            ──→ 字段解密 → 清洗 → 验证
+    └── Reflection                  ──→ 自动类型转换（枚举/日期/嵌套对象等）
     │
     ▼
 业务逻辑 ($dto->field 直接访问)
@@ -70,6 +77,7 @@ HTTP 响应
 3. **类型转换**：自动处理类型转换，包括枚举、日期时间等
 4. **验证规则**：支持 Laravel 验证规则
 5. **序列化控制**：可以通过注解控制对象到数组的转换
+6. **管线扩展**：在共享 DTO 基类的 `configureFromDataPipeline()` 中调整，验证 hook 保持 `protected`
 
 ## 附加工具
 

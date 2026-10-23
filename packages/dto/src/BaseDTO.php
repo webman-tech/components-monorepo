@@ -9,11 +9,14 @@ use stdClass;
 use WebmanTech\DTO\Attributes\FromDataConfig;
 use WebmanTech\DTO\Attributes\ToArrayConfig;
 use WebmanTech\DTO\Exceptions\DTONewInstanceException;
+use WebmanTech\DTO\Exceptions\DTOProcessorException;
 use WebmanTech\DTO\Exceptions\DTOValidateException;
 use WebmanTech\DTO\Helper\ArrayHelper;
 use WebmanTech\DTO\Helper\ConfigHelper;
 use WebmanTech\DTO\Integrations\Validation;
 use WebmanTech\DTO\Integrations\ValidatorStopOnFirstFailureInterface;
+use WebmanTech\DTO\Processor\FromDataContext;
+use WebmanTech\DTO\Processor\FromDataPipeline;
 use WebmanTech\DTO\Reflection\ReflectionClassReader;
 use WebmanTech\DTO\Reflection\ReflectionReaderFactory;
 
@@ -21,49 +24,30 @@ class BaseDTO
 {
     /**
      * 根据 data 构建实例
-     * @throws DTONewInstanceException|DTOValidateException
+     *
+     * 数据经过 Processor 管线后实例化
+     * @throws DTONewInstanceException|DTOValidateException|DTOProcessorException
      */
     public static function fromData(array $data, bool $validate = true): static
     {
         $factory = ReflectionReaderFactory::fromClass(static::class);
 
-        $fromDataConfig = self::getFromDataConfig(__FUNCTION__, $factory);
-
-        if ($fromDataConfig) {
-            if ($fromDataConfig->trim) {
-                $data = array_map(function ($value) {
-                    return is_string($value) ? trim($value) : $value;
-                }, $data);
-            }
-
-            if ($fromDataConfig->ignoreNull || $fromDataConfig->ignoreEmpty) {
-                $data = array_filter($data, function ($value) use ($fromDataConfig) {
-                    if ($fromDataConfig->ignoreNull && $value === null) {
-                        return false;
-                    }
-                    if ($fromDataConfig->ignoreEmpty && $value === '') {
-                        return false;
-                    }
-                    return true;
-                });
-            }
-        }
-
-        if ($validate) {
-            $rules = static::getValidationRules();
-            try {
-                $data = static::validateData($data, $rules);
-            } finally {
-                self::resetFromDataConfig(__FUNCTION__);
-            }
-        }
+        $fromDataConfig = self::resolveFromDataConfig($factory);
+        $context = new FromDataContext(
+            data: $data,
+            dtoClass: static::class,
+            config: $fromDataConfig,
+            validate: $validate,
+            validator: static fn(array $data): array => static::validateData($data, static::getValidationRules()),
+        );
+        $pipeline = FromDataPipeline::create();
+        static::configureFromDataPipeline($pipeline);
+        $pipeline->process($context);
 
         try {
-            return $factory->newInstanceByData($data);
+            return $factory->newInstanceByData($context->data);
         } catch (\Throwable $e) {
             throw new DTONewInstanceException(static::class, $e);
-        } finally {
-            self::resetFromDataConfig(__FUNCTION__);
         }
     }
 
@@ -98,10 +82,10 @@ class BaseDTO
             }
         }
 
-        $fromDataConfig = self::getFromDataConfig(__FUNCTION__);
+        $fromDataConfig = self::resolveFromDataConfig();
 
         // 应用 bail 规则
-        if ($fromDataConfig && $fromDataConfig->validatePropertiesAllWithBail) {
+        if ($fromDataConfig?->validatePropertiesAllWithBail) {
             foreach ($rules as $key => $keyRules) {
                 // 如果第一位已经是 bail，跳过（ValidationRules 中已处理过）
                 if (isset($keyRules[0]) && $keyRules[0] === 'bail') {
@@ -111,8 +95,6 @@ class BaseDTO
                 array_unshift($rules[$key], 'bail');
             }
         }
-
-        self::resetFromDataConfig(__FUNCTION__);
 
         return $rules;
     }
@@ -168,12 +150,19 @@ class BaseDTO
 
         $validator = Validation::create();
 
-        $fromDataConfig = self::getFromDataConfig(__FUNCTION__);
-        if ($fromDataConfig && $fromDataConfig->validateStopOnFirstFailure && $validator instanceof ValidatorStopOnFirstFailureInterface) {
+        $fromDataConfig = self::resolveFromDataConfig();
+        if ($fromDataConfig?->validateStopOnFirstFailure && $validator instanceof ValidatorStopOnFirstFailureInterface) {
             $validator = $validator->stopOnFirstFailure();
         }
 
         return $validator->validate($data, $rules, static::getValidationRuleMessages(), static::getValidationRuleCustomAttributes());
+    }
+
+    /**
+     * 为当前 DTO 调整 fromData 处理管线
+     */
+    protected static function configureFromDataPipeline(FromDataPipeline $pipeline): void
+    {
     }
 
     /**
@@ -258,31 +247,17 @@ class BaseDTO
         return $data;
     }
 
-    private static string|null $tmpFromDataConfigCallFrom = null;
-    private static false|null|FromDataConfig $tmpFromDataConfig = false;
-
-    private static function getFromDataConfig(string $callFrom, ?ReflectionClassReader $factory = null): FromDataConfig|null
+    /**
+     * 解析 fromData 行为配置：类注解优先，否则按 DTO 类型取全局默认
+     */
+    private static function resolveFromDataConfig(?ReflectionClassReader $factory = null): ?FromDataConfig
     {
-        if (self::$tmpFromDataConfig === false) {
-            self::$tmpFromDataConfigCallFrom = $callFrom;
-            $factory ??= ReflectionReaderFactory::fromClass(static::class);
+        $factory ??= ReflectionReaderFactory::fromClass(static::class);
 
-            self::$tmpFromDataConfig = $factory->getPropertiesFromDataConfig() ?? match (true) {
-                is_subclass_of(static::class, BaseRequestDTO::class) => FromDataConfig::createForRequestDTO(),
-                static::class === BaseDTO::class || is_subclass_of(static::class, BaseDTO::class) => FromDataConfig::createForBaseDTO(),
-                default => null,
-            };
-        }
-
-        return self::$tmpFromDataConfig;
-    }
-
-    private static function resetFromDataConfig(string $callFrom): void
-    {
-        if ($callFrom === self::$tmpFromDataConfigCallFrom) {
-            // 哪边注入的，哪边重置
-            self::$tmpFromDataConfigCallFrom = null;
-            self::$tmpFromDataConfig = false;
-        }
+        return $factory->getPropertiesFromDataConfig() ?? match (true) {
+            is_subclass_of(static::class, BaseRequestDTO::class) => FromDataConfig::createForRequestDTO(),
+            static::class === BaseDTO::class || is_subclass_of(static::class, BaseDTO::class) => FromDataConfig::createForBaseDTO(),
+            default => null,
+        };
     }
 }
