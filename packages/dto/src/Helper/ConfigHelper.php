@@ -19,7 +19,18 @@ final class ConfigHelper
      */
     public static function get(string $key, mixed $default = null)
     {
-        return self::$testKV[$key] ?? config("plugin.webman-tech.dto.{$key}", $default);
+        if (array_key_exists($key, self::$testKV)) {
+            return self::$testKV[$key];
+        }
+
+        if (str_starts_with($key, 'dto.')) {
+            return config(
+                "plugin.webman-tech.dto.app.{$key}",
+                static fn(): mixed => config("plugin.webman-tech.dto.{$key}", $default),
+            );
+        }
+
+        return config("plugin.webman-tech.dto.{$key}", $default);
     }
 
     /**

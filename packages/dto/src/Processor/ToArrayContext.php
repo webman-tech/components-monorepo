@@ -9,7 +9,7 @@ use WebmanTech\DTO\BaseDTO;
 use WebmanTech\DTO\Reflection\ReflectionClassReader;
 
 /**
- * toArray 处理管线的共享上下文
+ * toArray 处理器共享的上下文
  */
 final class ToArrayContext
 {

@@ -26,7 +26,7 @@ webman 数据传输对象（DTO）组件，提供完整的数据处理解决方�
     - `ToArrayConfig.php`：序列化行为配置
     - `FromDataConfig.php`：fromData 阶段的清洗与验证行为配置
     - `DataDecrypt.php` / `DataEncrypt.php`：字段级解密、加密标记注解
-  - `Processor/`：fromData/toArray 处理管线；默认分别执行解密 → 清洗 → 验证、字段选择 → 序列化 → 空值处理 → 加密 → `singleKey` 提取
+  - `Processor/`：fromData/toArray 处理器；默认分别执行解密 → 清洗 → 验证、字段选择 → 序列化 → 空值处理 → 加密 → `singleKey` 提取
   - `Reflection/`：ReflectionReaderFactory/ReflectionClassReader，驱动属性读取与类型转换
   - `Integrations/`：验证器集成接口及实现
   - `Exceptions/`：异常类；processor 执行失败统一使用 `DTOProcessorException`
@@ -78,7 +78,7 @@ HTTP 响应
 3. **类型转换**：自动处理类型转换，包括枚举、日期时间等
 4. **验证规则**：支持 Laravel 验证规则
 5. **序列化控制**：可以通过注解控制对象到数组的转换
-6. **管线扩展**：在共享 DTO 基类的 `configureFromDataPipeline()` / `configureToArrayPipeline()` 中调整，验证 hook 保持 `protected`
+6. **处理器扩展**：在共享 DTO 基类的 `configureFromDataPipeline()` / `configureToArrayPipeline()` 中调整，验证 hook 保持 `protected`
 
 ## 附加工具
 

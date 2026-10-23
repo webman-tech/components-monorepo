@@ -101,7 +101,7 @@ test('DataEncrypt: 与 DataDecrypt 支持字段往返', function () {
         ->and($dto->toArray())->toBe(['secret' => 'terces']);
 });
 
-test('DataEncrypt: 嵌套 DTO 使用自己的管线且只加密一次', function () {
+test('DataEncrypt: 嵌套 DTO 由自己的处理器加密且只执行一次', function () {
     final class NestedReverseEncrypter implements DataEncrypterInterface
     {
         public function encrypt(string $plaintext, string $fieldName): string

@@ -24,7 +24,7 @@ class BaseDTO
     /**
      * 根据 data 构建实例
      *
-     * 数据经过 Processor 管线后实例化
+     * 数据经 Processor 依次处理后实例化
      * @throws DTONewInstanceException|DTOValidateException|DTOProcessorException
      */
     public static function fromData(array $data, bool $validate = true): static
@@ -158,14 +158,14 @@ class BaseDTO
     }
 
     /**
-     * 为当前 DTO 调整 fromData 处理管线
+     * 为当前 DTO 调整 fromData 处理器
      */
     protected static function configureFromDataPipeline(FromDataPipeline $pipeline): void
     {
     }
 
     /**
-     * 为当前 DTO 调整 toArray 处理管线
+     * 为当前 DTO 调整 toArray 处理器
      */
     protected static function configureToArrayPipeline(ToArrayPipeline $pipeline): void
     {

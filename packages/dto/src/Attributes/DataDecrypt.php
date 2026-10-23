@@ -7,7 +7,7 @@ use Attribute;
 /**
  * 标记字段的值需要解密
  *
- * 由默认管线中的 DecryptFields 处理。配置 dto.data_decrypter 后，
+ * 由默认处理器 DecryptFields 处理。配置 app.php 的 dto.data_decrypter 后，
  * 只有标记的字段会在清洗和验证前解密
  */
 #[Attribute(Attribute::TARGET_PROPERTY)]

@@ -6,7 +6,7 @@
 
 webman 数据传输对象（DTO）组件，提供一套完整的数据处理解决方案，包括数据验证、类型转换、请求处理、响应生成等功能。
 
-该组件通过属性注解和反射机制，实现了自动化的数据处理流程，解决了手动处理数据时容易出错、代码重复等问题。
+该组件通过属性注解和反射机制自动处理数据，解决了手动处理时容易出错、代码重复等问题。
 
 ## 功能特性
 
@@ -65,17 +65,17 @@ composer require webman-tech/dto
 
 ### FromDataConfig 数据处理配置
 
-[FromDataConfig](src/Attributes/FromDataConfig.php) 用于控制 `fromData()` 阶段的字符串 trim、空值忽略和验证停止策略。也可通过 `dto.from_data_config.request` / `dto.from_data_config.base` 设置全局默认值，类注解优先于全局配置。
+[FromDataConfig](src/Attributes/FromDataConfig.php) 用于控制 `fromData()` 阶段的字符串 trim、空值忽略和验证停止策略。也可通过 `app.php` 的 `dto.from_data_config.request` / `dto.from_data_config.base` 设置全局默认值，类注解优先于全局配置。
 
 ### DataEncrypt / DataDecrypt 字段加解密
 
-[DataDecrypt](src/Attributes/DataDecrypt.php) 在 `fromData()` 时解密字段，[DataEncrypt](src/Attributes/DataEncrypt.php) 在 `toArray()` 返回前加密字段。算法分别通过 `dto.data_decrypter` 和 `dto.data_encrypter` 配置。
+[DataDecrypt](src/Attributes/DataDecrypt.php) 在 `fromData()` 时解密字段，[DataEncrypt](src/Attributes/DataEncrypt.php) 在 `toArray()` 返回前加密字段。算法分别通过 `app.php` 的 `dto.data_decrypter` 和 `dto.data_encrypter` 配置。
 
-### 数据处理管线
+### 数据处理器
 
-[FromDataPipeline](src/Processor/FromDataPipeline.php) 默认依次执行字段解密、数据清洗和验证。自定义阶段实现 [ProcessorInterface](src/Processor/ProcessorInterface.php)，并通过 `configureFromDataPipeline()` 的 `add()`、`insert()`、`remove()` 调整；也可通过 `dto.from_data_processors` 完整替换默认管线。
+[FromDataPipeline](src/Processor/FromDataPipeline.php) 默认依次调用字段解密、数据清洗和验证处理器。自定义处理器实现 [ProcessorInterface](src/Processor/ProcessorInterface.php)，并通过 `configureFromDataPipeline()` 的 `add()`、`insert()`、`remove()` 调整；也可通过 `app.php` 的 `dto.from_data_processors` 完整替换默认处理器。
 
-[ToArrayPipeline](src/Processor/ToArrayPipeline.php) 负责字段选择、类型转换、空值处理、字段加密和 `singleKey` 提取，可通过 `configureToArrayPipeline()` 调整，或通过 `dto.to_array_processors` 完整替换。
+[ToArrayPipeline](src/Processor/ToArrayPipeline.php) 负责字段选择、类型转换、空值处理、字段加密和 `singleKey` 提取，可通过 `configureToArrayPipeline()` 调整，或通过 `app.php` 的 `dto.to_array_processors` 完整替换。
 
 ## DTO 代码生成器（Web 版）
 

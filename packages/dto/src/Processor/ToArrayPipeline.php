@@ -8,7 +8,7 @@ use WebmanTech\DTO\Exceptions\DTOProcessorException;
 use WebmanTech\DTO\Helper\ConfigHelper;
 
 /**
- * toArray 处理管线
+ * toArray 处理器
  */
 final class ToArrayPipeline
 {
@@ -34,7 +34,7 @@ final class ToArrayPipeline
     }
 
     /**
-     * 根据配置创建一条独立管线
+     * 根据配置创建独立实例
      */
     public static function create(): self
     {

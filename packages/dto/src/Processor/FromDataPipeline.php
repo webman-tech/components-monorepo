@@ -8,7 +8,7 @@ use WebmanTech\DTO\Exceptions\DTOProcessorException;
 use WebmanTech\DTO\Helper\ConfigHelper;
 
 /**
- * fromData 处理管线
+ * fromData 处理器
  */
 final class FromDataPipeline
 {
@@ -31,7 +31,7 @@ final class FromDataPipeline
     }
 
     /**
-     * 根据配置创建一条独立管线
+     * 根据配置创建独立实例
      */
     public static function create(): self
     {

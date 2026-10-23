@@ -118,7 +118,7 @@ test('DataDecrypt: 未配置解密器时给出字段上下文', function () {
     }
 });
 
-test('DataDecrypt: 嵌套 DTO 使用自己的管线解密', function () {
+test('DataDecrypt: 嵌套 DTO 由自己的处理器解密', function () {
     final class NestedReverseDecrypter implements DataDecrypterInterface
     {
         public function decrypt(string $ciphertext, string $fieldName): string

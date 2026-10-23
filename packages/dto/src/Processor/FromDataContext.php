@@ -6,7 +6,7 @@ use Closure;
 use WebmanTech\DTO\Attributes\FromDataConfig;
 
 /**
- * fromData 处理管线的共享上下文
+ * fromData 处理器共享的上下文
  *
  * 各 Processor 按序执行，通过改写 data 影响后续阶段，
  * 最终 data 作为实例化（newInstanceByData）的输入

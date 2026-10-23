@@ -1,6 +1,6 @@
 ---
 name: webman-tech-dto-best-practices
-description: DTO 验证与转换。触发：HTTP 请求验证（Form）、响应序列化（Result）、配置读取（Config）、嵌套数据结构、@handle 模式、多态类型。
+description: DTO 验证与转换。触发：HTTP 请求验证（Form）、响应序列化（Result）、接口入参解密、出参加密、自定义处理器、配置读取（Config）、嵌套数据结构、@handle 模式、多态类型。
 ---
 
 # webman-tech/dto 最佳实践
@@ -228,7 +228,7 @@ try {
     // 用户输入不合法，正常业务流程，必须处理
     return json(['errors' => $e->getErrors()], 422);
 } catch (DTOProcessorException $e) {
-    // 数据处理失败（如解密）：密文被篡改、密钥过期等，通常是客户端错误
+    // 入参处理失败（如解密）：密文被篡改、密钥过期等，通常是客户端错误
     return json(['message' => 'bad request'], 400);
 }
 // DTONewInstanceException 不要 catch：
@@ -312,44 +312,88 @@ $config = SwaggerConfig::fromConfig(['title' => 'My API']); // 运行时覆盖
 不要在每个 DTO 上加 `#[FromDataConfig]`，在配置文件统一设置：
 
 ```php
-// config/dto.php
 return [
-    'from_data_config' => [
-        'request' => ['trim' => true],  // 所有 BaseRequestDTO 自动 trim
+    'dto' => [
+        'from_data_config' => [
+            'request' => ['trim' => true],  // 所有 BaseRequestDTO 自动 trim
+        ],
     ],
 ];
 ```
 
 只有当某个 DTO 需要与全局配置不同的行为时，才在类上加注解覆盖。
 
-### 接口入参解密：字段优先用注解
+---
 
-部分入参字段需要解密时，配置 `dto.data_decrypter` 并标记字段；验证规则按解密后的值编写：
+## 接口入参解密
 
-```php
-#[DataDecrypt]
-#[ValidationRules(rules: 'email')]
-public string $email;
-```
+### 部分字段解密：用 DataDecrypt
 
-整体解密、拆包或签名校验实现 `ProcessorInterface`，在共享 DTO 基类中明确插入位置：
+实现 `DataDecrypterInterface::decrypt(string $ciphertext, string $fieldName): string`，并在 `dto.data_decrypter` 中配置实现类：
 
 ```php
-$pipeline->insert(new DecryptPayload(), before: DecryptFields::class);
+return [
+    'dto' => [
+        'data_decrypter' => RequestDataDecrypter::class,
+    ],
+];
 ```
 
-保留默认输入管线，只插入所需阶段；数据变换统一留在 DTO 管线，不要散落到控制器。
-
-### 接口出参加密：字段优先用注解
-
-部分返回字段需要加密时，配置 `dto.data_encrypter` 并标记字段：
+只在入参 DTO 需要解密的字段上标记；验证规则按解密后的明文编写：
 
 ```php
-#[DataEncrypt]
-public string $token;
+final class CreateUserForm extends BaseRequestDTO
+{
+    #[DataDecrypt]
+    #[ValidationRules(rules: 'email')]
+    public string $email;
+}
 ```
 
-整体输出加密实现 `ToArrayProcessorInterface`，通过 `configureToArrayPipeline()` 调整。保留默认输出管线，只插入所需阶段。
+`DecryptFields` 先于清洗和验证执行。它只解密字符串或数组中的字符串元素，其他类型保持不变；嵌套 DTO 应在自己的字段上标记 `#[DataDecrypt]`。
+
+配置项接受 `DataDecrypterInterface` 实例或无参构造的实现类名。没有解密字段时，不需要配置。
+
+---
+
+## 接口出参加密
+
+### 部分字段加密：用 DataEncrypt
+
+实现 `DataEncrypterInterface::encrypt(string $plaintext, string $fieldName): string`，并在 `dto.data_encrypter` 中配置实现类：
+
+```php
+return [
+    'dto' => [
+        'data_encrypter' => ResponseDataEncrypter::class,
+    ],
+];
+```
+
+只在出参 DTO 需要加密的字段上标记：
+
+```php
+final class CreateUserFormResult extends BaseResponseDTO
+{
+    public function __construct(
+        public readonly int $id,
+        #[DataEncrypt]
+        public readonly string $token,
+    ) {}
+}
+```
+
+`EncryptFields` 在字段筛选、序列化和空值处理之后，`singleKey` 提取之前执行，因此只会加密最终保留的字段。它只加密字符串或数组中的字符串元素；嵌套 DTO 应在自己的字段上标记 `#[DataEncrypt]`，每个字段只会加密一次。
+
+配置项接受 `DataEncrypterInterface` 实例或无参构造的实现类名。没有加密字段时，不需要配置。
+
+---
+
+## 自定义处理器扩展
+
+`configureFromDataPipeline()` 和 `configureToArrayPipeline()` 是统一的 DTO 级处理器扩展入口。在加解密方面，组件只内置字段级处理；整体报文解密、签名校验、响应封装等能力需要业务方自行实现。
+
+需要新增、插入、移除或完整替换处理器时，必须先阅读 [references/processors.md](references/processors.md)。其中包含两个方向的接口、上下文、默认顺序、配置方式和整体报文加解密示例。
 
 ---
 
