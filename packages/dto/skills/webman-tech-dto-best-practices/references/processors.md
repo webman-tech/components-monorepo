@@ -36,6 +36,28 @@ final class SignResponse implements ToArrayProcessorInterface
 
 `FromDataContext::$data` 始终是待实例化的数组。`ToArrayContext::$data` 在处理过程中可能由数组变为 `singleKey` 对应的标量，自定义处理器应按插入位置处理相应类型。
 
+## 自定义参数
+
+处理器需要 DTO 级参数时，分别通过 `FromDataConfig::$custom` 和 `ToArrayConfig::$custom` 传递，避免为业务参数新增处理器构造函数或全局配置：
+
+```php
+#[FromDataConfig(custom: ['code_case' => 'upper'])]
+final class CreateOrderForm extends BaseRequestDTO {}
+
+#[ToArrayConfig(custom: ['envelope' => 'data'])]
+final class CreateOrderFormResult extends BaseResponseDTO {}
+```
+
+```php
+// ProcessorInterface
+$codeCase = $context->config?->custom['code_case'] ?? null;
+
+// ToArrayProcessorInterface
+$envelope = $context->config->custom['envelope'] ?? null;
+```
+
+`FromDataConfig` 也可通过 `app.php` 的 `dto.from_data_config.request.custom` 或 `dto.from_data_config.base.custom` 设置默认值。类上的 `#[FromDataConfig]` 会整体覆盖对应的全局配置，不会合并 `custom`。调用 `toArray(new ToArrayConfig(custom: [...]))` 时，传入配置会整体覆盖类上的 `#[ToArrayConfig]`。
+
 ## 默认处理器顺序
 
 `fromData()`：

@@ -240,6 +240,37 @@ test('toArray pipeline: add insert remove 可组合调整处理顺序', function
     expect((new MutableToArrayPipelineDTOTest())->toArray())->toBe(['name' => 'prepared-after']);
 });
 
+test('toArray pipeline: 自定义处理器可读取 ToArrayConfig custom', function () {
+    final class ToArrayCustomConfigProcessor implements ToArrayProcessorInterface
+    {
+        public function __invoke(ToArrayContext $context): void
+        {
+            if (is_array($context->data)) {
+                $context->data['name'] = ($context->config->custom['prefix'] ?? '') . $context->data['name'];
+            }
+        }
+    }
+
+    #[ToArrayConfig(custom: ['prefix' => 'custom-'])]
+    final class ToArrayCustomConfigDTOTest extends BaseDTO
+    {
+        public string $name = 'value';
+
+        protected static function configureToArrayPipeline(ToArrayPipeline $pipeline): void
+        {
+            $pipeline->add(new ToArrayCustomConfigProcessor());
+        }
+    }
+
+    $dto = new ToArrayCustomConfigDTOTest();
+
+    expect($dto->toArray())->toBe([
+        'name' => 'custom-value',
+    ])->and($dto->toArray(new ToArrayConfig(custom: ['prefix' => 'runtime-'])))->toBe([
+        'name' => 'runtime-value',
+    ]);
+});
+
 test('toArray pipeline: 配置可完整替换默认处理链', function () {
     final class ConfiguredToArrayProcessor implements ToArrayProcessorInterface
     {

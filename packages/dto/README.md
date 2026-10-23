@@ -51,7 +51,7 @@ composer require webman-tech/dto
 
 ### ToArrayConfig 数组转换配置
 
-[ToArrayConfig](src/Attributes/ToArrayConfig.php) 用于控制 DTO 转换为数组的行为，支持仅包含指定字段（`only`）、排除指定字段（`exclude`）、忽略空值（`ignoreNull`）、空数组转为空对象（`emptyArrayAsObject`）、单字段值直接作为结果（`singleKey`）等选项。也可在调用 `toArray()` 时临时传入覆盖类级别的配置。
+[ToArrayConfig](src/Attributes/ToArrayConfig.php) 用于控制 DTO 转换为数组的行为，支持仅包含指定字段（`only`）、排除指定字段（`exclude`）、忽略空值（`ignoreNull`）、空数组转为空对象（`emptyArrayAsObject`）、单字段值直接作为结果（`singleKey`）等选项。`custom` 可向自定义处理器传参，也可在调用 `toArray()` 时临时传入配置。
 
 ### RequestPropertyIn 请求属性来源
 
@@ -65,7 +65,7 @@ composer require webman-tech/dto
 
 ### FromDataConfig 数据处理配置
 
-[FromDataConfig](src/Attributes/FromDataConfig.php) 用于控制 `fromData()` 阶段的字符串 trim、空值忽略和验证停止策略。也可通过 `app.php` 的 `dto.from_data_config.request` / `dto.from_data_config.base` 设置全局默认值，类注解优先于全局配置。
+[FromDataConfig](src/Attributes/FromDataConfig.php) 用于控制 `fromData()` 阶段的字符串 trim、空值忽略和验证停止策略，`custom` 可向自定义处理器传参。也可通过 `app.php` 的 `dto.from_data_config.request` / `dto.from_data_config.base` 设置全局默认值，类注解优先于全局配置。
 
 ### DataEncrypt / DataDecrypt 字段加解密
 

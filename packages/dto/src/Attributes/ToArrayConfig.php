@@ -14,6 +14,7 @@ final readonly class ToArrayConfig
         public ?bool           $ignoreNull = null, // 忽略值为 null 的
         public null|array|true $emptyArrayAsObject = null, // 空数组当做对象
         public ?string         $singleKey = null, // 仅返回当前对象下的某个字段的值（可能不在是个数组了）
+        public array           $custom = [], // 自定义处理器配置
     )
     {
     }

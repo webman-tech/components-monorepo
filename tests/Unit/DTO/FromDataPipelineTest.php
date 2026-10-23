@@ -294,6 +294,44 @@ test('pipeline: add insert remove 可组合调整处理顺序', function () {
     expect($dto->name)->toBe('injected-after');
 });
 
+test('pipeline: 自定义处理器可读取 FromDataConfig custom', function () {
+    final class FromDataCustomConfigProcessor implements ProcessorInterface
+    {
+        public function __invoke(FromDataContext $context): void
+        {
+            $context->data['name'] = ($context->config?->custom['prefix'] ?? '') . $context->data['name'];
+        }
+    }
+
+    #[FromDataConfig(custom: ['prefix' => 'custom-'])]
+    final class FromDataCustomConfigDTOTest extends BaseDTO
+    {
+        public string $name;
+
+        protected static function configureFromDataPipeline(FromDataPipeline $pipeline): void
+        {
+            $pipeline->insert(new FromDataCustomConfigProcessor(), before: ValidateData::class);
+        }
+    }
+
+    expect(FromDataCustomConfigDTOTest::fromData(['name' => 'value'])->name)->toBe('custom-value');
+});
+
+test('FromDataConfig: 全局配置支持 custom', function () {
+    ConfigHelper::setForTest('dto.from_data_config.request', [
+        'custom' => ['prefix' => 'global-'],
+    ]);
+    ConfigHelper::setForTest('dto.from_data_config.base', [
+        'custom' => ['prefix' => 'base-'],
+    ]);
+
+    expect(FromDataConfig::createForRequestDTO()->custom)->toBe([
+        'prefix' => 'global-',
+    ])->and(FromDataConfig::createForBaseDTO()->custom)->toBe([
+        'prefix' => 'base-',
+    ]);
+});
+
 test('pipeline: 配置可完整替换默认处理链', function () {
     final class ConfiguredOnlyProcessor implements ProcessorInterface
     {
