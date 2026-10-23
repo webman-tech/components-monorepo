@@ -2,10 +2,7 @@
 
 namespace WebmanTech\DTO;
 
-use BackedEnum;
-use DateTime;
 use DateTimeInterface;
-use stdClass;
 use WebmanTech\DTO\Attributes\FromDataConfig;
 use WebmanTech\DTO\Attributes\ToArrayConfig;
 use WebmanTech\DTO\Exceptions\DTONewInstanceException;
@@ -17,6 +14,8 @@ use WebmanTech\DTO\Integrations\Validation;
 use WebmanTech\DTO\Integrations\ValidatorStopOnFirstFailureInterface;
 use WebmanTech\DTO\Processor\FromDataContext;
 use WebmanTech\DTO\Processor\FromDataPipeline;
+use WebmanTech\DTO\Processor\ToArrayContext;
+use WebmanTech\DTO\Processor\ToArrayPipeline;
 use WebmanTech\DTO\Reflection\ReflectionClassReader;
 use WebmanTech\DTO\Reflection\ReflectionReaderFactory;
 
@@ -166,6 +165,13 @@ class BaseDTO
     }
 
     /**
+     * 为当前 DTO 调整 toArray 处理管线
+     */
+    protected static function configureToArrayPipeline(ToArrayPipeline $pipeline): void
+    {
+    }
+
+    /**
      * 日期格式
      */
     protected function getDateTimeFormat(): string
@@ -176,75 +182,24 @@ class BaseDTO
     /**
      * 转为数组
      * @return array<string, mixed>|mixed
+     * @throws DTOProcessorException
      */
     public function toArray(?ToArrayConfig $toArrayConfig = null): mixed
     {
-        $data = [];
-
         $factory = ReflectionReaderFactory::fromClass($this);
-
         $toArrayConfig ??= $factory->getPropertiesToArrayConfig() ?? new ToArrayConfig();
+        $context = new ToArrayContext(
+            dto: $this,
+            config: $toArrayConfig,
+            reflection: $factory,
+            propertyReader: fn(string $property): mixed => $this->{$property},
+            dateTimeFormatResolver: fn(): string => $this->getDateTimeFormat(),
+        );
+        $pipeline = ToArrayPipeline::create();
+        static::configureToArrayPipeline($pipeline);
+        $pipeline->process($context);
 
-        if ($toArrayConfig->singleKey) {
-            $data = $this->{$toArrayConfig->singleKey};
-            if ($data instanceof self) {
-                $data = $data->toArray();
-            }
-            return $data;
-        }
-
-        if ($toArrayConfig->only) {
-            $properties = $toArrayConfig->only;
-        } else {
-            $properties = $factory->getPropertyNameList();
-            if ($toArrayConfig->include) {
-                $properties = array_merge($properties, $toArrayConfig->include);
-            }
-            if ($toArrayConfig->exclude) {
-                $properties = array_diff($properties, $toArrayConfig->exclude);
-            }
-        }
-        // 日期格式每次 toArray 只取一次配置，避免每个 DateTime 属性都查一遍 config
-        $dateTimeFormat = null;
-        foreach ($properties as $property) {
-            $value = $this->{$property};
-            if (is_array($value)) {
-                $value = array_map(function ($item) {
-                    if ($item instanceof self) {
-                        return $item->toArray();
-                    }
-                    return $item;
-                }, $value);
-                if ($toArrayConfig->ignoreNull) {
-                    $value = array_filter($value, fn($v) => $v !== null);
-                }
-                if (
-                    $toArrayConfig->emptyArrayAsObject === true
-                    || (
-                        is_array($toArrayConfig->emptyArrayAsObject)
-                        && in_array($property, $toArrayConfig->emptyArrayAsObject, true)
-                    )
-                ) {
-                    $value = $value ?: new stdClass();
-                }
-            } elseif ($value instanceof self) {
-                $value = $value->toArray();
-                if ($toArrayConfig->ignoreNull && is_array($value)) {
-                    $value = array_filter($value, fn($v) => $v !== null);
-                }
-            } elseif ($value instanceof DateTime) {
-                $dateTimeFormat ??= $this->getDateTimeFormat();
-                $value = $value->format($dateTimeFormat);
-            } elseif ($value instanceof BackedEnum) {
-                $value = $value->value;
-            }
-            if ($toArrayConfig->ignoreNull && $value === null) {
-                continue;
-            }
-            $data[$property] = $value;
-        }
-
-        return $data;
+        return $context->data;
     }
 
     /**

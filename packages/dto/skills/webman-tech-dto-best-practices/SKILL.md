@@ -322,9 +322,9 @@ return [
 
 只有当某个 DTO 需要与全局配置不同的行为时，才在类上加注解覆盖。
 
-### 接口加解密：字段优先用 #[DataDecrypt]
+### 接口入参解密：字段优先用注解
 
-部分字段加密时，配置 `dto.data_decrypter` 并标注字段；验证规则按解密后的值编写：
+部分入参字段需要解密时，配置 `dto.data_decrypter` 并标记字段；验证规则按解密后的值编写：
 
 ```php
 #[DataDecrypt]
@@ -332,13 +332,24 @@ return [
 public string $email;
 ```
 
-整体加密、拆包或签名校验时，实现 `ProcessorInterface`，在共享 DTO 基类中明确插入位置：
+整体解密、拆包或签名校验实现 `ProcessorInterface`，在共享 DTO 基类中明确插入位置：
 
 ```php
 $pipeline->insert(new DecryptPayload(), before: DecryptFields::class);
 ```
 
-保留默认管线，只插入所需阶段；只有基础设施层需要接管解密、清洗和验证全流程时，才完整替换 `dto.from_data_processors`。数据变换统一留在 DTO 管线，不要散落到控制器。
+保留默认输入管线，只插入所需阶段；数据变换统一留在 DTO 管线，不要散落到控制器。
+
+### 接口出参加密：字段优先用注解
+
+部分返回字段需要加密时，配置 `dto.data_encrypter` 并标记字段：
+
+```php
+#[DataEncrypt]
+public string $token;
+```
+
+整体输出加密实现 `ToArrayProcessorInterface`，通过 `configureToArrayPipeline()` 调整。保留默认输出管线，只插入所需阶段。
 
 ---
 
