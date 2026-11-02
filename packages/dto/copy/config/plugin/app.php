@@ -2,5 +2,4 @@
 
 return [
     'enable' => true,
-    'dto' => [],
 ];

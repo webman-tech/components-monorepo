@@ -312,11 +312,10 @@ $config = SwaggerConfig::fromConfig(['title' => 'My API']); // 运行时覆盖
 不要在每个 DTO 上加 `#[FromDataConfig]`，在配置文件统一设置：
 
 ```php
+// config/plugin/webman-tech/dto/dto.php
 return [
-    'dto' => [
-        'from_data_config' => [
-            'request' => ['trim' => true],  // 所有 BaseRequestDTO 自动 trim
-        ],
+    'from_data_config' => [
+        'request' => ['trim' => true],  // 所有 BaseRequestDTO 自动 trim
     ],
 ];
 ```

@@ -56,7 +56,7 @@ $codeCase = $context->config?->custom['code_case'] ?? null;
 $envelope = $context->config->custom['envelope'] ?? null;
 ```
 
-`FromDataConfig` 也可通过 `app.php` 的 `dto.from_data_config.request.custom` 或 `dto.from_data_config.base.custom` 设置默认值。类上的 `#[FromDataConfig]` 会整体覆盖对应的全局配置，不会合并 `custom`。调用 `toArray(new ToArrayConfig(custom: [...]))` 时，传入配置会整体覆盖类上的 `#[ToArrayConfig]`。
+`FromDataConfig` 也可通过 `dto.from_data_config.request.custom` 或 `dto.from_data_config.base.custom` 设置默认值。类上的 `#[FromDataConfig]` 会整体覆盖对应的全局配置，不会合并 `custom`。调用 `toArray(new ToArrayConfig(custom: [...]))` 时，传入配置会整体覆盖类上的 `#[ToArrayConfig]`。
 
 ## 默认处理器顺序
 
@@ -144,18 +144,15 @@ abstract class EncryptedResponseDTO extends BaseResponseDTO
 
 ## 完整替换处理器
 
-只有明确接管完整处理过程时，才在 `config/plugin/webman-tech/dto/app.php` 中完整替换默认处理器：
+只有明确接管完整处理过程时，才在 `config/plugin/webman-tech/dto/dto.php` 中完整替换默认处理器：
 
 ```php
 return [
-    'enable' => true,
-    'dto' => [
-        'from_data_processors' => [
-            CustomFromDataProcessor::class,
-        ],
-        'to_array_processors' => [
-            CustomToArrayProcessor::class,
-        ],
+    'from_data_processors' => [
+        CustomFromDataProcessor::class,
+    ],
+    'to_array_processors' => [
+        CustomToArrayProcessor::class,
     ],
 ];
 ```
