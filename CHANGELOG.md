@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.2.0] - 2026-11-02
+
+### Added
+
+- dto: `fromData()` / `toArray()` 改为可插拔处理器管线，支持 `configureFromDataPipeline()` / `configureToArrayPipeline()` 增删处理器，或用 `dto.from_data_processors` / `dto.to_array_processors` 整体替换
+- dto: 新增字段级加解密 `#[DataDecrypt]` / `#[DataEncrypt]`，加解密算法经 `dto.data_decrypter` / `dto.data_encrypter` 注入
+- dto: `FromDataConfig` / `ToArrayConfig` 支持 `custom` 参数向处理器传参
+- dto: 处理器执行失败统一抛 `DTOProcessorException`
+
+### Fixed
+
+- dto: 修复 `array<int,int>` 等紧凑 array 类型注解解析报错
+
 ## [5.1.3] - 2026-10-10
 
 ### Added
@@ -311,7 +324,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [5.0.22]: https://github.com/webman-tech/components-monorepo/compare/v5.0.21...v5.0.22
 [5.1.2]: https://github.com/webman-tech/components-monorepo/compare/v5.1.1...v5.1.2
 [5.1.3]: https://github.com/webman-tech/components-monorepo/compare/v5.1.2...v5.1.3
-[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.1.3...HEAD
+[5.2.0]: https://github.com/webman-tech/components-monorepo/compare/v5.1.3...v5.2.0
+[Unreleased]: https://github.com/webman-tech/components-monorepo/compare/v5.2.0...HEAD
 
 [5.0.21]: https://github.com/webman-tech/components-monorepo/compare/v5.0.20...v5.0.21
 
