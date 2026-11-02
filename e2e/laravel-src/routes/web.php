@@ -1,10 +1,13 @@
 <?php
 
 use App\DTO\CreateUserDTO;
+use App\DTO\CryptoRequestDTO;
+use App\DTO\CryptoResponseDTO;
 use Illuminate\Http\Request;
 use WebmanTech\CommonUtils\Log;
 use WebmanTech\CommonUtils\Request as CommonRequest;
 use WebmanTech\CommonUtils\Response as CommonResponse;
+use WebmanTech\DTO\Exceptions\DTOProcessorException;
 use WebmanTech\DTO\Exceptions\DTOValidateException;
 
 /*
@@ -73,6 +76,45 @@ Route::post('/e2e/dto', function () {
             'name' => $dto->name,
             'age' => $dto->age,
             'email' => $dto->email,
+        ],
+    ]);
+});
+
+Route::post('/e2e/dto-crypto', function () {
+    try {
+        $dto = CryptoRequestDTO::fromRequest();
+    } catch (DTOValidateException $e) {
+        return response()->json([
+            'code' => 422,
+            'errors' => $e->getErrors(),
+        ], 422);
+    } catch (DTOProcessorException $e) {
+        // 解密失败（密文被篡改等）由处理器抛出，属客户端错误
+        return response()->json([
+            'code' => 400,
+            'processor' => $e->processor,
+            'field' => $e->fieldName,
+        ], 400);
+    }
+
+    // 出参经 toArray() 加密后再返回，模拟真实响应链路
+    $data = CryptoResponseDTO::fromData([
+        'result' => 'ok',
+        'token' => 'plain-token',
+        'tags' => ['alpha', 'beta'],
+        'count' => 2,
+    ])->toArray();
+
+    return response()->json([
+        'code' => 0,
+        'data' => [
+            // 解密后的明文
+            'secret' => $dto->secret,
+            // token/tags 为加密后的密文，result/count 原样返回
+            'result' => $data['result'],
+            'token' => $data['token'],
+            'tags' => $data['tags'],
+            'count' => $data['count'],
         ],
     ]);
 });

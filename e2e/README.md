@@ -64,6 +64,7 @@ composer e2e:test:laravel
 | Feature/LoggerMiddlewareTest | HttpRequestLogMiddleware 写 `runtime/logs/httpRequest/` 日志、RequestTraceProcessor 的 traceId |
 | Feature/AuthTest | tinywan/jwt 登录签发、Authentication 中间件有效/无/无效 token 的 200/401 |
 | Feature/DtoControllerTest | laravel-monorepo validator() 下的 DTO 验证成功 200 / 失败 422 结构 |
+| Feature/DtoCryptoTest | 字段级加解密：`#[DataDecrypt]` 解密先于验证（密文非合法 email 仍能通过）、`#[DataEncrypt]` 出参加密（字符串 / 字符串数组 / 非字符串透传）、密文篡改转 400 并带处理器与字段 |
 | Feature/CrontabTaskTest | 插件 process 配置加载、TaskProcess 进程随 server 启动、cron 真实调度执行、LogTrait 日志写入 channel、CLI 命令（list / exec） |
 | Feature/AmisAdminTest | AmisSourceController CRUD（页面 schema / _ajax 分页列表 / 搜索 / 详情 / 新增 / 编辑 / 删除）、LaravelValidator 验证失败 422 响应结构、amis 插件配置覆盖（validator 桥接）、异常 handler 转换 |
 
@@ -74,6 +75,7 @@ composer e2e:test:laravel
 | RuntimeDetectTest | Runtime 自动检测：isLaravel() true、isWebman()/isCustom() false |
 | CommonUtilsFacadeTest | Request（\request() 分支）/Session/Response（Symfony）/Container/Log facade、Runtime::terminating()、路径函数映射 |
 | DtoValidationTest | 框架自带 validator() 下的 DTO 验证成功 / 422 结构 |
+| DtoCryptoTest | 字段级加解密：入参解密先于验证、出参加密（字符串 / 数组 / 非字符串透传）、密文篡改 400 |
 | LoggerMiddlewareTest | BaseMiddleware::handle() laravel 入口、custom driver 桥接的 httpRequest channel 日志与 traceId |
 
 ## 不纳入 e2e 的组件

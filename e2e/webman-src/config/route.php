@@ -3,6 +3,7 @@
 use app\controller\AmisUserController;
 use app\controller\AuthController;
 use app\controller\DtoController;
+use app\controller\DtoCryptoController;
 use app\controller\EchoController;
 use Webman\Route;
 use WebmanTech\AmisAdmin\Controller\RenderController;
@@ -29,6 +30,7 @@ Route::group('/auth', function () {
 });
 
 Route::post('/dto/create-user', [DtoController::class, 'createUser']);
+Route::post('/dto/crypto', [DtoCryptoController::class, 'create']);
 
 // amis-admin：RESTful CRUD（reset 必须先于 {id} 注册，否则会被当作 id 匹配）
 Route::post('/amis/users/reset', [AmisUserController::class, 'reset']);

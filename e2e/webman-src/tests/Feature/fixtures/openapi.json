@@ -163,6 +163,43 @@
                 },
                 "type": "object"
             },
+            "CryptoRequestDTO": {
+                "description": "入参 secret 以密文传入\n\n#[DataDecrypt] 由默认处理器 DecryptFields 在清洗与验证之前执行，\n因此 email 规则校验的是解密后的明文（密文本身不是合法 email）",
+                "required": [
+                    "secret"
+                ],
+                "properties": {
+                    "secret": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "CryptoResponseDTO": {
+                "description": "出参中标记 #[DataEncrypt] 的字段在 toArray() 时由 EncryptFields 加密\n\n三类字段覆盖处理器的不同分支：\n- token：普通字符串字段\n- tags：字符串数组，逐项加密\n- count：非字符串，原样透传",
+                "required": [
+                    "result",
+                    "token"
+                ],
+                "properties": {
+                    "result": {
+                        "type": "string"
+                    },
+                    "token": {
+                        "type": "string"
+                    },
+                    "tags": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "count": {
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
             "Test": {
                 "properties": {
                     "timestamps": {
