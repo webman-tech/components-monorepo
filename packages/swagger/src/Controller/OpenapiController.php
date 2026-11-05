@@ -2,33 +2,20 @@
 
 namespace WebmanTech\Swagger\Controller;
 
-use Exception;
-use OpenApi\Annotations as OA;
 use RuntimeException;
 use Throwable;
 use WebmanTech\CommonUtils\Local;
 use WebmanTech\CommonUtils\Request;
 use WebmanTech\CommonUtils\Response;
 use WebmanTech\CommonUtils\View;
-use WebmanTech\Swagger\Controller\RequiredElementsAttributes\PathItem\OpenapiSpec;
 use WebmanTech\Swagger\DTO\ConfigOpenapiDocDTO;
 use WebmanTech\Swagger\DTO\ConfigSwaggerUiDTO;
 use WebmanTech\Swagger\Helper\ConfigHelper;
 use WebmanTech\Swagger\Helper\JsExpression;
-use WebmanTech\Swagger\Overwrite\Generator;
+use WebmanTech\Swagger\Spec\DocumentBuilder;
 
 final class OpenapiController
 {
-    private readonly array $requiredElements;
-
-    public function __construct()
-    {
-        $this->requiredElements = [
-            'info' => __DIR__ . '/RequiredElementsAttributes/Info',
-            'pathItem' => __DIR__ . '/RequiredElementsAttributes/PathItem',
-        ];
-    }
-
     /**
      * Swagger UI 页面展示
      * @throws Throwable
@@ -37,7 +24,9 @@ final class OpenapiController
     {
         $config = ConfigSwaggerUiDTO::fromConfig($config);
 
-        // 支持通过 request 传参来强制重新生成
+        /*
+         * 支持通过 request 传参来强制重新生成
+         */
         if ($request = Request::getCurrent()) {
             $generate = (bool)($request->get('generate') ?? false);
             if ($generate) {
@@ -84,18 +73,15 @@ final class OpenapiController
         }
 
         $cached = $cache->get($cacheKey) ?? [null, null, null];
-        /** @var array{0: ?string, 1: ?string, 2: ?string} $cached */
+        /**
+         * @var array{0: ?string, 1: ?string, 2: ?string} $cached
+         */
         [$content, $contentType, $md5] = $cached;
-        if ($md5 === null || $generate) {
-            $md5 = md5(serialize($config->scan_path) . $config->format);
+        if ($md5 === null || $content === null || $contentType === null || $generate) {
             try {
-                $generator = (new Generator($config))->init();
-                $config->applyGenerator($generator);
-
-                $openapi = $this->scanAndGenerateOpenapi($generator, $config->getScanSources(), validate: $config->openapi_validate);
-                $config->applyModify($openapi);
-
-                [$content, $contentType] = $config->generateWithFormat($openapi);
+                $result = (new DocumentBuilder($config))->build();
+                [$content, $contentType] = $config->generateWithFormat($result->toArray());
+                $md5 = md5($content);
             } catch (Throwable $e) {
                 if ($config->generate_error_handler) {
                     ($config->generate_error_handler)($e);
@@ -132,41 +118,10 @@ window.__DTO_GENERATOR_CONFIG = {$dtoGeneratorConfig};
 JS;
             $content = str_replace('</head>', $prefix . '</head>', $content);
         }
+
         return Response::make()
             ->withHeaders(['Content-Type' => 'text/html; charset=utf-8'])
             ->withBody($content)
             ->getRaw();
-    }
-
-    /**
-     * 扫描并生成 yaml
-     * @throws Throwable
-     */
-    private function scanAndGenerateOpenapi(
-        Generator $generator,
-        iterable  $scanSources,
-        bool      $validate = false,
-    ): OA\OpenApi
-    {
-        $openapi = $generator->generate(
-            [
-                $this->requiredElements,
-                $scanSources,
-            ],
-            validate: false, // 固定为关闭，在后面再执行验证
-        );
-        if ($openapi === null) {
-            throw new Exception('openapi generate failed');
-        }
-        if (count($openapi->paths) > 1) {
-            // 表示已经有接口了，移除掉默认的必须路径
-            $openapi->paths = array_filter($openapi->paths, fn(OA\PathItem $pathItem) => $pathItem->path !== OpenapiSpec::EXAMPLE_PATH);
-        }
-
-        if ($validate) {
-            $openapi->validate();
-        }
-
-        return $openapi;
     }
 }

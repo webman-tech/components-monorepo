@@ -2,18 +2,18 @@
 
 namespace app\controller;
 
-use OpenApi\Attributes as OA;
 use WebmanTech\CommonUtils\Request;
 use WebmanTech\CommonUtils\Response;
 use WebmanTech\CommonUtils\Session;
 use WebmanTech\Logger\Middleware\RequestTraceMiddleware;
+use OpenApi\Spec as OA;
 
 /**
  * 回显请求信息，用于验证 common-utils 的 Request/Session/Response facade 在真实 webman 环境下的行为
  */
 class EchoController
 {
-    #[OA\Get(path: '/echo/get', summary: '回显 GET 请求信息')]
+    #[OA\Operation\Get(path: '/echo/get', summary: '回显 GET 请求信息')]
     public function get()
     {
         $request = Request::getCurrent();
@@ -27,7 +27,7 @@ class EchoController
         ]);
     }
 
-    #[OA\Post(path: '/echo/post-json', summary: '回显 POST json 请求信息')]
+    #[OA\Operation\Post(path: '/echo/post-json', summary: '回显 POST json 请求信息')]
     public function postJson()
     {
         $request = Request::getCurrent();
@@ -40,7 +40,7 @@ class EchoController
         ]);
     }
 
-    #[OA\Post(path: '/echo/post-form', summary: '回显 POST form 请求信息')]
+    #[OA\Operation\Post(path: '/echo/post-form', summary: '回显 POST form 请求信息')]
     public function postForm()
     {
         $request = Request::getCurrent();
@@ -52,7 +52,7 @@ class EchoController
         ]);
     }
 
-    #[OA\Get(path: '/echo/session', summary: '写 session 并返回 traceId')]
+    #[OA\Operation\Get(path: '/echo/session', summary: '写 session 并返回 traceId')]
     public function session()
     {
         $request = Request::getCurrent();
@@ -64,7 +64,7 @@ class EchoController
         ]);
     }
 
-    #[OA\Get(path: '/echo/session-get', summary: '读 session')]
+    #[OA\Operation\Get(path: '/echo/session-get', summary: '读 session')]
     public function sessionGet()
     {
         return json([
@@ -72,7 +72,7 @@ class EchoController
         ]);
     }
 
-    #[OA\Get(path: '/echo/response', summary: '验证 Response facade')]
+    #[OA\Operation\Get(path: '/echo/response', summary: '验证 Response facade')]
     public function response()
     {
         return Response::make()

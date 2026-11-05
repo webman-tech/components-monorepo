@@ -2,18 +2,18 @@
 
 namespace Tests\Fixtures\Swagger\ControllerForSwagger;
 
-use OpenApi\Attributes as OA;
+use OpenApi\Spec as OA;
 
 class AController
 {
-    #[OA\Get(
+    #[OA\Operation\Get(
         path: '/a/get',
     )]
     public function get()
     {
     }
 
-    #[OA\Post(
+    #[OA\Operation\Post(
         path: '/a/post',
     )]
     public function post()

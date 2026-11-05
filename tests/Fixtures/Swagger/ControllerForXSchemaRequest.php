@@ -2,12 +2,12 @@
 
 namespace Tests\Fixtures\Swagger;
 
-use OpenApi\Attributes as OA;
 use WebmanTech\Swagger\DTO\SchemaConstants;
+use OpenApi\Spec as OA;
 
 class ControllerForXSchemaRequest
 {
-    #[OA\Get(
+    #[OA\Operation\Get(
         path: '/get/schema',
         x: [
             SchemaConstants::X_SCHEMA_REQUEST => ControllerForXSchemaRequestSchemaA::class,
@@ -17,7 +17,7 @@ class ControllerForXSchemaRequest
     {
     }
 
-    #[OA\Get(
+    #[OA\Operation\Get(
         path: '/get/schema-multi',
         x: [
             SchemaConstants::X_SCHEMA_REQUEST => [
@@ -30,7 +30,7 @@ class ControllerForXSchemaRequest
     {
     }
 
-    #[OA\Post(
+    #[OA\Operation\Post(
         path: '/post/schema',
         x: [
             SchemaConstants::X_SCHEMA_REQUEST => ControllerForXSchemaRequestSchemaA::class,
@@ -40,7 +40,7 @@ class ControllerForXSchemaRequest
     {
     }
 
-    #[OA\Get(
+    #[OA\Operation\Get(
         path: '/get/schema-with-at',
         x: [
             SchemaConstants::X_SCHEMA_REQUEST => ControllerForXSchemaRequestSchemaA::class . '@get'
@@ -51,7 +51,7 @@ class ControllerForXSchemaRequest
 
     }
 
-    #[OA\Get(
+    #[OA\Operation\Get(
         path: '/get/schema-with-at-already-has-response',
         x: [
             SchemaConstants::X_SCHEMA_REQUEST => ControllerForXSchemaRequestSchemaA::class . '@get',
@@ -63,7 +63,7 @@ class ControllerForXSchemaRequest
 
     }
 
-    #[OA\Get(
+    #[OA\Operation\Get(
         path: '/get/schema-with-at-union-type',
         x: [
             SchemaConstants::X_SCHEMA_REQUEST => ControllerForXSchemaRequestSchemaD::class . '@get',
@@ -74,13 +74,23 @@ class ControllerForXSchemaRequest
 
     }
 
-    #[OA\Post(
+    #[OA\Operation\Post(
         path: '/post/schema-x-in',
         x: [
             SchemaConstants::X_SCHEMA_REQUEST => ControllerForXSchemaRequestSchemaC::class,
         ],
     )]
     public function post2()
+    {
+    }
+
+    #[OA\Operation\Get(
+        path: '/get/schema-with-at-no-return-type',
+        x: [
+            SchemaConstants::X_SCHEMA_REQUEST => ControllerForXSchemaRequestSchemaE::class . '@handle',
+        ],
+    )]
+    public function get6()
     {
     }
 }
@@ -111,6 +121,12 @@ class ControllerForXSchemaRequestSchemaC
 
     #[OA\Property(x: ['in' => 'header'])]
     public string $header;
+
+    #[OA\Property(schema: new OA\Schema(type: ['boolean', 'null']), x: ['in' => 'query'])]
+    public ?bool $nullableFlag = null;
+
+    #[OA\Property(schema: new OA\Schema(type: 'boolean'), x: ['in' => 'query'])]
+    public bool $flag = false;
 }
 
 
@@ -121,6 +137,17 @@ class ControllerForXSchemaRequestSchemaD
     public string $name;
 
     public function get(): ControllerForXSchemaRequestSchemaB|ControllerForXSchemaRequestSchemaC
+    {
+    }
+}
+
+#[OA\Schema]
+class ControllerForXSchemaRequestSchemaE
+{
+    #[OA\Property]
+    public string $name;
+
+    public function handle()
     {
     }
 }

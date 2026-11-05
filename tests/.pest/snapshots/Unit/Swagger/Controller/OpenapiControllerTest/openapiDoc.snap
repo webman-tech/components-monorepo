@@ -64,38 +64,38 @@
                 "summary": "新建",
                 "operationId": "cfb89cdcd5dfc4a7cb700b3a826a3fa4",
                 "requestBody": {
-                    "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "username": {
+                                        "type": "string",
+                                        "description": "用户名",
+                                        "maxLength": 64,
+                                        "example": "admin"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "description": "密码",
+                                        "maxLength": 64,
+                                        "example": "123456"
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "description": "名称",
+                                        "example": "测试用户"
+                                    }
+                                },
                                 "required": [
                                     "username",
                                     "password",
                                     "name"
-                                ],
-                                "properties": {
-                                    "username": {
-                                        "description": "用户名",
-                                        "type": "string",
-                                        "example": "admin",
-                                        "maxLength": 64
-                                    },
-                                    "password": {
-                                        "description": "密码",
-                                        "type": "string",
-                                        "example": "123456",
-                                        "maxLength": 64
-                                    },
-                                    "name": {
-                                        "description": "名称",
-                                        "type": "string",
-                                        "example": "测试用户"
-                                    }
-                                },
-                                "type": "object"
+                                ]
                             }
                         }
-                    }
+                    },
+                    "required": true
                 },
                 "responses": {
                     "200": {
@@ -145,38 +145,38 @@
                 "summary": "更新",
                 "operationId": "16cf3e22371f422bf78f0f9c4b6aba84",
                 "requestBody": {
-                    "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
+                                "type": "object",
                                 "properties": {
                                     "username": {
-                                        "description": "用户名",
                                         "type": "string",
-                                        "example": "admin",
-                                        "maxLength": 64
+                                        "description": "用户名",
+                                        "maxLength": 64,
+                                        "example": "admin"
                                     },
                                     "password": {
-                                        "description": "密码",
                                         "type": "string",
-                                        "example": "123456",
-                                        "maxLength": 64
+                                        "description": "密码",
+                                        "maxLength": 64,
+                                        "example": "123456"
                                     },
                                     "name": {
-                                        "description": "名称",
                                         "type": "string",
+                                        "description": "名称",
                                         "example": "测试用户"
                                     },
                                     "status": {
-                                        "description": "状态",
                                         "type": "integer",
+                                        "description": "状态",
                                         "example": 0
                                     }
-                                },
-                                "type": "object"
+                                }
                             }
                         }
-                    }
+                    },
+                    "required": true
                 },
                 "responses": {
                     "200": {
@@ -257,16 +257,16 @@
                     }
                 }
             },
-            "put": {
-                "operationId": "3dfc4a91d3b7bb5bef9dc0784310e7e1",
+            "post": {
+                "operationId": "443d2de84262eb071730681473d1cca6",
                 "responses": {
                     "200": {
                         "description": "OK"
                     }
                 }
             },
-            "post": {
-                "operationId": "443d2de84262eb071730681473d1cca6",
+            "put": {
+                "operationId": "3dfc4a91d3b7bb5bef9dc0784310e7e1",
                 "responses": {
                     "200": {
                         "description": "OK"

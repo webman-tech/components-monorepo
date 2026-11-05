@@ -2,7 +2,7 @@
 
 namespace Tests\Fixtures\Swagger;
 
-use OpenApi\Attributes as OA;
+use OpenApi\Spec as OA;
 
 #[OA\Schema(description: '颜色枚举')]
 enum EnumColor: string

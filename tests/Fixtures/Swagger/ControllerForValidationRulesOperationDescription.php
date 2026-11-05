@@ -2,14 +2,14 @@
 
 namespace Tests\Fixtures\Swagger;
 
-use OpenApi\Attributes as OA;
 use WebmanTech\DTO\Attributes\ValidationRules;
 use WebmanTech\DTO\BaseRequestDTO;
 use WebmanTech\Swagger\DTO\SchemaConstants;
+use OpenApi\Spec as OA;
 
 class ControllerForValidationRulesOperationDescription
 {
-    #[OA\Post(
+    #[OA\Operation\Post(
         path: '/post/validation-rules-multi-schema',
         x: [
             SchemaConstants::X_SCHEMA_REQUEST => [

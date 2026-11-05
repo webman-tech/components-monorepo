@@ -15,7 +15,10 @@ test('openapi doc 返回合法 json 并包含 e2e 路由', function () {
             '/auth/login',
             '/auth/user',
             '/dto/create-user',
-        ]);
+        ])
+        ->and($doc['components']['schemas']['AmisUser']['properties'])->not->toHaveKeys(['exists', 'incrementing'])
+        ->and($doc['components']['schemas']['AmisUser']['properties']['created_at']['type'])->toBe(['string', 'null'])
+        ->and($doc['components']['schemas']['CreateUserDTO']['required'])->toBe(['name', 'age']);
 });
 
 test('openapi doc 输出与提交的 fixture 一致', function () {

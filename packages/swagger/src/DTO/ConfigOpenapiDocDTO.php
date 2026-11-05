@@ -1,13 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace WebmanTech\Swagger\DTO;
 
 use Closure;
 use Illuminate\Database\Eloquent\Model;
-use OpenApi\Annotations\OpenApi;
-use OpenApi\Generator;
+use OpenApi\Builder;
 use Psr\SimpleCache\CacheInterface;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Yaml\Yaml;
 use WebmanTech\CommonUtils\Cache\ArrayCache;
 use WebmanTech\CommonUtils\Cache\NullCache;
 use WebmanTech\DTO\BaseConfigDTO;
@@ -23,8 +25,7 @@ final class ConfigOpenapiDocDTO extends BaseConfigDTO
     public function __construct(
         string|iterable|Closure    $scan_path = [], // 扫描的目录
         public null|array          $scan_exclude = null, // 扫描忽略的
-        public null|Closure        $generator_modify = null, // 修改 $generator 对象
-        public null|Closure        $modify = null, // 修改 $openapi 对象
+        public null|Closure        $builder_modify = null, // 配置纯 Spec Builder（Closure(Builder): void）
         public null|string|Closure $cache_key = null, // 缓存用的 key，当注册不同实例时，需要指定不同的 key，或者做热更新用
         public null|Closure        $cache_instance = null, // 缓存实例
         public null|Closure        $generate_error_handler = null, // 生成失败时的处理，可以用于做通知提醒
@@ -54,8 +55,6 @@ final class ConfigOpenapiDocDTO extends BaseConfigDTO
             $this->expand_eloquent_model_enable ? Model::class : null,
         ]);
 
-        // 暂时默认不开启校验，由于以下 issue 问题
-        // https://github.com/zircote/swagger-php/pull/1776
         $this->openapi_validate = $openapi_validate ?? false;
 
         if ($scan_path instanceof Closure) {
@@ -81,6 +80,14 @@ final class ConfigOpenapiDocDTO extends BaseConfigDTO
         $finders = [];
         $paths = [];
         foreach ($scanPaths as $path) {
+            if (is_iterable($path) && !$path instanceof Finder) {
+                $files[] = (new self(scan_path: $path, scan_exclude: $this->scan_exclude))->getScanSources();
+                continue;
+            }
+            if ($path instanceof \ReflectionClass) {
+                $files[] = $path;
+                continue;
+            }
             if ($path instanceof Finder) {
                 $finders[] = $path;
                 continue;
@@ -137,29 +144,33 @@ final class ConfigOpenapiDocDTO extends BaseConfigDTO
         return $this->cache;
     }
 
-    public function applyGenerator(Generator $generator): void
+    /**
+     * 将应用配置接入官方 Builder 扩展点
+     */
+    public function applyBuilder(Builder $builder): void
     {
-        if ($this->generator_modify instanceof Closure) {
-            call_user_func($this->generator_modify, $generator);
+        if ($this->builder_modify !== null) {
+            ($this->builder_modify)($builder);
         }
     }
 
-    public function applyModify(OpenApi $openapi): void
+    /**
+     * 序列化编译结果，保留空对象与空数组的区别
+     *
+     * @return array{string, string}
+     */
+    public function generateWithFormat(array $document): array
     {
-        if ($this->modify instanceof Closure) {
-            call_user_func($this->modify, $openapi);
-        }
-    }
-
-    public function generateWithFormat(OpenApi $openApi): array
-    {
+        $json = json_encode($document, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
         return match ($this->format) {
-            'json' => [
-                $openApi->toJson(),
-                'application/json;charset=utf-8',
-            ],
+            'json' => [$json, 'application/json;charset=utf-8'],
             default => [
-                $openApi->toYaml(),
+                Yaml::dump(
+                    json_decode($json, false, 512, JSON_THROW_ON_ERROR),
+                    10,
+                    2,
+                    Yaml::DUMP_OBJECT_AS_MAP | Yaml::DUMP_EMPTY_ARRAY_AS_SEQUENCE,
+                ),
                 'application/yaml;charset=utf-8',
             ],
         };

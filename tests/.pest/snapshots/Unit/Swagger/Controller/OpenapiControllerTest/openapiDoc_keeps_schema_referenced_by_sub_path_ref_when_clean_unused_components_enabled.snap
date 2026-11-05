@@ -7,6 +7,7 @@
     "paths": {
         "/post/schema-body-property": {
             "post": {
+                "description": "```php\n// Validation Rules\n[\n    'key' => ['required', 'string'],\n    'keyEncode' => ['nullable', 'string'],\n    'content' => ['string'],\n]\n```",
                 "operationId": "51625d3e2541f548a4d486d98477b24d",
                 "parameters": [
                     {
@@ -20,9 +21,9 @@
                     "content": {
                         "application/octet-stream": {
                             "schema": {
-                                "description": "文件内容",
                                 "type": "string",
-                                "format": "binary"
+                                "format": "binary",
+                                "description": "文件内容"
                             }
                         }
                     }
@@ -52,18 +53,6 @@
         }
     },
     "components": {
-        "schemas": {
-            "ControllerForXSchemaRequestBodyPropertySchema": {
-                "type": "object",
-                "x-in-property-parameter": {
-                    "ControllerForXSchemaRequestBodyPropertySchema_X-File-Key": "#/components/parameters/ControllerForXSchemaRequestBodyPropertySchema_X-File-Key",
-                    "ControllerForXSchemaRequestBodyPropertySchema_encode": "#/components/parameters/ControllerForXSchemaRequestBodyPropertySchema_encode"
-                }
-            },
-            "ControllerForXSchemaRequestBodyPropertySchemaResult": {
-                "type": "object"
-            }
-        },
         "parameters": {
             "ControllerForXSchemaRequestBodyPropertySchema_X-File-Key": {
                 "name": "X-File-Key",
@@ -78,6 +67,7 @@
             "ControllerForXSchemaRequestBodyPropertySchema_encode": {
                 "name": "encode",
                 "in": "path",
+                "required": true,
                 "schema": {
                     "type": [
                         "string",

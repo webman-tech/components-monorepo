@@ -1,34 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests\Fixtures\Swagger;
 
-use OpenApi\Analysers\AttributeAnnotationFactory;
-use OpenApi\Analysers\ReflectionAnalyser;
-use OpenApi\Analysis;
-use OpenApi\Context;
-use OpenApi\Generator;
+use OpenApi\Builder\Result;
+use WebmanTech\Swagger\DTO\ConfigOpenapiDocDTO;
+use WebmanTech\Swagger\Spec\DocumentBuilder;
 
-class TestFactory
+final class TestFactory
 {
-    /**
-     * @param array<string>                                     $files
-     * @param callable(\OpenApi\Generator): void|null           $configureGenerator
-     */
-    public static function analysisFromFiles(array $files, ?callable $configureGenerator = null): Analysis
+    public static function build(array $files = [], array $config = []): Result
     {
-        $analysis = new Analysis([], new Context());
-
-        $generator = (new Generator())
-            ->setAnalyser(new ReflectionAnalyser([
-                new AttributeAnnotationFactory()
-            ]));
-
-        if ($configureGenerator) {
-            $configureGenerator($generator);
-        }
-
-        $generator->generate(array_map(fn($file) => fixture_get_path('Swagger/' . $file), $files), $analysis, false);
-
-        return $analysis;
+        return (new DocumentBuilder(new ConfigOpenapiDocDTO(...[
+            'scan_path' => array_map(static fn (string $file) => __DIR__ . '/' . $file, $files),
+            ...$config,
+        ])))->build();
     }
 }

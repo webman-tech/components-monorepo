@@ -6,13 +6,13 @@
 
 [Swagger OpenAPI](https://swagger.io/) 在 webman 中的一键配置启用方案，基于 [zircote/swagger-php](https://github.com/zircote/swagger-php) 实现。
 
-该组件提供了一种简便的方式来为 webman 应用生成和展示 API 文档，支持通过注解或属性（Attribute）方式定义 API 接口，并自动生成对应的 OpenAPI 文档和 Swagger UI 界面。
+该组件基于 swagger-php `^7.2` 的纯 Spec 模式，通过 `OpenApi\Spec` PHP Attributes 或程序化对象定义 API，生成 OpenAPI 文档和 Swagger UI。
 
 ## 功能特性
 
 - **零配置启动**：安装后直接访问 `/openapi` 即可看到 Swagger UI 界面
 - **多文档支持**：支持单应用下多个 Swagger 文档（多路由，不同 API 文档）
-- **动态配置**：支持动态修改注解下的 Swagger 文档，解决注解下无法写动态配置的问题
+- **动态配置**：支持程序化构建 Spec、扩展生成流水线
 - **丰富配置**：支持 host 访问限制、Swagger UI 配置、OpenAPI 配置等
 - **性能优化**：服务启动后缓存文档内容，开发环境支持自动更新
 - **路由自动注册**：支持自动注册 webman 路由
@@ -23,6 +23,69 @@
 ```bash
 composer require webman-tech/swagger
 ```
+
+## Spec 模式
+
+```php
+use OpenApi\Spec as OA;
+use WebmanTech\Swagger\DTO\SchemaConstants;
+
+#[OA\Tag(name: 'users')]
+final class UserController
+{
+    #[OA\Operation\Post(
+        path: '/users',
+        x: [SchemaConstants::X_SCHEMA_REQUEST => CreateUserForm::class . '@handle'],
+    )]
+    public function create() { /* 业务逻辑 */ }
+}
+```
+
+BaseDTO 子类自动生成 Schema 和公开属性，类型、验证约束、描述与示例分别从 PHP 类型、ValidationRules 和 PHPDoc 提取。`FormClass@handle` 同时使用请求 DTO 和方法返回类型作为响应结构；方法未声明返回类型时只作为请求结构，响应按默认 200 处理。
+
+通过 `builder_modify` 使用官方 extension points，也可不扫描源码，直接贡献 Spec：
+
+```php
+use OpenApi\Builder;
+use OpenApi\Spec as OA;
+use OpenApi\Specification;
+
+'openapi_doc' => [
+    'scan_path' => [],
+    'builder_modify' => function (Builder $builder): void {
+        $builder->withSpecification(function (Specification $spec): void {
+            $spec->info = new OA\Info(title: 'My API', version: '1.0');
+            $spec->add(new OA\Server(url: '/api'));
+            $spec->add(new OA\Operation\Get(
+                path: '/health',
+                responses: [new OA\Response(response: 200, description: 'OK')],
+            ));
+        });
+        /*
+         * 还支持 withAttributeFactory、withResolver、withAugmenters、withMergers。
+         */
+    },
+],
+```
+
+组件命名支持原有的 `schema_name_format_use_classname` 配置，也可在 `builder_modify` 中通过官方 `setComponentNamer()` 替换命名策略，例如 `new OpenApi\ComponentNamer\QualifiedName(separator: '.')`。显式 `component:` 名称保持不变，限定键的不同描述由官方生成各自的名称。
+
+### 从旧模式迁移
+
+此版本直接采用 Spec，不提供 classic/hybrid 兼容链路：
+
+| 旧写法 | Spec 写法 |
+|---|---|
+| `OpenApi\Attributes` / `OpenApi\Annotations` | `OpenApi\Spec` |
+| `OA\Get` / `OA\Post` | `OA\Operation\Get` / `OA\Operation\Post` |
+| `OA\Property(type: 'string')` | `OA\Property(schema: new OA\Schema(type: 'string'))` |
+| `OA\Schema(schema: 'User')` | `OA\Schema(component: 'User')` |
+| `generator_modify(Generator)` | `builder_modify(Builder): void` |
+| `modify(Annotations\OpenApi): void` | 通过 `builder_modify` 配置 `withSpecification` / `withAugmenters` |
+
+自定义 Processor 需改为操作 Specification 的 augmenter。生成新引用的 augmenter 放在 Resolve 组、Refs 之前。此版本移除 `modify` 配置，文档修改统一通过 `builder_modify` 配置官方扩展点。
+
+完整的升级流程（官方 Rector set、手工补项、验收清单）见 `skills/webman-tech-swagger-best-practices/references/migrate-attribute-to-spec.md`。
 
 ## 核心组件
 
@@ -42,7 +105,7 @@ Basic 认证配置，默认关闭。启用后访问 Swagger UI 和 OpenAPI 文�
 
 #### ConfigOpenapiDocDTO
 
-OpenAPI 文档配置，默认输出版本为 OpenAPI 3.1.0，支持扫描目录（`scan_path`）、排除目录（`scan_exclude`）、文档格式（`format`，yaml/json）、运行时动态修改回调（`modify`）、缓存键（`cache_key`）及 Schema 相关配置。
+OpenAPI 文档配置，默认输出版本为 OpenAPI 3.1.0，支持扫描目录或 ReflectionClass（`scan_path`）、排除目录（`scan_exclude`）、文档格式（`format`，yaml/json）、Builder 扩展（`builder_modify`）、缓存键（`cache_key`）及 Schema 相关配置。
 
 #### ConfigSwaggerUiDTO
 
@@ -58,7 +121,7 @@ Swagger UI 配置，支持自定义视图（`view`）、视图路径（`view_pat
 
 ### Reader 路由注解解析
 
-[Reader](src/RouteAnnotation/Reader.php) 用于解析 OpenAPI 注解并生成路由配置。
+[Reader](src/RouteAnnotation/Reader.php) 从 Spec Attributes 的反射信息和扩展元数据生成路由配置。传入 `ConfigOpenapiDocDTO` 时复用文档的解析配置（扫描范围、Schema 自动加载等），保证路由与文档一致；`builder_modify` 在启动期不执行，避免依赖请求上下文。
 
 ### SchemaConstants 常量定义
 

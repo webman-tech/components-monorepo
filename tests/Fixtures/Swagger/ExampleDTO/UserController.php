@@ -2,13 +2,13 @@
 
 namespace Tests\Fixtures\Swagger\ExampleDTO;
 
-use OpenApi\Attributes as OA;
 use WebmanTech\Swagger\DTO\SchemaConstants;
+use OpenApi\Spec as OA;
 
 #[OA\Tag(name: 'users', description: '用户管理')]
 final class UserController
 {
-    #[OA\Post(
+    #[OA\Operation\Post(
         path: '/users',
         summary: 'Create a new user',
         x: [

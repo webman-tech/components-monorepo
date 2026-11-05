@@ -2,11 +2,11 @@
 
 namespace Tests\Fixtures\Swagger;
 
-use OpenApi\Attributes as OA;
+use OpenApi\Spec as OA;
 
 class ControllerNoResponse
 {
-    #[OA\Get(
+    #[OA\Operation\Get(
         path: '/get'
     )]
     public function get()

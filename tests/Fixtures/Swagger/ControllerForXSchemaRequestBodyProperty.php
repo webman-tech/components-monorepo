@@ -2,17 +2,17 @@
 
 namespace Tests\Fixtures\Swagger;
 
-use OpenApi\Attributes as OA;
 use WebmanTech\DTO\Attributes\RequestPropertyInHeader;
 use WebmanTech\DTO\Attributes\RequestPropertyInPath;
 use WebmanTech\DTO\Attributes\ResponsePropertyInBody;
 use WebmanTech\DTO\BaseRequestDTO;
 use WebmanTech\DTO\BaseResponseDTO;
 use WebmanTech\Swagger\DTO\SchemaConstants;
+use OpenApi\Spec as OA;
 
 class ControllerForXSchemaRequestBodyProperty
 {
-    #[OA\Post(
+    #[OA\Operation\Post(
         path: '/post/schema-body-property',
         x: [
             SchemaConstants::X_SCHEMA_REQUEST => ControllerForXSchemaRequestBodyPropertySchema::class . '@handle',

@@ -2,15 +2,14 @@
 
 namespace Tests\Fixtures\Swagger\ExampleDiscriminator;
 
-use OpenApi\Attributes\Property;
-use OpenApi\Attributes\Schema;
 use WebmanTech\DTO\Attributes\ValidationRules;
 use WebmanTech\DTO\Attributes\ValidationRulesDiscriminator;
 use WebmanTech\DTO\BaseDTO;
 use WebmanTech\DTO\BaseRequestDTO;
 use WebmanTech\DTO\BaseResponseDTO;
+use OpenApi\Spec as OA;
 
-#[Schema(schema: 'CreateOrderForm')]
+#[OA\Schema(component: 'CreateOrderForm')]
 final class CreateOrderForm extends BaseRequestDTO
 {
     /**
@@ -30,7 +29,7 @@ final class CreateOrderForm extends BaseRequestDTO
     /**
      * 订单数据（根据 type 决定具体类型）
      */
-    #[Property]
+    #[OA\Property]
     #[ValidationRules(
         required: true,
         discriminator: new ValidationRulesDiscriminator(
@@ -77,7 +76,7 @@ final class CreateOrderResult extends BaseResponseDTO
 /**
  * 普通订单数据
  */
-#[Schema]
+#[OA\Schema]
 final class CreateOrderFormOrderDataNormal extends BaseDTO
 {
     /**
@@ -97,7 +96,7 @@ final class CreateOrderFormOrderDataNormal extends BaseDTO
 /**
  * 快递订单数据
  */
-#[Schema]
+#[OA\Schema]
 final class CreateOrderFormOrderDataExpress extends BaseDTO
 {
     /**
@@ -131,7 +130,7 @@ final class CreateOrderFormOrderDataExpress extends BaseDTO
 /**
  * 订单详情响应（包含 discriminator）
  */
-#[Schema(schema: 'GetOrderResponse')]
+#[OA\Schema(component: 'GetOrderResponse')]
 final class GetOrderResponse extends BaseResponseDTO
 {
     public function __construct(
@@ -152,7 +151,7 @@ final class GetOrderResponse extends BaseResponseDTO
         /**
          * 订单数据（根据 type 决定具体类型）
          */
-        #[Property]
+        #[OA\Property]
         #[ValidationRules(
             required: true,
             discriminator: new ValidationRulesDiscriminator(

@@ -2,13 +2,13 @@
 
 namespace Tests\Fixtures\Swagger\ExampleDiscriminator;
 
-use OpenApi\Attributes as OA;
 use WebmanTech\Swagger\DTO\SchemaConstants;
+use OpenApi\Spec as OA;
 
 #[OA\Tag(name: 'orders', description: '订单管理')]
 final class OrderController
 {
-    #[OA\Post(
+    #[OA\Operation\Post(
         path: '/orders',
         summary: 'Create a new order',
         x: [
@@ -22,7 +22,7 @@ final class OrderController
             ->toResponse();
     }
 
-    #[OA\Get(
+    #[OA\Operation\Get(
         path: '/orders/{id}',
         summary: 'Get order details',
         x: [
@@ -38,6 +38,8 @@ final class OrderController
     )]
     public function show(string $id)
     {
-        // 实际业务逻辑...
+        /*
+         * 实际业务逻辑...
+         */
     }
 }

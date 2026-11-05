@@ -2,12 +2,12 @@
 
 namespace Tests\Fixtures\Swagger;
 
-use OpenApi\Attributes as OA;
 use WebmanTech\Swagger\DTO\SchemaConstants;
+use OpenApi\Spec as OA;
 
 class ControllerForXSchemaResponse
 {
-    #[OA\Get(
+    #[OA\Operation\Get(
         path: '/get/schema',
         x: [
             SchemaConstants::X_SCHEMA_RESPONSE => ControllerForXSchemaResponseSchemaA::class,
@@ -17,7 +17,7 @@ class ControllerForXSchemaResponse
     {
     }
 
-    #[OA\Get(
+    #[OA\Operation\Get(
         path: '/get/schema-multi',
         x: [
             SchemaConstants::X_SCHEMA_RESPONSE => [
@@ -30,7 +30,7 @@ class ControllerForXSchemaResponse
     {
     }
 
-    #[OA\Get(
+    #[OA\Operation\Get(
         path: '/get/schema-multi-oneOf',
         x: [
             SchemaConstants::X_SCHEMA_RESPONSE => [
@@ -44,7 +44,7 @@ class ControllerForXSchemaResponse
     {
     }
 
-    #[OA\Get(
+    #[OA\Operation\Get(
         path: '/get/schema-status-code',
         x: [
             SchemaConstants::X_SCHEMA_RESPONSE => [
@@ -57,7 +57,7 @@ class ControllerForXSchemaResponse
     {
     }
 
-    #[OA\Get(
+    #[OA\Operation\Get(
         path: '/get/schema-status-code-multi',
         x: [
             SchemaConstants::X_SCHEMA_RESPONSE => [

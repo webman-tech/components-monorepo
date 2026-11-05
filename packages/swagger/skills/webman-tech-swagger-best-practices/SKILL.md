@@ -1,11 +1,15 @@
 ---
 name: webman-tech-swagger-best-practices
-description: OpenAPI 文档生成。触发：DTO 注解、@handle 模式、Schema 定义、多文档、安全配置、UI 定制。
+description: OpenAPI 文档生成。触发：DTO 注解、@handle 模式、Schema 定义、多文档、安全配置、UI 定制、升级/迁移 Spec 模式（OpenApi\Attributes）。
 ---
 
 # webman-tech/swagger 最佳实践
 
+> **当前版本使用 Spec 模式**（`OpenApi\Spec` + swagger-php 7.x）。若项目仍是旧的 `OpenApi\Attributes` / `modify` 配置，先按 [references/migrate-attribute-to-spec.md](references/migrate-attribute-to-spec.md) 升级；以下写法只适用于 Spec 模式。
+
 ## 核心原则
+
+使用 `OpenApi\Spec`，扩展通过 `builder_modify`；本版本直接迁移纯 Spec。属性约束放在 `OA\Property(schema: new OA\Schema(...))`，组件名称使用 `component:`。
 
 1. **DTO 即文档**：用 DTO 类定义请求/响应结构，swagger 自动从中提取类型和验证规则
 2. **`@handle` 一行搞定请求+响应**：用 `FormClass@handle` 同时声明请求 schema 和响应 schema
@@ -23,8 +27,9 @@ DTO 的写法详见 `webman-tech-dto-best-practices` skill。
 
 ```php
 // app/components/SwaggerRegister.php
-use OpenApi\Annotations as OAA;
-use OpenApi\Attributes as OA;
+use OpenApi\Spec as OA;
+use OpenApi\Builder;
+use OpenApi\Specification;
 use Symfony\Component\Finder\Finder;
 use WebmanTech\Swagger\Swagger;
 
@@ -46,29 +51,15 @@ final class SwaggerRegister
                         ->in(app_path('api/controller'))
                         ->exclude(['example']),  // 排除示例目录
                 ],
-                // 用 modify 动态设置 API 信息，比静态注解更灵活
-                'modify' => function (OAA\OpenApi $openapi) {
-                    $openapi->info->title = config('app.name') . ' API';
-                    $openapi->info->version = '1.0.0';
-                    $openapi->servers = [
-                        new OA\Server(
-                            url: route_url('/api'),
-                            description: request()->host(),
-                        ),
-                    ];
-                    // 配置认证方式
-                    if (!$openapi->components instanceof OAA\Components) {
-                        $openapi->components = new OAA\Components([]);
-                    }
-                    $openapi->components->securitySchemes = [
-                        new OA\SecurityScheme(
-                            securityScheme: 'api_key',
-                            type: 'apiKey',
-                            name: 'X-Api-Key',
-                            in: 'header',
-                        ),
-                    ];
-                    $openapi->security = [['api_key' => []]];
+                'builder_modify' => function (Builder $builder): void {
+                    $builder->withSpecification(function (Specification $spec): void {
+                        $spec->info = new OA\Info(title: config('app.name') . ' API', version: '1.0.0');
+                        $spec->add(new OA\Server(url: route_url('/api'), description: request()->host()));
+                        $spec->add(new OA\Security\Scheme(
+                            component: 'api_key', type: 'apiKey', name: 'X-Api-Key', in: 'header',
+                        ));
+                        $spec->openapi->security = [new OA\Security\Requirement(scheme: 'api_key')];
+                    });
                 },
                 'host_forbidden' => [
                     'ip_white_list_intranet' => true,
@@ -84,7 +75,7 @@ final class SwaggerRegister
 SwaggerRegister::register();
 ```
 
-`modify` 闭包在每次生成文档时执行，可以读取运行时配置（`config()`、`request()->host()` 等），比静态 `#[OA\Info]` 注解更灵活。
+使用 `builder_modify` 配置官方 Spec 扩展点：通过 `withSpecification` 读取运行时配置并贡献原生对象，批量调整 Schema 或 Operation 时通过 `withAugmenters` 注册 augmenter。
 
 ---
 
@@ -93,13 +84,13 @@ SwaggerRegister::register();
 ### 推荐：`@handle` 模式（一行同时声明请求和响应）
 
 ```php
-use OpenApi\Attributes as OA;
+use OpenApi\Spec as OA;
 use WebmanTech\Swagger\DTO\SchemaConstants;
 
 #[OA\Tag(name: 'users', description: '用户管理')]  // Tag 放类上，不放方法上
 final class UserController
 {
-    #[OA\Post(
+    #[OA\Operation\Post(
         path: '/users',
         summary: '创建用户',
         x: [SchemaConstants::X_SCHEMA_REQUEST => UserCreateForm::class . '@handle']
@@ -112,12 +103,12 @@ final class UserController
 }
 ```
 
-`@handle` 的工作原理：swagger 读取 `handle()` 方法的返回类型，自动设置为 `x-schema-response`，无需手动声明。
+`@handle` 的工作原理：swagger 读取 `handle()` 方法的返回类型，自动设置为 `x-schema-response`，无需手动声明。没有声明返回类型时只跳过响应推导（保留默认 200 响应），不会中断文档生成。
 
 ### DTO 类：让类型声明做文档
 
 ```php
-use OpenApi\Attributes as OA;
+use OpenApi\Spec as OA;
 use WebmanTech\DTO\BaseRequestDTO;
 use WebmanTech\DTO\BaseResponseDTO;
 use WebmanTech\DTO\BaseDTO;
@@ -214,7 +205,7 @@ public string $orderNo;
 当一个接口需要合并多个 schema 时：
 
 ```php
-#[OA\Post(
+#[OA\Operation\Post(
     path: '/orders',
     x: [
         SchemaConstants::X_SCHEMA_REQUEST => [
@@ -237,8 +228,10 @@ public string $orderNo;
 final class ApiResponse
 {
     /** @example 0 */
+    #[OA\Property]
     public int $code = 0;
     /** @example success */
+    #[OA\Property]
     public string $message = 'success';
     // data 字段由 response_layout_data_code 指定，自动填充
 }
@@ -255,7 +248,7 @@ final class ApiResponse
 单个接口可以用 `x-response-layout: null` 跳过包装：
 
 ```php
-#[OA\Get(
+#[OA\Operation\Get(
     path: '/health',
     x: [SchemaConstants::X_RESPONSE_LAYOUT => null]  // 不包装
 )]
@@ -313,7 +306,7 @@ enum StatusEnum: string
 开启 `register_route` 后，swagger 注解同时作为路由定义，无需在 route.php 中重复写：
 
 ```php
-#[OA\Post(
+#[OA\Operation\Post(
     path: '/users',
     summary: '创建用户',
     x: [
@@ -337,8 +330,8 @@ enum StatusEnum: string
 
 | 错误 | 原因 | 解决 |
 |------|------|------|
-| 文档为空 | 缺少 `#[OA\Info]` 或 `modify` 未设置 info | 用 `modify` 闭包设置 `$openapi->info->title` 和 `version` |
-| Schema 找不到 | DTO 类不在扫描路径内 | 检查 `scan_path` 配置 |
-| `@handle` 不自动推断响应 | `handle()` 没有返回类型声明 | 给 `handle()` 加返回类型 `UserCreateFormResult` |
+| 只有示例路径 | 未发现可加载的 Spec Operation | 检查类的自动加载与 `scan_path`，使用 `OA\Operation\Get/Post` |
+| Schema 找不到 | 类不能自动加载或普通类没有 Schema | 确保 PSR-4 可加载；DTO 自动发现，普通类加 Spec Schema/Property |
+| `@handle` 不推断响应 | `handle()` 没有返回类型声明（或返回交集类型），只保留默认 200 响应 | 想自动出响应结构就给 `handle()` 加返回类型 `UserCreateFormResult` |
 | 多实例文档互相覆盖 | 未指定不同 `cache_key` | 每个实例配置唯一的 `cache_key` |
 | 枚举描述不显示 | 方法名不匹配 | 配置 `schema_enum_description_method` |

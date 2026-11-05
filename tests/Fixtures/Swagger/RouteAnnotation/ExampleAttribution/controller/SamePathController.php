@@ -2,32 +2,32 @@
 
 namespace Tests\Fixtures\Swagger\RouteAnnotation\ExampleAttribution\controller;
 
-use OpenApi\Attributes as OA;
+use OpenApi\Spec as OA;
 
 class SamePathController
 {
-    #[OA\Get(
+    #[OA\Operation\Get(
         path: '/same-path',
     )]
     public function get()
     {
     }
 
-    #[OA\Post(
+    #[OA\Operation\Post(
         path: '/same-path',
     )]
     public function post()
     {
     }
 
-    #[OA\Put(
+    #[OA\Operation\Put(
         path: '/same-path',
     )]
     public function put()
     {
     }
 
-    #[OA\Delete(
+    #[OA\Operation\Delete(
         path: '/same-path',
     )]
     public function delete()

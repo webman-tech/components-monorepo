@@ -88,7 +88,7 @@ final class Swagger
         // 注册 api 接口路由
         if ($config->register_route) {
             $reader = new Reader();
-            foreach ($reader->getData($config->openapi_doc->getScanSources()) as $item) {
+            foreach ($reader->getData($config->openapi_doc) as $item) {
                 $routerRegister->addRoute(new Route\RouteObject(
                     $item->method,
                     $item->path,

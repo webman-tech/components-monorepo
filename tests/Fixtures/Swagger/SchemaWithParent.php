@@ -2,11 +2,11 @@
 
 namespace Tests\Fixtures\Swagger;
 
-use OpenApi\Attributes as OA;
+use OpenApi\Spec as OA;
 
 #[OA\Schema]
 class SchemaWithParent extends SchemaB
 {
-    #[OA\Property(type: 'string')]
+    #[OA\Property(schema: new OA\Schema(type: 'string'))]
     public string $childName;
 }

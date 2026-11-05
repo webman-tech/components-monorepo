@@ -3,12 +3,12 @@
 namespace Tests\Fixtures\Swagger;
 
 use DateTime;
-use OpenApi\Attributes as OA;
 use Webman\Http\UploadFile;
 use WebmanTech\DTO\Attributes\RequestPropertyInHeader;
 use WebmanTech\DTO\Attributes\ValidationRules;
 use WebmanTech\DTO\BaseDTO;
 use WebmanTech\DTO\BaseRequestDTO;
+use OpenApi\Spec as OA;
 
 #[OA\Schema]
 class SchemaDTO extends BaseRequestDTO

@@ -2,21 +2,21 @@
 
 namespace Tests\Fixtures\Swagger\RouteAnnotation\ExampleAttribution\controller;
 
-use OpenApi\Attributes as OA;
 use support\Request;
 use support\Response;
 use Tests\Fixtures\Swagger\RouteAnnotation\ExampleAttribution\middleware\SampleMiddleware;
 use Tests\Fixtures\Swagger\RouteAnnotation\ExampleAttribution\middleware\SampleMiddleware2;
 use WebmanTech\Swagger\DTO\SchemaConstants;
+use OpenApi\Spec as OA;
 
 #[OA\Tag(name: 'crud', description: 'crud 例子')]
 class ExampleSourceController
 {
-    #[OA\Get(
+    #[OA\Operation\Get(
         path: '/crud',
         summary: '列表',
         security: [
-            ['api_key' => []]
+            new OA\Security\Requirement(scheme: 'api_key')
         ],
         tags: ['crud'],
         parameters: [
@@ -29,12 +29,16 @@ class ExampleSourceController
             new OA\Response(response: 200, description: '列表数据'),
         ],
         x: [
-            // 指定中间件，支持各种方式
+            /*
+             * 指定中间件，支持各种方式
+             */
             SchemaConstants::X_MIDDLEWARE => [
                 SampleMiddleware::class,
                 [SampleMiddleware2::class, ['param' => 'use params array']],
             ],
-            // 指定路由别名
+            /*
+             * 指定路由别名
+             */
             SchemaConstants::X_NAME => 'crud.list',
         ],
     )]
@@ -47,21 +51,23 @@ class ExampleSourceController
         ]);
     }
 
-    #[OA\Get(
+    #[OA\Operation\Get(
         path: '/crud/{id}',
         summary: '详情',
         security: [
-            ['api_key' => []]
+            new OA\Security\Requirement(scheme: 'api_key')
         ],
         tags: ['crud'],
         parameters: [
-            new OA\PathParameter(name: 'id', description: 'ID', required: true, schema: new OA\Schema(type: 'integer')),
+            new OA\Parameter\Path(name: 'id', description: 'ID', required: true, schema: new OA\Schema(type: 'integer')),
         ],
         responses: [
             new OA\Response(response: 200, description: '明细'),
         ],
         x: [
-            // 特殊的路由路径
+            /*
+             * 特殊的路由路径
+             */
             SchemaConstants::X_PATH => '/crud/{id:\d+}',
         ]
     )]
@@ -73,21 +79,21 @@ class ExampleSourceController
         ]);
     }
 
-    #[OA\Post(
+    #[OA\Operation\Post(
         path: '/crud',
         summary: '新建',
         security: [
-            ['api_key' => []]
+            new OA\Security\Requirement(scheme: 'api_key')
         ],
         requestBody: new OA\RequestBody(
             required: true,
             content: [
-                new OA\JsonContent(
+                new OA\MediaType\Json(
                     required: ['username', 'password', 'name'],
                     properties: [
-                        new OA\Property(property: 'username', description: '用户名', type: 'string', maxLength: 64, example: 'admin'),
-                        new OA\Property(property: 'password', description: '密码', type: 'string', maxLength: 64, example: '123456'),
-                        new OA\Property(property: 'name', description: '名称', type: 'string', example: '测试用户'),
+                        new OA\Property(property: 'username', schema: new OA\Schema(description: '用户名', type: 'string', maxLength: 64, example: 'admin')),
+                        new OA\Property(property: 'password', schema: new OA\Schema(description: '密码', type: 'string', maxLength: 64, example: '123456')),
+                        new OA\Property(property: 'name', schema: new OA\Schema(description: '名称', type: 'string', example: '测试用户')),
                     ],
                     type: 'object'
                 )
@@ -105,11 +111,11 @@ class ExampleSourceController
         ]);
     }
 
-    #[OA\Put(
+    #[OA\Operation\Put(
         path: '/crud/{id}',
         summary: '更新',
         security: [
-            ['api_key' => []]
+            new OA\Security\Requirement(scheme: 'api_key')
         ],
         requestBody: new OA\RequestBody(
             required: true,
@@ -118,10 +124,10 @@ class ExampleSourceController
                     mediaType: 'application/json',
                     schema: new OA\Schema(
                         properties: [
-                            new OA\Property(property: 'username', description: '用户名', type: 'string', maxLength: 64, example: 'admin'),
-                            new OA\Property(property: 'password', description: '密码', type: 'string', maxLength: 64, example: '123456'),
-                            new OA\Property(property: 'name', description: '名称', type: 'string', example: '测试用户'),
-                            new OA\Property(property: 'status', description: '状态', type: 'integer', example: 0),
+                            new OA\Property(property: 'username', schema: new OA\Schema(description: '用户名', type: 'string', maxLength: 64, example: 'admin')),
+                            new OA\Property(property: 'password', schema: new OA\Schema(description: '密码', type: 'string', maxLength: 64, example: '123456')),
+                            new OA\Property(property: 'name', schema: new OA\Schema(description: '名称', type: 'string', example: '测试用户')),
+                            new OA\Property(property: 'status', schema: new OA\Schema(description: '状态', type: 'integer', example: 0)),
                         ],
                         type: 'object'
                     ),
@@ -140,15 +146,15 @@ class ExampleSourceController
         ]);
     }
 
-    #[OA\Delete(
+    #[OA\Operation\Delete(
         path: '/crud/{id}',
         summary: '删除',
         security: [
-            ['api_key' => []]
+            new OA\Security\Requirement(scheme: 'api_key')
         ],
         tags: ['crud'],
         parameters: [
-            new OA\PathParameter(name: 'id', description: 'ID', required: true, schema: new OA\Schema(type: 'integer')),
+            new OA\Parameter\Path(name: 'id', description: 'ID', required: true, schema: new OA\Schema(type: 'integer')),
         ],
         responses: [
             new OA\Response(response: 200, description: '无返回数据'),
@@ -161,15 +167,15 @@ class ExampleSourceController
         ]);
     }
 
-    #[OA\Put(
+    #[OA\Operation\Put(
         path: '/crud/{id}/recovery',
         summary: '恢复',
         security: [
-            ['api_key' => []]
+            new OA\Security\Requirement(scheme: 'api_key')
         ],
         tags: ['crud'],
         parameters: [
-            new OA\PathParameter(name: 'id', description: 'ID', required: true, schema: new OA\Schema(type: 'integer')),
+            new OA\Parameter\Path(name: 'id', description: 'ID', required: true, schema: new OA\Schema(type: 'integer')),
         ],
         responses: [
             new OA\Response(response: 200, description: '明细'),

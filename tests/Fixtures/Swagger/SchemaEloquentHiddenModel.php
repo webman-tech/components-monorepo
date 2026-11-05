@@ -3,7 +3,7 @@
 namespace Tests\Fixtures\Swagger;
 
 use Illuminate\Database\Eloquent\Model;
-use OpenApi\Attributes as OA;
+use OpenApi\Spec as OA;
 
 /**
  * 描述

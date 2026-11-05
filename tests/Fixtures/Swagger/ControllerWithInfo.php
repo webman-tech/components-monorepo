@@ -2,12 +2,12 @@
 
 namespace Tests\Fixtures\Swagger;
 
-use OpenApi\Attributes as OA;
+use OpenApi\Spec as OA;
 
 #[OA\Tag(name: 'controller')]
 class ControllerWithInfo
 {
-    #[OA\Get(
+    #[OA\Operation\Get(
         path: '/get'
     )]
     public function get()
@@ -15,7 +15,7 @@ class ControllerWithInfo
 
     }
 
-    #[OA\Post(
+    #[OA\Operation\Post(
         path: '/post'
     )]
     public function post()
@@ -23,7 +23,7 @@ class ControllerWithInfo
 
     }
 
-    #[OA\Get(
+    #[OA\Operation\Get(
         path: '/get-more-tag',
         tags: ['more-tag']
     )]
@@ -32,7 +32,7 @@ class ControllerWithInfo
 
     }
 
-    #[OA\Get(
+    #[OA\Operation\Get(
         path: '/get-skip-class',
         tags: [
             '--class-skip',

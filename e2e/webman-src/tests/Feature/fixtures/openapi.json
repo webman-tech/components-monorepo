@@ -108,60 +108,60 @@
     "components": {
         "schemas": {
             "AmisUser": {
+                "type": "object",
                 "properties": {
                     "id": {
-                        "description": "",
                         "type": "integer"
                     },
                     "username": {
-                        "description": "",
                         "type": "string"
                     },
                     "email": {
-                        "description": "",
                         "type": "string"
                     },
                     "created_at": {
-                        "description": "",
-                        "type": "string",
-                        "format": "date-time",
-                        "nullable": true
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
                     },
                     "updated_at": {
-                        "description": "",
-                        "type": "string",
-                        "format": "date-time",
-                        "nullable": true
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
                     }
                 }
             },
             "CreateUserDTO": {
-                "required": [
-                    "name",
-                    "age"
-                ],
+                "type": "object",
                 "properties": {
                     "name": {
-                        "description": "用户名",
                         "type": "string",
-                        "maxLength": 20,
-                        "minLength": 2
+                        "description": "用户名",
+                        "minLength": 2,
+                        "maxLength": 20
                     },
                     "age": {
-                        "description": "年龄",
                         "type": "integer",
-                        "maximum": 150,
-                        "minimum": 1
+                        "description": "年龄",
+                        "minimum": 1,
+                        "maximum": 150
                     },
                     "email": {
-                        "description": "邮箱（可选）",
                         "type": [
                             "string",
                             "null"
-                        ]
+                        ],
+                        "description": "邮箱（可选）"
                     }
                 },
-                "type": "object"
+                "required": [
+                    "name",
+                    "age"
+                ]
             },
             "CryptoRequestDTO": {
                 "description": "入参 secret 以密文传入\n\n#[DataDecrypt] 由默认处理器 DecryptFields 在清洗与验证之前执行，\n因此 email 规则校验的是解密后的明文（密文本身不是合法 email）",
@@ -201,13 +201,14 @@
                 "type": "object"
             },
             "Test": {
+                "type": "object",
                 "properties": {
                     "timestamps": {
+                        "type": "boolean",
                         "description": "Indicates if the model should be timestamped.",
-                        "type": "boolean"
+                        "default": false
                     }
-                },
-                "type": "object"
+                }
             }
         }
     }

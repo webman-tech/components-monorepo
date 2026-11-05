@@ -36,26 +36,26 @@
     "components": {
         "schemas": {
             "ValidationRulesRequestA": {
-                "required": [
-                    "name"
-                ],
+                "type": "object",
                 "properties": {
                     "name": {
                         "type": "string"
                     }
                 },
-                "type": "object"
+                "required": [
+                    "name"
+                ]
             },
             "ValidationRulesRequestB": {
-                "required": [
-                    "age"
-                ],
+                "type": "object",
                 "properties": {
                     "age": {
                         "type": "integer"
                     }
                 },
-                "type": "object"
+                "required": [
+                    "age"
+                ]
             }
         }
     }
