@@ -2,7 +2,6 @@
 
 namespace WebmanTech\Swagger\DTO;
 
-use WebmanTech\DTO\BaseConfigDTO;
 use WebmanTech\Swagger\Helper\ArrayHelper;
 use WebmanTech\Swagger\Helper\ConfigHelper;
 use WebmanTech\Swagger\Helper\JsExpression;

@@ -165,12 +165,6 @@ final class SpecHelper
         ));
     }
 
-    public static function isUploadedFile(string $type): bool
-    {
-        return is_a($type, \Webman\Http\UploadFile::class, true)
-            || is_a($type, \Symfony\Component\HttpFoundation\File\UploadedFile::class, true);
-    }
-
     /**
      * 复制属性为请求参数，避免参数转换影响原组件
      */

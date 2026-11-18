@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WebmanTech\Swagger\Spec;
+namespace WebmanTech\Swagger\Plugin\Dto\Augmenter;
 
 use OpenApi\Augmenter\Group;
 use OpenApi\Spec as OA;
@@ -12,13 +12,15 @@ use OpenApi\Specification\ComponentKey;
 use OpenApi\Utils\PipeInterface;
 use WebmanTech\DTO\Attributes\ValidationRulesDiscriminator;
 use WebmanTech\Swagger\DTO\SchemaConstants;
+use WebmanTech\Swagger\Plugin\Dto\Translator\SchemaTranslator;
+use WebmanTech\Swagger\Spec\SpecHelper;
 
 /**
  * 将 DTO 必填约束和 discriminator 变体补充到 Spec
  *
  * @implements PipeInterface<Specification>
  */
-final class DtoAugmenter implements PipeInterface
+final class SchemaAugmenter implements PipeInterface
 {
     public function group(): Group
     {

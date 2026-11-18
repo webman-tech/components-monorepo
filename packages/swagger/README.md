@@ -6,7 +6,7 @@
 
 [Swagger OpenAPI](https://swagger.io/) 在 webman 中的一键配置启用方案，基于 [zircote/swagger-php](https://github.com/zircote/swagger-php) 实现。
 
-该组件基于 swagger-php `^7.2` 的纯 Spec 模式，通过 `OpenApi\Spec` PHP Attributes 或程序化对象定义 API，生成 OpenAPI 文档和 Swagger UI。
+该组件基于 swagger-php `^7.3` 的纯 Spec 模式，通过 `OpenApi\Spec` PHP Attributes 或程序化对象定义 API，生成 OpenAPI 文档和 Swagger UI。
 
 ## 功能特性
 
@@ -23,6 +23,38 @@
 ```bash
 composer require webman-tech/swagger
 ```
+
+## 按依赖启用的插件
+
+文档生成通过 swagger-php 的 `PluginInterface` 组合以下插件。`DocumentBuilder` 检测依赖类是否可加载，自动启用对应集成；安装 Swagger 本身只需要 common-utils 和 swagger-php。
+
+| 插件 | 对应依赖 | 提供的功能 |
+|---|---|---|
+| `SpecCorePlugin` | 始终启用 | XSchema 请求/响应展开、依赖发现、标签、默认文档和清理排序 |
+| `NativeEnumPlugin` | PHP 原生 Enum，始终启用 | Enum Schema、类型和值描述 |
+| `DtoPlugin` | `webman-tech/dto` | DTO Schema、验证约束、请求字段位置、discriminator 和验证规则描述 |
+| `EloquentPlugin` | `illuminate/database` | 从 Model PHPDoc 提取字段，并遵守 hidden/visible 配置 |
+| `WebmanRoutePlugin` | `workerman/webman-framework` | 提取 Webman 路由名称、路径和中间件，供启动期注册使用 |
+| `WebmanHttpPlugin` | `workerman/webman-framework` | Webman 上传文件的 binary Schema 和 multipart 识别 |
+| `SymfonyHttpPlugin` | `symfony/http-foundation` | Symfony 上传文件的 binary Schema 和 multipart 识别 |
+
+这些生态依赖均为可选。`expand_eloquent_model_enable: false` 可关闭 Eloquent 插件；DTO 规则描述和 Enum 描述仍分别由原有配置开关控制。`auto_load_schema_classes` 用于补充其他需要自动生成 Schema 的基类，默认空数组；已安装 DTO/Eloquent 的自动识别由对应插件负责。
+
+插件配置生成流水线；生成文档时不会注册应用路由。API 路由仍在应用启动时由 `Swagger::registerRoute()` 的 `register_route` 配置启用。应用也可在 `builder_modify` 中调用官方 `withPlugins()` 注册自己的插件。
+
+各来源插件位于 `src/Plugin/<来源>/`，也可通过官方 Builder 独立注册，例如：
+
+```php
+use OpenApi\Builder;
+use OpenApi\Builder\Mode;
+use WebmanTech\Swagger\Plugin\Dto\DtoPlugin;
+
+$builder = (new Builder())->setMode(Mode::SPEC)->withPlugins([
+    DtoPlugin::class => ['appendValidationRules' => false],
+]);
+```
+
+插件配置使用各自的 Options 校验键名和类型。组件默认插件由 `DocumentBuilder` 统一配置，应用仍可通过已有配置项控制；自定义插件通过 `builder_modify` 添加。
 
 ## Spec 模式
 
@@ -85,6 +117,8 @@ use OpenApi\Specification;
 
 自定义 Processor 需改为操作 Specification 的 augmenter。生成新引用的 augmenter 放在 Resolve 组、Refs 之前。此版本移除 `modify` 配置，文档修改统一通过 `builder_modify` 配置官方扩展点。
 
+配置类使用组件内部的轻量配置基类，保留构造函数和 `fromConfig()` 入口，不再继承 `WebmanTech\DTO\BaseConfigDTO`。原来继承的 `fromData()`、`toArray()`、`validate()` 等 DTO 方法不再提供。
+
 完整的升级流程（官方 Rector set、手工补项、验收清单）见 `skills/webman-tech-swagger-best-practices/references/migrate-attribute-to-spec.md`。
 
 ## 核心组件
@@ -125,7 +159,19 @@ Swagger UI 配置，支持自定义视图（`view`）、视图路径（`view_pat
 
 ### SchemaConstants 常量定义
 
-[SchemaConstants](src/DTO/SchemaConstants.php) 定义了用于 Schema 的扩展常量，包括 `X_NAME`（命名路由）、`X_PATH`（路由路径）、`X_MIDDLEWARE`（路由中间件）、`X_SCHEMA_REQUEST`（请求 Schema）、`X_SCHEMA_RESPONSE`（响应 Schema）。
+[SchemaConstants](src/DTO/SchemaConstants.php) 定义了用于 Schema 的扩展常量，包括 `X_NAME`（命名路由）、`X_PATH`（路由路径）、`X_MIDDLEWARE`（路由中间件）、`X_SKIP_CLASS_TAG`（Operation 不继承类级 Tag）、`X_SCHEMA_REQUEST`（请求 Schema）、`X_SCHEMA_RESPONSE`（响应 Schema）。
+
+Operation 默认会继承类级 Tag；如果某个接口需要跳过类级 Tag，使用扩展配置：
+
+```php
+#[OA\Operation\Get(
+    path: '/health',
+    tags: ['health'],
+    x: [SchemaConstants::X_SKIP_CLASS_TAG => true],
+)]
+```
+
+`x` 中的配置只参与文档生成过程，编译后的 OpenAPI 文档不会保留该字段。
 
 ## 参考示例
 

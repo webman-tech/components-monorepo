@@ -2,8 +2,6 @@
 
 namespace WebmanTech\Swagger\DTO;
 
-use WebmanTech\DTO\BaseConfigDTO;
-
 final class ConfigBasicAuthDTO extends BaseConfigDTO
 {
     public function __construct(

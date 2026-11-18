@@ -2,14 +2,16 @@
 
 declare(strict_types=1);
 
-namespace WebmanTech\Swagger\Spec;
+namespace WebmanTech\Swagger\Plugin\Core\Augmenter;
 
 use OpenApi\Augmenter\Group;
 use OpenApi\Specification;
 use OpenApi\Utils\PipeInterface;
+use WebmanTech\Swagger\DTO\SchemaConstants;
+use WebmanTech\Swagger\Spec\SpecHelper;
 
 /**
- * 在官方分配标签后，应用类标签优先排序及 --class-skip 约定
+ * 在官方分配标签后应用类级别和方法级别 Tag，并处理显式的跳过配置
  *
  * @implements PipeInterface<Specification>
  */
@@ -39,12 +41,13 @@ final class OperationTags implements PipeInterface
         foreach ($payload->operations as $operation) {
             $tags = $operation->tags ?? [];
             $classTags = $byClass[$operation->getClassName() ?? ''] ?? [];
-            if (in_array('--class-skip', $tags, true)) {
+            $skipClassTags = (bool) SpecHelper::takeX($operation, SchemaConstants::X_SKIP_CLASS_TAG, false);
+            if ($skipClassTags) {
                 $method = $operation->getReflector();
                 $methodTags = $method instanceof \ReflectionMethod
                     ? $byMethod[$method->class . '::' . $method->getName()] ?? []
                     : [];
-                $tags = [...array_diff($tags, ['--class-skip', ...$classTags]), ...$methodTags];
+                $tags = [...array_diff($tags, $classTags), ...$methodTags];
             } else {
                 $tags = [...$classTags, ...$tags];
             }

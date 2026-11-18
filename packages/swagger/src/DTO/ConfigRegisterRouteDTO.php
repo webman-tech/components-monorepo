@@ -2,7 +2,6 @@
 
 namespace WebmanTech\Swagger\DTO;
 
-use WebmanTech\DTO\BaseConfigDTO;
 use WebmanTech\Swagger\Middleware\BasicAuthMiddleware;
 use WebmanTech\Swagger\Middleware\HostForbiddenMiddleware;
 

@@ -23,6 +23,11 @@ final class SchemaConstants
     public const X_MIDDLEWARE = 'route-middleware';
 
     /**
+     * Operation 是否跳过继承的 class 级 Tag
+     */
+    public const X_SKIP_CLASS_TAG = 'skip-class-tag';
+
+    /**
      * 将 schema 转到 request 上
      */
     public const X_SCHEMA_REQUEST = 'schema-request';

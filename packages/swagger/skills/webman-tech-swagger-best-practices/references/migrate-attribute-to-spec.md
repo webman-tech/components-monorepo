@@ -8,7 +8,7 @@
 
 ## 0. 升级前必做
 
-- 锁 `zircote/swagger-php: ^7.2`：官方迁移 set 跟随库版本、自身不承诺兼容，8.0 会随 classic 一起移除。
+- 锁 `zircote/swagger-php: ^7.3`：官方迁移 set 跟随库版本、自身不承诺兼容，8.0 会随 classic 一起移除。
 - 固定 OpenAPI 版本：classic 默认 3.0.0、spec 默认 3.1.0，两边都显式设 `openapi_version: '3.1.0'`（CLI 用 `--version`），否则对比结果没有意义。
 - 保存升级前的文档作基线：`/openapi.json?generate=1`。
 - 盘点：`git grep -l -F 'OpenApi\Attributes' -- '*.php'`。

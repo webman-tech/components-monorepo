@@ -4,15 +4,18 @@ declare(strict_types=1);
 
 namespace WebmanTech\Swagger\Spec;
 
-use OpenApi\Augmenter;
 use OpenApi\Builder;
 use OpenApi\Builder\Mode;
 use OpenApi\Builder\Result;
-use OpenApi\Spec as OA;
-use OpenApi\Specification;
-use OpenApi\Utils\Pipeline;
 use WebmanTech\Swagger\DTO\ConfigOpenapiDocDTO;
-use WebmanTech\Swagger\DTO\SchemaConstants;
+use WebmanTech\Swagger\Plugin\Core\SpecCorePlugin;
+use WebmanTech\Swagger\Plugin\Core\SpecificationContribution;
+use WebmanTech\Swagger\Plugin\Dto\DtoPlugin;
+use WebmanTech\Swagger\Plugin\Eloquent\EloquentPlugin;
+use WebmanTech\Swagger\Plugin\NativeEnum\NativeEnumPlugin;
+use WebmanTech\Swagger\Plugin\SymfonyHttp\SymfonyHttpPlugin;
+use WebmanTech\Swagger\Plugin\WebmanHttp\WebmanHttpPlugin;
+use WebmanTech\Swagger\Plugin\WebmanRoute\WebmanRoutePlugin;
 
 /**
  * 通过 swagger-php 的公开扩展点配置 Spec 文档生成链路
@@ -32,60 +35,56 @@ final readonly class DocumentBuilder
             ->setMode(Mode::SPEC)
             ->setVersion($this->config->openapi_version)
             ->addSource($this->config->getScanSources());
-        $builder->getAttributeFactory()->getTranslators()->add(new SchemaTranslator($this->config));
         if ($this->config->schema_name_format_use_classname !== null) {
             $builder->setComponentNamer(new ComponentNamer($this->config->schema_name_format_use_classname));
         }
 
-        $configureSpecification = function (Specification $spec) use ($documentDefaults): void {
-            /*
-             * 将 XSchema 类名表达为内部引用，由官方 Resolver 使用当前 Assembler 收集。
-             * 临时依赖在展开阶段移除，避免影响后续 Cleanup。
-             */
-            $spec->getWalker()->visit(OA\Operation::class, static function (OA\Operation $operation) use ($spec): void {
-                foreach ([
-                    SchemaConstants::X_SCHEMA_REQUEST,
-                    SchemaConstants::X_SCHEMA_RESPONSE,
-                    SchemaConstants::X_RESPONSE_LAYOUT,
-                ] as $key) {
-                    $spec->add(...SchemaDependency::from($operation->x[$key] ?? null));
-                }
-            });
-            $spec->add(...SchemaDependency::from($this->config->response_layout_class));
-            if ($documentDefaults) {
-                $spec->info ??= new OA\Info(title: 'App OpenAPI', version: '0.1');
-                if ($spec->operations === [] && $spec->pathItems === []) {
-                    $spec->add(new OA\Operation\Get(
-                        path: '/__example',
-                        description: 'Will be deleted automatically when adding a new api interface',
-                        summary: 'Zero configuration example',
-                        responses: [new OA\Response(response: 200, description: 'The data')],
-                    ));
-                }
-            }
-        };
-        $builder->withAugmenters(function (Pipeline $pipeline) use ($routeMetadata): void {
-            /*
-             * DTO 展开和 XSchema 转换会新增组件及引用，必须在 Refs 和 Cleanup 前执行。
-             */
-            $pipeline->insert(new DtoAugmenter(), Augmenter\Refs::class);
-            $pipeline->insert(new XSchemaAugmenter($this->config), Augmenter\Refs::class);
-            /*
-             * 官方已处理类、方法及 PathItem 标签，且标签声明尚未被 Merge 合并。
-             */
-            $pipeline->insert(new OperationTags(), Augmenter\Types::class);
-            $pipeline->get(Augmenter\Cleanup::class)?->setEnabled(
-                $this->config->clean_unused_components_enable && !$routeMetadata,
-            );
-            $pipeline->remove(Augmenter\EnumDescriptions::class);
-            $pipeline->insert(new FinalizeAugmenter($this->config, $routeMetadata), Augmenter\Tags::class);
-        });
+        /*
+         * 应用配置中的 null 表示沿用插件默认值；保留显式的 false、空字符串和空数组。
+         */
+        $plugins = [
+            SpecCorePlugin::class => array_filter([
+                'autoLoadSchemaClasses' => $this->config->auto_load_schema_classes,
+                'cleanUnusedComponents' => $this->config->clean_unused_components_enable,
+                'sortComponents' => $this->config->sort_components_enable,
+                'sortSchemas' => $this->config->sort_components_sort_schemas,
+                'sortPaths' => $this->config->sort_components_sort_paths,
+                'responseLayoutClass' => $this->config->response_layout_class,
+                'responseLayoutDataCode' => $this->config->response_layout_data_code,
+                'routeMetadata' => $routeMetadata,
+            ], static fn (mixed $value) => $value !== null),
+            NativeEnumPlugin::class => array_filter([
+                'descriptionEnabled' => $this->config->schema_enum_description_enable,
+                'descriptionMethod' => $this->config->schema_enum_description_method,
+            ], static fn (mixed $value) => $value !== null),
+        ];
+        if (class_exists(\Illuminate\Database\Eloquent\Model::class) && $this->config->expand_eloquent_model_enable) {
+            $plugins[] = EloquentPlugin::class;
+        }
+        if (class_exists(\WebmanTech\DTO\BaseDTO::class)) {
+            $plugins[DtoPlugin::class] = [
+                'appendValidationRules' => $this->config->append_dto_validation_rules_in_description,
+            ];
+        }
+        if (class_exists(\Webman\Route::class)) {
+            $plugins[WebmanRoutePlugin::class] = ['preserveMetadata' => $routeMetadata];
+        }
+        if (class_exists(\Webman\Http\UploadFile::class)) {
+            $plugins[] = WebmanHttpPlugin::class;
+        }
+        if (class_exists(\Symfony\Component\HttpFoundation\File\UploadedFile::class)) {
+            $plugins[] = SymfonyHttpPlugin::class;
+        }
+        $builder->withPlugins($plugins);
         $this->config->applyBuilder($builder);
 
         /*
-         * 用户的 withSpecification 回调先执行，依赖收集才能覆盖程序化贡献的接口。
+         * 应用可覆盖插件配置；依赖贡献最后注册，以覆盖程序化新增的接口。
          */
-        $builder->withSpecification($configureSpecification);
+        $builder->withSpecification(new SpecificationContribution(
+            $this->config->response_layout_class,
+            $documentDefaults,
+        ));
 
         return $builder;
     }

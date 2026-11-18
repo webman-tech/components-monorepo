@@ -2,33 +2,51 @@
 
 declare(strict_types=1);
 
-namespace WebmanTech\Swagger\Spec;
+namespace WebmanTech\Swagger\Plugin\Core\Augmenter;
 
 use OpenApi\Augmenter\Group;
+use OpenApi\Contracts\AttributeFactoryAwareInterface;
 use OpenApi\Spec as OA;
 use OpenApi\Specification;
 use OpenApi\Specification\ComponentIndex;
 use OpenApi\Specification\ComponentName;
+use OpenApi\Utils\AttributeFactory;
 use OpenApi\Utils\JsonPointer;
 use OpenApi\Utils\PipeInterface;
-use WebmanTech\DTO\BaseRequestDTO;
-use WebmanTech\Swagger\DTO\ConfigOpenapiDocDTO;
 use WebmanTech\Swagger\DTO\SchemaConstants as X;
+use WebmanTech\Swagger\Plugin\Core\SchemaDependency;
+use WebmanTech\Swagger\Spec\SpecHelper;
+use WebmanTech\Swagger\Spec\Translator\UploadSchemaTranslator;
 
 /**
  * 在引用解析和组件清理前，将 XSchema 扩展元数据展开为原生 Spec 对象
  *
  * @implements PipeInterface<Specification>
  */
-final readonly class XSchemaAugmenter implements PipeInterface
+final class XSchemaAugmenter implements PipeInterface, AttributeFactoryAwareInterface
 {
     /**
      * 保存从 Schema 移出的属性，供同一组件的各个请求和响应重复使用
      */
     private const MOVED = self::class . '.properties';
 
-    public function __construct(private ConfigOpenapiDocDTO $config)
+    private ?UploadSchemaTranslator $uploads = null;
+
+    public function __construct(
+        private readonly ?string $responseLayoutClass,
+        private readonly string $responseLayoutDataCode,
+    )
     {
+    }
+
+    /**
+     * 官方 Builder 在构建时注入最终的 AttributeFactory，包含所有已注册的 HTTP 插件类型
+     */
+    public function setAttributeFactory(AttributeFactory $attributeFactory): static
+    {
+        $this->uploads = $attributeFactory->getTranslators()->get(UploadSchemaTranslator::class);
+
+        return $this;
     }
 
     public function group(): Group
@@ -59,7 +77,6 @@ final readonly class XSchemaAugmenter implements PipeInterface
         }
         foreach ($payload->operations as $operation) {
             $requests = SpecHelper::takeX($operation, X::X_SCHEMA_REQUEST);
-            $rules = [];
             foreach ($this->list($requests) as $request) {
                 if (is_string($request) && str_contains($request, '@')) {
                     [$request, $method] = explode('@', $request, 2);
@@ -67,16 +84,6 @@ final readonly class XSchemaAugmenter implements PipeInterface
                 }
                 $schema = SpecHelper::schema($payload, $request, $index);
                 $this->request($payload, $operation, $schema, $index, $parameters);
-                $class = $schema->getClassName();
-                if ($class !== null && is_a($class, BaseRequestDTO::class, true)) {
-                    $rules = array_replace($rules, $class::getValidationRules());
-                }
-            }
-            if ($this->config->append_dto_validation_rules_in_description && $rules !== []) {
-                /*
-                 * 等后续 Docblocks 填充接口描述后，再追加验证规则，避免覆盖原始描述。
-                 */
-                $operation->setMeta(self::class . '.rules', $rules);
             }
             $responses = SpecHelper::takeX($operation, X::X_SCHEMA_RESPONSE);
             if ($responses !== null) {
@@ -263,7 +270,7 @@ final readonly class XSchemaAugmenter implements PipeInterface
              */
             foreach (SpecHelper::properties($spec, $schema, index: $index) as [$property]) {
                 $types = SpecHelper::propertyTypes($property);
-                $uploads = array_filter($types, SpecHelper::isUploadedFile(...));
+                $uploads = array_filter($types, fn (string $type) => $this->uploads?->supports($type) ?? false);
                 if ($uploads !== []) {
                     $form = true;
                     $mixed = $mixed || count($uploads) < count($types);
@@ -379,8 +386,8 @@ final readonly class XSchemaAugmenter implements PipeInterface
      */
     private function layout(Specification $spec, OA\Operation $operation, ComponentIndex $index): void
     {
-        $class = SpecHelper::takeX($operation, X::X_RESPONSE_LAYOUT, $this->config->response_layout_class);
-        $key = SpecHelper::takeX($operation, X::X_RESPONSE_LAYOUT_DATA_CODE, $this->config->response_layout_data_code ?? 'data');
+        $class = SpecHelper::takeX($operation, X::X_RESPONSE_LAYOUT, $this->responseLayoutClass);
+        $key = SpecHelper::takeX($operation, X::X_RESPONSE_LAYOUT_DATA_CODE, $this->responseLayoutDataCode);
         if ($class === null) {
             return;
         }

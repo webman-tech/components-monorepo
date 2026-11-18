@@ -3,6 +3,7 @@
 namespace Tests\Fixtures\Swagger;
 
 use OpenApi\Spec as OA;
+use WebmanTech\Swagger\DTO\SchemaConstants;
 
 #[OA\Tag(name: 'controller')]
 class ControllerWithInfo
@@ -34,10 +35,8 @@ class ControllerWithInfo
 
     #[OA\Operation\Get(
         path: '/get-skip-class',
-        tags: [
-            '--class-skip',
-            'only-tag',
-        ]
+        tags: ['only-tag'],
+        x: [SchemaConstants::X_SKIP_CLASS_TAG => true],
     )]
     public function getSkipClass()
     {

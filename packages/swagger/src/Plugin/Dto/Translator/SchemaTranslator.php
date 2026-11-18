@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WebmanTech\Swagger\Spec;
+namespace WebmanTech\Swagger\Plugin\Dto\Translator;
 
 use OpenApi\Assembler\AbstractAttributeTranslator;
 use OpenApi\Spec as OA;
@@ -14,18 +14,14 @@ use ReflectionProperty;
 use WebmanTech\DTO\Attributes\ValidationRules;
 use WebmanTech\DTO\BaseDTO;
 use WebmanTech\DTO\Reflection\ReflectionReaderFactory;
-use WebmanTech\Swagger\DTO\ConfigOpenapiDocDTO;
 use WebmanTech\Swagger\DTO\SchemaConstants;
+use WebmanTech\Swagger\Spec\SpecHelper;
 
 /**
  * 在组装和引用解析前，将 DTO 元数据转换为原生 Spec 属性
  */
 final class SchemaTranslator extends AbstractAttributeTranslator
 {
-    public function __construct(private readonly ConfigOpenapiDocDTO $config)
-    {
-    }
-
     public function translate(
         array $attributes,
         array $created,
@@ -35,21 +31,7 @@ final class SchemaTranslator extends AbstractAttributeTranslator
         if ($reflector instanceof ReflectionClass) {
             $schema = SpecHelper::first($attributes, static fn (object $item) => $item instanceof OA\Schema);
             if ($schema === null && $this->supports($reflector)) {
-                $attributes[] = $schema = new OA\Schema();
-            }
-            if ($schema instanceof OA\Schema) {
-                if ($this->config->expand_eloquent_model_enable) {
-                    $existing = array_map(static fn (OA\Property $property) => $property->property, $schema->properties ?? []);
-                    foreach (ModelSchema::properties($reflector) as $property) {
-                        if (!in_array($property->property, $existing, true)) {
-                            $schema->properties[] = $property;
-                        }
-                    }
-                }
-                if (is_a($reflector->getName(), \UnitEnum::class, true) && $schema->type === null) {
-                    $backingType = (new \ReflectionEnum($reflector->getName()))->getBackingType()?->getName();
-                    $schema->type = $backingType === 'int' ? 'integer' : 'string';
-                }
+                $attributes[] = new OA\Schema();
             }
 
             return $attributes;
@@ -71,14 +53,7 @@ final class SchemaTranslator extends AbstractAttributeTranslator
             return $attributes;
         }
         $property = SpecHelper::first($attributes, static fn (object $item) => $item instanceof OA\Property);
-        /*
-         * Eloquent 字段由 ModelSchema 从 PHPDoc 提取；公开的运行时配置属性仅在显式标注时导出。
-         */
-        if ($property === null
-            && $this->supports($class)
-            && !is_a($class->getName(), \Illuminate\Database\Eloquent\Model::class, true)
-            && !str_starts_with($class->getName(), 'Illuminate\\Database\\Eloquent\\')
-        ) {
+        if ($property === null && $this->supports($class)) {
             $attributes[] = $property = new OA\Property();
         }
         if (!$property instanceof OA\Property || !is_a($class->getName(), BaseDTO::class, true)) {
@@ -106,32 +81,13 @@ final class SchemaTranslator extends AbstractAttributeTranslator
             $property->property = $in->name ?: $property->property;
             $property->x[SchemaConstants::X_PROPERTY_IN] = $in->getInEnum()->value;
         }
-        /*
-         * 上传文件应表示为二进制字符串，避免将传输对象展开成可复用组件。
-         */
-        foreach (SpecHelper::propertyTypes($property, $reflector) as $type) {
-            if (SpecHelper::isUploadedFile($type)) {
-                $schema->ref = null;
-                $schema->type = 'string';
-                $schema->format = 'binary';
-            }
-        }
 
         return $attributes;
     }
 
     private function supports(ReflectionClass $class): bool
     {
-        if ($class->isEnum() || $class->isTrait()) {
-            return true;
-        }
-        foreach ($this->config->auto_load_schema_classes as $supported) {
-            if (is_a($class->getName(), $supported, true)) {
-                return true;
-            }
-        }
-
-        return false;
+        return is_a($class->getName(), BaseDTO::class, true);
     }
 
     /**

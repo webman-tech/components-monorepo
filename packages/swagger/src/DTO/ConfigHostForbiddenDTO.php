@@ -2,7 +2,6 @@
 
 namespace WebmanTech\Swagger\DTO;
 
-use WebmanTech\DTO\BaseConfigDTO;
 use WebmanTech\Swagger\Helper\ConfigHelper;
 
 final class ConfigHostForbiddenDTO extends BaseConfigDTO

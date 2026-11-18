@@ -13,8 +13,13 @@
   },
   "require": {
     "php": "^8.2",
-    "webman-tech/dto": "^5.0 || dev-main",
     "webman-tech/common-utils": "^5.0 || dev-main",
-    "zircote/swagger-php": "^7.2"
+    "zircote/swagger-php": "^7.3"
+  },
+  "suggest": {
+    "webman-tech/dto": "启用 DTO 类型、验证规则和 discriminator 扩展",
+    "illuminate/database": "启用 Eloquent Model Schema 扩展",
+    "workerman/webman-framework": "启用 Webman 路由和上传文件适配",
+    "symfony/http-foundation": "启用 Symfony 上传文件适配"
   }
 }

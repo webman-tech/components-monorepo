@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WebmanTech\Swagger\Spec;
+namespace WebmanTech\Swagger\Plugin\Core;
 
 use OpenApi\Contracts\RefInterface;
 use OpenApi\Spec as OA;

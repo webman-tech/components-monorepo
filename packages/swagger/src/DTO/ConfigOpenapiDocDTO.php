@@ -5,15 +5,12 @@ declare(strict_types=1);
 namespace WebmanTech\Swagger\DTO;
 
 use Closure;
-use Illuminate\Database\Eloquent\Model;
 use OpenApi\Builder;
 use Psr\SimpleCache\CacheInterface;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
 use WebmanTech\CommonUtils\Cache\ArrayCache;
 use WebmanTech\CommonUtils\Cache\NullCache;
-use WebmanTech\DTO\BaseConfigDTO;
-use WebmanTech\DTO\BaseDTO;
 use WebmanTech\Swagger\Helper\ConfigHelper;
 
 final class ConfigOpenapiDocDTO extends BaseConfigDTO
@@ -50,10 +47,7 @@ final class ConfigOpenapiDocDTO extends BaseConfigDTO
         public string              $openapi_version = '3.1.0', // OpenAPI 版本号，支持 3.0.0 / 3.1.0 等
     )
     {
-        $this->auto_load_schema_classes = $auto_load_schema_classes ?? array_filter([
-            BaseDTO::class,
-            $this->expand_eloquent_model_enable ? Model::class : null,
-        ]);
+        $this->auto_load_schema_classes = $auto_load_schema_classes ?? [];
 
         $this->openapi_validate = $openapi_validate ?? false;
 

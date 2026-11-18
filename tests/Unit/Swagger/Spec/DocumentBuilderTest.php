@@ -177,6 +177,8 @@ test('generates unit enum names', function () {
 });
 
 test('uses configurable enum descriptions', function () {
+    $default = TestFactory::build(['EnumColor.php'])->toArray();
+    expect($default['components']['schemas']['EnumColor']['description'])->toContain('red: 红色');
     $doc = TestFactory::build(['EnumColor.php'], ['schema_enum_description_method' => 'getDescription'])->toArray();
     expect($doc['components']['schemas']['EnumColor']['description'])->toContain('red: 红色1');
     $disabled = TestFactory::build(['EnumColor.php'], ['schema_enum_description_enable' => false])->toArray();
@@ -306,11 +308,12 @@ test('moves renamed required properties into reusable parameters before cleanup'
         ->and($doc['paths']['/post/schema-body-property']['post']['requestBody']['content']['application/octet-stream']['schema']['format'])->toBe('binary');
 });
 
-test('preserves class tags and skip marker behavior', function () {
+test('preserves class tags and skip configuration behavior', function () {
     $paths = TestFactory::build(['ControllerWithInfo.php'])->toArray()['paths'];
     expect($paths['/get']['get']['tags'])->toBe(['controller'])
         ->and($paths['/get-more-tag']['get']['tags'])->toBe(['controller', 'more-tag'])
-        ->and($paths['/get-skip-class']['get']['tags'])->toBe(['only-tag']);
+        ->and($paths['/get-skip-class']['get']['tags'])->toBe(['only-tag'])
+        ->and($paths['/get-skip-class']['get'])->not->toHaveKey('x');
 });
 
 test('builds discriminator variants for request and response', function () {
@@ -372,13 +375,19 @@ test('enriches converted properties through the configured docblocks pass after 
         ->and($response)->toMatchArray(['type' => 'string', 'format' => 'binary', 'description' => 'Parsed: Response content', 'deprecated' => true, 'example' => 'response bytes']);
 });
 
-test('wraps responses with a configured layout and allows per operation opt out', function () {
-    $doc = TestFactory::build(['Spec/Integration.php'], ['response_layout_class' => Envelope::class])->toArray();
+test('wraps responses with a configured layout and allows per operation opt out', function (?string $dataCode, string $expectedKey) {
+    $doc = TestFactory::build(['Spec/Integration.php'], [
+        'response_layout_class' => Envelope::class,
+        'response_layout_data_code' => $dataCode,
+    ])->toArray();
     $wrapped = $doc['paths']['/spec/request']['post']['responses'][200]['content']['application/json']['schema'];
     expect($wrapped['allOf'][0]['$ref'])->toBe('#/components/schemas/ResponseEnvelope')
-        ->and($wrapped['allOf'][1]['properties']['data']['$ref'])->toBe('#/components/schemas/ZeroAndDefaultResponse')
+        ->and($wrapped['allOf'][1]['properties'][$expectedKey]['$ref'])->toBe('#/components/schemas/ZeroAndDefaultResponse')
         ->and($doc['paths']['/spec/unwrapped']['get']['responses'][200]['content']['application/json']['schema']['$ref'])->toBe('#/components/schemas/ZeroAndDefaultResponse');
-});
+})->with([
+    'default data field' => [null, 'data'],
+    'custom data field' => ['result', 'result'],
+]);
 
 test('inherits parent members without separately collecting its component', function () {
     $doc = TestFactory::build(['SchemaWithParent.php'])->toArray();

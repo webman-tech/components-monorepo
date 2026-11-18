@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WebmanTech\Swagger\Spec;
+namespace WebmanTech\Swagger\Plugin\Eloquent;
 
 use Illuminate\Database\Eloquent\Model;
 use OpenApi\Spec as OA;

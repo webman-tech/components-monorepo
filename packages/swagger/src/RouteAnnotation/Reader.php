@@ -5,10 +5,8 @@ declare(strict_types=1);
 namespace WebmanTech\Swagger\RouteAnnotation;
 
 use WebmanTech\Swagger\DTO\ConfigOpenapiDocDTO;
-use WebmanTech\Swagger\DTO\SchemaConstants;
 use WebmanTech\Swagger\RouteAnnotation\DTO\RouteConfigDTO;
 use WebmanTech\Swagger\Spec\DocumentBuilder;
-use WebmanTech\Swagger\Spec\SpecHelper;
 
 /**
  * 从保留反射信息的 Spec 中读取控制器和路由元数据
@@ -36,25 +34,13 @@ final class Reader
         $result = (new DocumentBuilder($config))->create(documentDefaults: false, routeMetadata: true)->build();
         $data = [];
         foreach ($result->specification()->operations ?? [] as $operation) {
-            $reflector = $operation->getReflector();
-            if (!$reflector instanceof \ReflectionMethod) {
+            $route = $operation->getMeta(RouteConfigDTO::class);
+            if (!$route instanceof RouteConfigDTO) {
+                $route = RouteConfigDTO::fromOperation($operation);
+            }
+            if ($route === null) {
                 continue;
             }
-            $method = $operation->method;
-            if ($method === null || $method === 'trace' || $operation->path === null) {
-                continue;
-            }
-            $summary = SpecHelper::value($operation->summary, '');
-            $description = SpecHelper::value($operation->description, '');
-            $route = new RouteConfigDTO(
-                desc: $summary && $description ? "{$summary}({$description})" : $summary . $description,
-                method: strtoupper($method),
-                path: $operation->x[SchemaConstants::X_PATH] ?? $operation->path,
-                controller: $operation->getClassName() ?? '',
-                action: $reflector->getName(),
-                name: $operation->x[SchemaConstants::X_NAME] ?? null,
-                middlewares: $operation->x[SchemaConstants::X_MIDDLEWARE] ?? null,
-            );
             $data[$route->method . ':' . $route->path] = $route;
         }
 
