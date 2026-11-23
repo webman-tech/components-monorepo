@@ -147,7 +147,7 @@ final class Local
                 return $matches[0][0];
             }
             if ($os === 'linux') {
-                $process = Process::fromShellCommandline("ip -4 -o addr show dev eth0 | awk '{print \$4}' | cut -d/ -f1 | head -n1");
+                $process = Process::fromShellCommandline("ip -4 -o addr show scope global | awk '{print \$4}' | cut -d/ -f1 | head -n1");
                 $process->run();
                 $ip = trim($process->getOutput());
                 if (!$process->isSuccessful() || $ip === '') {
