@@ -147,13 +147,14 @@ final class Local
                 return $matches[0][0];
             }
             if ($os === 'linux') {
-                $process = Process::fromShellCommandline("ip address show eth0 | head -n4 | grep inet | awk '{print$2}' | awk -F '/' '{print $1}'");
+                $process = Process::fromShellCommandline("ip -4 -o addr show dev eth0 | awk '{print \$4}' | cut -d/ -f1 | head -n1");
                 $process->run();
-                if (!$process->isSuccessful()) {
+                $ip = trim($process->getOutput());
+                if (!$process->isSuccessful() || $ip === '') {
                     throw new \RuntimeException('获取本机IP失败，请手动指定');
                 }
 
-                return trim($process->getOutput());
+                return $ip;
             }
             if ($os === 'osx') {
                 $process = Process::fromShellCommandline("ifconfig | grep 'inet ' | grep -v 127.0.0.1 | awk '{print $2}' | head -n 1");
